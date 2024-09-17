@@ -1,5 +1,7 @@
 from fastapi import APIRouter,HTTPException
-from schemas import game_schema,user_schema
+from schemas.game_schema import Game
+from schemas.user_schema import User
+from typing import Dict
 
 pre_game = APIRouter()
 
@@ -13,8 +15,7 @@ def user_data(id_user: int) :
 
     # Implementacion ->
 
-    return {"user": user_schema.User} #Previsorio
-     
+    return {"user": User} #Previsorio
 
 @pre_game.post("/create_game")
 def create() -> dict[int, int] :
@@ -38,14 +39,16 @@ def join(id_game: int) :
     return  {"Connection Successful."}
 
 @pre_game.get("/list_game")
-def list() -> dict[game_schema.Game] :
+def list_game() :
     """Listar los juegos creados."""
 
     #En caso de exito debe retornar un json con todos los juegos disponibles.
-    
+    example1 = Game(id=1,name="LaPartida1")
+    example2 = Game(id=2,name="LaPartida2")
     # Implementacion ->
-
-    return {"id": game_schema.Game.id, "name": game_schema.Game.name} #Completar luegon de la implementacion definitiva
+    dict_game: Dict[Game] = {1: example1, 2: example2,}
+    return dict_game
+    #Completar luegon de la implementacion definitiva
 
 @pre_game.get("/list_game/{id_game}")
 def game_data(id_game: int) :
@@ -55,11 +58,11 @@ def game_data(id_game: int) :
 
     # Implementacion ->
 
-    return {"game": game_schema.Game} #Previsorio
+    return {"game": Game} #Previsorio
 
 
-@pre_game.post("/start_game")
-def start() :
+@pre_game.post("/start_game/{id_game}")
+def start(id_game: int) :
     """Empezar un juego."""
 
     #En caso de exito debe iniciar la partida posteriormente sera implementado.

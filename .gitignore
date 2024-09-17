@@ -1,2 +1,4 @@
-_pycache_/
 *.txt
+__pycache__/
+router/__pycache__/
+schemas/__pycache__/
