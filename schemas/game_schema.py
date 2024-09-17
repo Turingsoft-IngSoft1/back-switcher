@@ -6,3 +6,4 @@ class Game(BaseModel):
 
     id: int = Field(description="Unique integer that specifies this game.")
     name: str = Field(min_length=1,max_length=100,description="Name of the game.")
+    isFull: bool

@@ -1,7 +1,7 @@
-from typing import Dict
 from fastapi import APIRouter,HTTPException
 from schemas.game_schema import Game
 from schemas.user_schema import User
+from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList
 pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
@@ -16,18 +16,19 @@ def user_data(id_user: int) :
     usuario = User(id=2,name="Pepito")
     return usuario #Previsorio
 
-@pre_game.post("/create_game")
-def create(name: str, owner_name: str) :
+@pre_game.post("/create_game",response_model=ResponseCreate)
+def create(game_name: str, owner_name: str) :
     """Crear el juego."""
     #En caso de exito se debe retornar {id_player,id_game}.
     #Se debe crear un game_schema.Game.
 
     # TODO Implementacion ->
-    
-    return {"id_player": int,"id_game": int}
+    id_player = 150
+    id_game = 33
+    return ResponseCreate(id_game=id_game,id_player=id_player)
 
-@pre_game.post("/join_game/{id_game}")
-def join(id_game: int) -> int :
+@pre_game.post("/join_game",response_model=ResponseJoin)
+def join(id_game: int) :
     """Unirse al juego."""
 
     #En caso de exito debe conectar al jugador con el servidor por WebSocket?.
@@ -35,19 +36,18 @@ def join(id_game: int) -> int :
 
     # TODO Implementacion ->
 
-    return  {"new_id": int}
+    return ResponseJoin(new_id_player=1)
 
-@pre_game.get("/list_games")
+@pre_game.get("/list_games",response_model=ResponseList)
 def list_games() :
     """Listar los juegos creados."""
 
     #En caso de exito debe retornar un json con todos los juegos disponibles.
-    example1 = Game(id=1,name="LaPartida1")
-    example2 = Game(id=2,name="LaPartida2")
-    dict_game: Dict[Game] = {1: example1, 2: example2,}
+    example1 = Game(id=1,name="LaPartida1",isFull=False)
+    example2 = Game(id=2,name="LaPartida2",isFull=True)
 
     # TODO Implementacion ->
-    return dict_game
+    return ResponseList(games_list=[example1,example2])
 
 @pre_game.post("/start_game")
 def start(id_game: int) :
