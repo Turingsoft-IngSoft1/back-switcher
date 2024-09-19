@@ -1,7 +1,11 @@
-from fastapi import FastAPI,APIRouter
+from fastapi import FastAPI
 from router.pre_game import pre_game
 from router.game import game
 from router.cards import cards
+from models.base import Base, engine
+
+# TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
+from models import user
 
 app = FastAPI(
     title="Switcher - TuringSoft™",
@@ -12,3 +16,7 @@ app = FastAPI(
 app.include_router(pre_game)
 app.include_router(game)
 app.include_router(cards)
+
+# Crea las tablas en base a los models importados.
+Base.metadata.create_all(bind=engine)
+
