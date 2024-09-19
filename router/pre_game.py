@@ -6,7 +6,7 @@ pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
-@pre_game.get("/")
+@pre_game.get("/{id_user}")
 def user_data(id_user: int) :
     """Devolver data del usuario."""
     #Debe de alguna forma devolver los datos del usuario.
@@ -17,7 +17,7 @@ def user_data(id_user: int) :
     return usuario #Previsorio
 
 @pre_game.post("/create_game",response_model=ResponseCreate)
-def create(game_name: str, owner_name: str) :
+def create(game_name: str, owner_name: str, min_player: int, max_player: int) :
     """Crear el juego."""
     #En caso de exito se debe retornar {id_player,id_game}.
     #Se debe crear un game_schema.Game.
