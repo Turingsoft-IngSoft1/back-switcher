@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Crear el motor de la base de datos
-engine = create_engine("sqlite:///./models/.database.db")
+engine = create_engine("sqlite:///./data/database.db")
 
 # Crear la base declarativa
 Base = declarative_base()
