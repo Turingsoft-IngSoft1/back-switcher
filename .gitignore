@@ -1,0 +1,5 @@
+*.txt
+__pycache__/
+router/__pycache__/
+schemas/__pycache__/
+.venv/
