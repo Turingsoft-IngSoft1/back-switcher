@@ -2,20 +2,14 @@ from models import base
 from models.game import GameTable
 from schemas import game_schema
 
-def create_game(
-                name: str, 
-                host: str,
-                max_players: int, 
-                min_players: int):
-    
+def create_game(name: str, host: str, max_players: int, min_players: int):
+    """Crea una partida y la inserta en la base de datos."""
     db = base.SessionLocal()
-    
     try:
-        new_game = GameTable(
-                        name=name, 
-                        host=host, 
-                        max_players=max_players, 
-                        min_players=min_players)
+        new_game = GameTable(name=name, 
+                             host=host, 
+                             max_players=max_players, 
+                             min_players=min_players)
         db.add(new_game)
         db.commit()
         db.refresh(new_game)
@@ -28,35 +22,36 @@ def create_game(
         return new_game.id
 
 def get_game(id_game: int) -> game_schema.Game:
+    """Encuentra y muestra el juego que esta almacenado
+    en la base de datos con el respectivo id."""
     db = base.SessionLocal()
     gameRet = db.query(GameTable).filter(GameTable.id == id_game).first()
-    return game_schema.Game(
-                                id=gameRet.id,
-                                name=gameRet.name,
-                                state=gameRet.state,
-                                turn=gameRet.turn,
-                                host=gameRet.host,
-                                players=gameRet.players,
-                                max_players=gameRet.max_players,
-                                min_players=gameRet.min_players,
-                                password=gameRet.password)
-    
+    return game_schema.Game(id=gameRet.id,
+                            name=gameRet.name,
+                            state=gameRet.state,
+                            turn=gameRet.turn,
+                            host=gameRet.host,
+                            players=gameRet.players,
+                            max_players=gameRet.max_players,
+                            min_players=gameRet.min_players,
+                            password=gameRet.password)
+
 def list_games() -> list[game_schema.Game]:
+    """Devuelve la lista de las partidas en la base de datos
+    con el estado Waiting."""
     db = base.SessionLocal()
     games = db.query(GameTable).filter(GameTable.state == "Waiting").all()
     game_list = []
     for game in games:
-        game_list.append(game_schema.Game(
-                                            id=game.id,
-                                            name=game.name,
-                                            state=game.state,
-                                            turn=game.turn,
-                                            host=game.host,
-                                            players=game.players,
-                                            max_players=game.max_players,
-                                            min_players=game.min_players,
-                                            password=game.password))
-        
+        game_list.append(game_schema.Game(id=game.id,
+                                          name=game.name,
+                                          state=game.state,
+                                          turn=game.turn,
+                                          host=game.host,
+                                          players=game.players,
+                                          max_players=game.max_players,
+                                          min_players=game.min_players,
+                                          password=game.password))
     return game_list
 
 def set_game_state(id_game: int, state: str):

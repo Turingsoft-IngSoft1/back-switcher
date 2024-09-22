@@ -3,6 +3,7 @@ from schemas.game_schema import Game
 from schemas.user_schema import User
 from querys import game_queries
 from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList
+
 pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
@@ -20,8 +21,6 @@ def user_data(id_user: int) :
 @pre_game.post("/create_game",response_model=ResponseCreate)
 def create(game_name: str, owner_name: str, min_player: int, max_player: int) :
     """Crear el juego."""
-    #En caso de exito se debe retornar {id_player,id_game}.
-    #Se debe crear un game_schema.Game.
     new_game_id = game_queries.create_game(game_name,owner_name,min_player,max_player)
     return ResponseCreate(id_game=new_game_id,id_player=13)
 
