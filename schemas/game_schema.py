@@ -11,6 +11,6 @@ class Game(BaseModel):
     max_players: int = Field(description="Maximum number of players that can join the game.")
     min_players: int = Field(description="Minimum number of players that can join the game.")
     password: str | None = Field(min_length=1,max_length=100,description="Password of the game.")
-    timer: int | None = Field(description="Time in seconds since the beginning of the match.")
+    #timer: int | None = Field(description="Time in seconds since the beginning of the match.")
 
 

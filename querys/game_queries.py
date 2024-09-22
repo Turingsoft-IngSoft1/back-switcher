@@ -25,6 +25,7 @@ def create_game(
         print(f"Error creating game: {e}")
     finally:
         db.close()
+        return new_game.id
 
 def get_game(id_game: int) -> game_schema.Game:
     db = base.SessionLocal()
@@ -38,8 +39,7 @@ def get_game(id_game: int) -> game_schema.Game:
                                 players=gameRet.players,
                                 max_players=gameRet.max_players,
                                 min_players=gameRet.min_players,
-                                password=gameRet.password,
-                                timer=gameRet.timer)
+                                password=gameRet.password)
     
 def list_games() -> list[game_schema.Game]:
     db = base.SessionLocal()
@@ -55,19 +55,18 @@ def list_games() -> list[game_schema.Game]:
                                             players=game.players,
                                             max_players=game.max_players,
                                             min_players=game.min_players,
-                                            password=game.password,
-                                            timer=game.timer))
+                                            password=game.password))
         
     return game_list
 
-#def set_game_state(id_game: int, state: str):
-#    db = base.SessionLocal()
-#    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.state: state})
-#    db.commit()
+def set_game_state(id_game: int, state: str):
+    db = base.SessionLocal()
+    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.state: state})
+    db.commit()
 
-#def set_game_turn(id_game: int, turn: int):
-#    db = base.SessionLocal()
-#    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.turn: turn})
-#    db.commit()
+def set_game_turn(id_game: int, turn: int):
+    db = base.SessionLocal()
+    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.turn: turn})
+    db.commit()
 
 #Alguna para el timer?
