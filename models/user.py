@@ -1,26 +1,13 @@
 from sqlalchemy import Column, Integer, String
-from models.base import Base,SessionLocal
+from models.base import Base
 
 # TODO -> Arreglar seguir ejemplo 
 
-class User(Base):
+class UserTable(Base):
     """Implementacion de la tabla user en la base de datos."""
-    __tablename__ = 'users'
+    __tablename__ = 'Users'
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+    game = Column(Integer, index=True, nullable=False)
 
-def create_user(name: str):
-    """Crear un usuario y agregarlo."""
-    db = SessionLocal()
-    try:
-        new_user = User(name=name)
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        print(f"User {new_user.name} created")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()

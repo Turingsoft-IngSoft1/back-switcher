@@ -4,6 +4,8 @@ from router.game import game
 from router.cards import cards
 from models.base import Base, engine
 from models.game import GameTable
+from models.user import UserTable
+
 
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 
