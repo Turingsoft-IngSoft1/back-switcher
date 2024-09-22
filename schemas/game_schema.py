@@ -1,15 +1,4 @@
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
-from game_queries import *
-from database import SessionLocal, engine  # Assuming you have a database.py for session and engine setup
-from models import Base
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class Game(BaseModel):
     
@@ -18,6 +7,7 @@ class Game(BaseModel):
     state: str = Field(min_length=1,max_length=100,description="State of the game. (Waiting, Playing, or Finished)")
     turn: int = Field(description="Integer that specifies the actual turn of the game.")
     host: str = Field(min_length=1,max_length=100,description="Name of the host of the game.")
+    players: int = Field(description="Number of players that have joined the game)")
     max_players: int = Field(description="Maximum number of players that can join the game.")
     min_players: int = Field(description="Minimum number of players that can join the game.")
     password: str | None = Field(min_length=1,max_length=100,description="Password of the game.")

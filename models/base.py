@@ -9,4 +9,4 @@ engine = create_engine('sqlite:///./database.db')
 Base = declarative_base()
 
 # Crear la fábrica de sesiones
-SessionLocal = sessionmaker(autocmmit=false, autoflush=True, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
