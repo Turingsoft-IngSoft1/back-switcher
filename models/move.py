@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from models.base import Base
 
-class MovesTable(Base):
+class MoveTable(Base):
     """Implementacion de la tabla moves en la base de datos."""
     __tablename__ = "Moves"
     

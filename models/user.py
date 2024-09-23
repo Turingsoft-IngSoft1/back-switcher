@@ -1,9 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from models.base import Base
 from sqlalchemy.orm import relationship
-
-# TODO -> Arreglar seguir ejemplo 
-
 class UserTable(Base):
     """Implementacion de la tabla user en la base de datos."""
     __tablename__ = 'Users'
@@ -13,5 +10,6 @@ class UserTable(Base):
     game_id = Column(Integer, ForeignKey('Games.id'), index=True)
     figures_deck = Column(Integer, default=13)
 
-    Moves = relationship("FiguresTable",backref="Users")
-    Figures = relationship("MovesTable",backref="Users")
+    Moves = relationship("FigureTable",backref="Users")
+    Figures = relationship("MoveTable",backref="Users")
+    
