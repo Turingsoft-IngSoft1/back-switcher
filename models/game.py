@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from models.base import Base
+from sqlalchemy.orm import relationship
 
 class GameTable(Base):
     
@@ -14,4 +15,4 @@ class GameTable(Base):
     min_players = Column(Integer, default=2)
     max_players = Column(Integer, default=4)
     password = Column(String, default=None)
-    moves = Column(Integer, default=50)
+    Users = relationship("UserTable",backref="Games")

@@ -5,17 +5,17 @@ def create_user(name: str,game_id: int):
     """Crear un usuario y agregarlo."""
     db = base.SessionLocal()
     try:
-        new_user = UserTable(name=name,game=game_id)
+        new_user = UserTable(name=name,game_id=game_id)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         print(f"User {new_user.name} created")
+        return new_user.id
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
     finally:
         db.close()
-        return new_user.id
 
 def get_games(id: int):
     """Devuelve el id del juego que el jugador esta jugando."""

@@ -36,16 +36,16 @@ def join(id_game: int) :
 
     return ResponseJoin(new_id_player=1)
 
-@pre_game.get("/list_games",response_model=ResponseList)
+@pre_game.get("/list_games")#,response_model=ResponseList)
 def list_games() :
     """Listar los juegos creados."""
 
     #En caso de exito debe retornar un json con todos los juegos disponibles.
-    example1 = Game(id=1,name="LaPartida1",isFull=False)
-    example2 = Game(id=2,name="LaPartida2",isFull=True)
-
+    games_listed = game_queries.list_games()
+    
+    print (games_listed)
     # TODO Implementacion ->
-    return ResponseList(games_list=[example1,example2])
+    return ResponseList(games_list=games_listed)
 
 @pre_game.post("/start_game")
 def start(id_game: int) :
