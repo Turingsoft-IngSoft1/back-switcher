@@ -11,6 +11,7 @@ class GameTable(Base):
     turn = Column(Integer, default=0, index=True)
     host = Column(String, index=True, nullable=False)
     players = Column(Integer, default=1, index=True)
-    max_players = Column(Integer, default=4)
     min_players = Column(Integer, default=2)
+    max_players = Column(Integer, default=4)
     password = Column(String, default=None)
+    moves = Column(Integer, default=50)
