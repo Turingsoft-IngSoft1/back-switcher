@@ -6,7 +6,7 @@ class MoveTable(Base):
     __tablename__ = "Moves"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, index=True)
     pile = Column(String, default="Deck")
     quantity = Column(Integer)
 
