@@ -10,6 +10,8 @@ from models.user import UserTable
 from models.moves import MovesTable
 from models.figures import FiguresTable
 
+from querys.game_queries import list_games
+
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 
 
@@ -37,4 +39,3 @@ app.include_router(cards)
 
 # Crea las tablas en base a los models importados.
 Base.metadata.create_all(bind=engine)
-

@@ -1,5 +1,4 @@
 from fastapi import APIRouter,HTTPException
-from schemas.game_schema import Game
 from schemas.user_schema import User
 from querys import game_queries,user_queries
 from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList
@@ -36,14 +35,12 @@ def join(id_game: int) :
 
     return ResponseJoin(new_id_player=1)
 
-@pre_game.get("/list_games")#,response_model=ResponseList)
+@pre_game.get("/list_games",response_model=ResponseList)
 def list_games() :
     """Listar los juegos creados."""
 
     #En caso de exito debe retornar un json con todos los juegos disponibles.
     games_listed = game_queries.list_games()
-    
-    print (games_listed)
     # TODO Implementacion ->
     return ResponseList(games_list=games_listed)
 
