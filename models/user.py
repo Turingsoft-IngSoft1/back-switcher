@@ -11,6 +11,3 @@ class UserTable(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     game_id = Column(Integer, ForeignKey('Games.id'), index=True)
-
-    Moves = relationship("FiguresTable",backref="Users")
-    Figures = relationship("MovesTable",backref="Users")

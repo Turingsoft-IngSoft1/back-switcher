@@ -14,3 +14,9 @@ class ResponseJoin(BaseModel) :
 class ResponseList(BaseModel) :
     """Datos obtenidos al listar partidas"""
     games_list: List[Game] = Field(description="List of current active games.")
+
+class CreateEntry(BaseModel) :
+    game_name: str
+    owner_name: str
+    min_player: int
+    max_player: int
