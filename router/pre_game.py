@@ -1,6 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter
 from schemas.user_schema import User
-from querys import game_queries,user_queries
+from querys.querys import user_queries, game_queries
 from schemas.response_models import *
 
 pre_game = APIRouter()
@@ -20,20 +20,20 @@ def user_data(id_user: int) :
 @pre_game.post("/create_game",response_model=ResponseCreate)
 def create(e: CreateEntry) :
     """Crear el juego."""
-    new_game_id = game_queries.create_game(e.game_name,e.owner_name,e.min_player,e.max_player)
-    new_user_id = user_queries.create_user(e.owner_name,new_game_id)
+    new_game_id = game_queries.create_game(e.game_name, e.owner_name, e.max_player, e.min_player)
+    new_user_id = user_queries.create_user(e.owner_name, new_game_id)
     return ResponseCreate(id_game=new_game_id,id_player=new_user_id)
 
-@pre_game.post("/join_game",response_model=ResponseJoin)
+@pre_game.post("/join_game{id_game)}",response_model=ResponseJoin)
 def join(id_game: int) :
     """Unirse al juego."""
 
     #En caso de exito debe conectar al jugador con el servidor por WebSocket?.
     #Se deben aplicar todos los cambios a la estructura interna de la paritda.
-
+    new_user_id = user_queries.create_user(, new_game_id)
     # TODO Implementacion ->
 
-    return ResponseJoin(new_id_player=1)
+    return ResponseJoin(new_id_player=)
 
 @pre_game.get("/list_games",response_model=ResponseList)
 def list_games() :
