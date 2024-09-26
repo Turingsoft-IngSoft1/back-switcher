@@ -3,7 +3,7 @@ from models.base import Base
 
 class GameTable(Base):
     
-    __tablename__ = 'GamesTable'
+    __tablename__ = 'GameTable'
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
