@@ -12,4 +12,4 @@ class UserTable(Base):
 
     Moves = relationship("FigureTable",backref="Users")
     Figures = relationship("MoveTable",backref="Users")
-    
+   
