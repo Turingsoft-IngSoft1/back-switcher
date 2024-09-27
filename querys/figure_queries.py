@@ -9,7 +9,7 @@ def create_figure(name: str, user_id: int):
         db.add(new_figure)
         db.commit()
         db.refresh(new_figure)
-        print(f"User {new_figure.name} created")
+        print(f"Figure {new_figure.name} created")
         return new_figure.id
     except Exception as e:
         db.rollback()
@@ -22,6 +22,12 @@ def get_users(id: int):
     db = base.SessionLocal()
     ret = db.query(FigureTable).filter(FigureTable.id == id).first()
     return ret.user_id
+
+def get_figure_name(id: int):
+    """Devuelve el nombre de la figura."""
+    db = base.SessionLocal()
+    ret = db.query(FigureTable).filter(FigureTable.id == id).first()
+    return ret.name
 
 def remove_figure(id: int):
     """Elimina de la base de datos la figura con el id correspondiente."""

@@ -10,6 +10,8 @@ from models.user import UserTable
 from models.move import MoveTable
 from models.figure import FigureTable
 
+from tests import figure_queries
+
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 
 
@@ -38,3 +40,4 @@ app.include_router(cards)
 # Crea las tablas en base a los models importados.
 Base.metadata.create_all(bind=engine)
 
+figure_queries.test_figure_queries()

@@ -8,6 +8,5 @@ class MoveTable(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     pile = Column(String, default="Deck")
-    quantity = Column(Integer)
 
     user_id = Column(Integer, ForeignKey('Users.id'))
