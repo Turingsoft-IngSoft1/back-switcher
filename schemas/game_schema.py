@@ -6,7 +6,7 @@ class Game(BaseModel):
     name: str = Field(min_length=1,max_length=100,description="Name of the game.")
     state: str = Field(min_length=1,max_length=100,description="State of the game. (Waiting, Playing, or Finished)")
     turn: int = Field(description="Integer that specifies the actual turn of the game.")
-    host: str = Field(min_length=1,max_length=100,description="Name of the host of the game.")
+    host: int = Field(ge=0,description="Name of the host of the game.")
     players: int = Field(description="Number of players that have joined the game)")
     max_players: int = Field(description="Maximum number of players that can join the game.")
     min_players: int = Field(description="Minimum number of players that can join the game.")

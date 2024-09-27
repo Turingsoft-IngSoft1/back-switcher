@@ -10,4 +10,4 @@ class UserTable(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    game_id = Column(Integer, ForeignKey('Games.id'), index=True)
+    game_id = Column(Integer, ForeignKey('GameTable.id'), index=True)

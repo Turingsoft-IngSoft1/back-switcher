@@ -14,12 +14,12 @@ def create_game(name: str, host: str, max_players: int, min_players: int):
         db.commit()
         db.refresh(new_game)
         print(f"Game {new_game.id} created")
+        return new_game.id
     except Exception as e:
         db.rollback()
         print(f"Error creating game: {e}")
     finally:
         db.close()
-        return new_game.id
 
 def get_game(id_game: int) -> game_schema.Game:
     """Encuentra y muestra el juego que esta almacenado
@@ -64,4 +64,7 @@ def set_game_turn(id_game: int, turn: int):
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.turn: turn})
     db.commit()
 
-#Alguna para el timer?
+def set_game_host(id_game: int, host: int):
+    db = base.SessionLocal()
+    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.host: host})
+    db.commit()

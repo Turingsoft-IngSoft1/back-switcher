@@ -17,13 +17,13 @@ def create_user(name: str,game_id: int):
     finally:
         db.close()
 
-def get_games(game_id: int):
+def get_games(user_id: int):
     """Devuelve el id del juego que el jugador esta jugando."""
     db = base.SessionLocal()
     ret = db.query(UserTable).filter(UserTable.id == id).first()
     return ret.game
 
-def remove_user(game_id: int):
+def remove_user(user_id: int):
     """Elimina de la base de datos al jugador con el id correspondiente."""
     db = base.SessionLocal()
     to_remove = db.query(UserTable).filter(UserTable.id == id).first()
