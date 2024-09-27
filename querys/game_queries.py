@@ -19,7 +19,7 @@ def create_game(name: str, host: str, max_players: int, min_players: int):
         print(f"Error creating game: {e}")
     finally:
         db.close()
-    return new_game.id
+        return new_game.id
 
 def get_game(id_game: int) -> game_schema.Game:
     """Encuentra y muestra el juego que esta almacenado

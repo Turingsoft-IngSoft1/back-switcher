@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String
 from models.base import Base
 from sqlalchemy.orm import relationship
 
+Users = relationship("BoardTable", backref="GameTable")
+
 class GameTable(Base):
     
     __tablename__ = 'GameTable'
