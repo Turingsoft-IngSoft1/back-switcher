@@ -7,3 +7,5 @@ class BoardTable(Base):
     
     id = Column(Integer, ForeignKey('Game.id'), primary_key=True, index=True)
     color = Column(String, default="NONE")
+    cells = Column(list, default=[])
+
