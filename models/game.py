@@ -2,8 +2,6 @@ from sqlalchemy import Column, Integer, String
 from models.base import Base
 from sqlalchemy.orm import relationship
 
-Users = relationship("BoardTable", backref="GameTable")
-
 class GameTable(Base):
     
     __tablename__ = 'GameTable'
@@ -18,3 +16,4 @@ class GameTable(Base):
     min_players = Column(Integer, default=2)
     password = Column(String, default="password")
     Users = relationship("UserTable", backref="GameTable")
+    Boards = relationship("BoardTable", backref="GameTable")

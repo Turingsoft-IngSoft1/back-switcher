@@ -2,7 +2,7 @@ from fastapi import APIRouter,HTTPException
 
 from schemas.game_schema import Game
 from schemas.user_schema import User
-from schemas.response_models import *
+from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList,CreateEntry
 from querys.user_queries import get_games, create_user
 from querys.game_queries import *
 pre_game = APIRouter()
@@ -27,9 +27,9 @@ def create(e: CreateEntry) :
     #Se debe crear un game_schema.Game.
     # TODO Agregar TESTs ->
 
-    new_game_id = create_game(e.game_name, e.owner_name, e.max_player, e.min_player)
-    new_user_id = create_user(e.owner_name,new_game_id)
-    set_game_host(new_game_id,new_user_id)
+    new_game_id = create_game(name=e.game_name, max_players=e.max_player, min_players=e.min_player)
+    new_user_id = create_user(name=e.owner_name,game_id=new_game_id)
+    set_game_host(id_game=new_game_id,host=new_user_id)
 
     return ResponseCreate(game_id=new_game_id,user_id=new_user_id)
 
