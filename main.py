@@ -6,10 +6,11 @@ from router.cards import cards
 
 from models.base import Base, engine
 
-from tests import move_queries, figure_queries, gameCreation
-
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
+from models.figure import FigureTable
+from models.move import MoveTable
 
+from tests import figure_queries
 
 app = FastAPI(
     title="Switcher - TuringSoft™",
@@ -38,4 +39,4 @@ app.include_router(cards)
 
 Base.metadata.create_all(bind=engine)
 
-move_queries.test_create_move()
+figure_queries.test_figure_queries()

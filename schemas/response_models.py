@@ -1,4 +1,3 @@
-from typing import List
 from pydantic import BaseModel, Field
 from .game_schema import Game
 
@@ -13,10 +12,15 @@ class ResponseJoin(BaseModel) :
 
 class ResponseList(BaseModel) :
     """Datos obtenidos al listar partidas"""
-    games_list: List[Game] = Field(description="List of current active games.")
+    games_list: list[Game] = Field(description="List of current active games.")
+
+class ResponseUser(BaseModel) :
+    """Datos relevantes del usuario"""
+    name: str
+    id_game: int
 
 class CreateEntry(BaseModel) :
-    game_name: str
-    owner_name: str
-    min_player: int
-    max_player: int
+    game_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this game.")
+    owner_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this player.")
+    min_player: int = Field(ge=2,le=4,description="Game's minimum player number.")
+    max_player: int = Field(ge=2,le=4,description="Game's maximum player number.")
