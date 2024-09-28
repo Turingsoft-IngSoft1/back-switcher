@@ -55,6 +55,11 @@ def start(id_game: int) :
 
     #En caso de exito debe iniciar la partida posteriormente sera implementado.
     #Actualizar los datos de la partida para que no se siga listando como disponible para unirse.
+    #Tiene que repartir las cartas a todos los jugadores.
+    #Tiene que cambiar el estado a "Playing".
+    #Tiene que inicializar el tablero randomizado.
+    #Tiene que avisar a todos los clientes.
+    
 
     # TODO Implementacion ->
 
