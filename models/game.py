@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 
 class GameTable(Base):
     
-    __tablename__ = 'GameTable'
+    __tablename__ = 'Games'
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
@@ -12,6 +12,7 @@ class GameTable(Base):
     turn = Column(Integer, default=0, index=True)
     host = Column(Integer, index=True, nullable=False, default=0)
     players = Column(Integer, default=1, index=True)
+    min_players = Column(Integer, default=2)
     max_players = Column(Integer, default=4)
     min_players = Column(Integer, default=2)
     password = Column(String, default="password")
