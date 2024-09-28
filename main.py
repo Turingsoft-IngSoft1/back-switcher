@@ -12,7 +12,6 @@ from models.base import Base, engine
 
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 
-
 app = FastAPI(
     title="Switcher - TuringSoft™",
     description="Descripcion de prueba.",

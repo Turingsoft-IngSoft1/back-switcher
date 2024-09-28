@@ -2,23 +2,22 @@ from fastapi import APIRouter,HTTPException
 
 from schemas.game_schema import Game
 from schemas.user_schema import User
-from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList,CreateEntry
-from querys.user_queries import get_games, create_user
+from schemas.response_models import *
+from querys.user_queries import *
 from querys.game_queries import *
+
 pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
-@pre_game.get("/user/{id_user}")
+@pre_game.get("/user/{id_user}",response_model=ResponseUser)
 def user_data(id_user: int) :
     """Devolver data del usuario."""
     #Debe de alguna forma devolver los datos del usuario.
     #Para que el front lo pueda manejar.
-    # TODO Cambiar ->
+    # TODO Arreglar ->
 
-    current_game = get_game(id_user)
-
-    return current_game
+    return get_user(id_user)
 
 @pre_game.post("/create_game",response_model=ResponseCreate)
 def create(e: CreateEntry) :
@@ -31,7 +30,7 @@ def create(e: CreateEntry) :
     new_user_id = create_user(name=e.owner_name,game_id=new_game_id)
     set_game_host(id_game=new_game_id,host=new_user_id)
 
-    return ResponseCreate(game_id=new_game_id,user_id=new_user_id)
+    return ResponseCreate(id_game=new_game_id,id_player=new_user_id)
 
 @pre_game.post("/join_game",response_model=ResponseJoin)
 def join(id_game: int) :

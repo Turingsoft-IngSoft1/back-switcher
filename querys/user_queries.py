@@ -1,5 +1,6 @@
 from models import base
 from models.user import UserTable
+from schemas.response_models import ResponseUser
 
 def create_user(name: str,game_id: int):
     """Crear un usuario y agregarlo."""
@@ -20,13 +21,13 @@ def create_user(name: str,game_id: int):
 def get_games(user_id: int):
     """Devuelve el id del juego que el jugador esta jugando."""
     db = base.SessionLocal()
-    ret = db.query(UserTable).filter(UserTable.id == id).first()
+    ret = db.query(UserTable).filter(UserTable.id == user_id).first()
     return ret.game
 
 def remove_user(user_id: int):
     """Elimina de la base de datos al jugador con el id correspondiente."""
     db = base.SessionLocal()
-    to_remove = db.query(UserTable).filter(UserTable.id == id).first()
+    to_remove = db.query(UserTable).filter(UserTable.id == user_id).first()
     try:
         db.delete(to_remove)
         db.commit()
@@ -36,3 +37,8 @@ def remove_user(user_id: int):
         print(f"Error: {e}")
     finally:
         db.close()
+
+def get_user(user_id: int) -> ResponseUser :
+    db = base.SessionLocal()
+    ret = db.query(UserTable).filter(UserTable.id == user_id).first()
+    return ResponseUser(name=ret.name, id_game=ret.game_id)

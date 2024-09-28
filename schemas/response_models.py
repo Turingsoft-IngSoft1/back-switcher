@@ -14,6 +14,11 @@ class ResponseList(BaseModel) :
     """Datos obtenidos al listar partidas"""
     games_list: list[Game] = Field(description="List of current active games.")
 
+class ResponseUser(BaseModel) :
+    """Datos relevantes del usuario"""
+    name: str
+    id_game: int
+
 class CreateEntry(BaseModel) :
     game_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this game.")
     owner_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this player.")

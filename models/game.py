@@ -16,4 +16,4 @@ class GameTable(Base):
     min_players = Column(Integer, default=2)
     password = Column(String, default="password")
     Users = relationship("UserTable", backref="GameTable")
-    Boards = relationship("BoardTable", backref="GameTable")
+    #Boards = relationship("BoardTable", backref="GameTable")
