@@ -41,4 +41,3 @@ def remove_user(user_id: int):
 def get_user(user_id: int) -> ResponseUser :
     db = base.SessionLocal()
     ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    return ResponseUser(name=ret.name, id_game=ret.game_id)
