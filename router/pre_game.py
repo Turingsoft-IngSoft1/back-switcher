@@ -10,7 +10,7 @@ pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
-@pre_game.get("/user/{id_user}")
+@pre_game.get("/user/{id_user}",response_model=int)
 def user_data(id_user: int) :
     """Devolver data del usuario."""
     #Debe de alguna forma devolver los datos del usuario.
@@ -20,10 +20,10 @@ def user_data(id_user: int) :
 
     return g.id
 
-#@pre_game.get("/active_players/{id_game}",response_class=CurrentUsers)
-#def get_active_players(id_game: int) :
-#    """Devuelve los jugadors conectados a una partida."""
-#    return get_users(id_game)
+@pre_game.get("/active_players/{id_game}",response_model=CurrentUsers)
+def get_active_players(id_game: int) :
+    """Devuelve los jugadors conectados a una partida."""
+    return get_users(id_game)
 
 @pre_game.post("/create_game",response_model=ResponseCreate)
 def create(e: CreateEntry) :

@@ -39,11 +39,11 @@ def remove_user(user_id: int):
     finally:
         db.close()
 
-def get_users(user_id: int) -> CurrentUsers :
+def get_users(game_id: int) -> CurrentUsers :
     """Lista los jugadores activos en una partida."""
     db = base.SessionLocal()
     try:
-        users = db.query(UserTable).filter(UserTable.id == user_id).all()
+        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
         l = []
         for u in users:
             l.append(User(id=u.id,
@@ -52,6 +52,7 @@ def get_users(user_id: int) -> CurrentUsers :
                           figures_deck=0))
     
         return CurrentUsers(users_list=l)
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         return CurrentUsers(users_list=[])
     
