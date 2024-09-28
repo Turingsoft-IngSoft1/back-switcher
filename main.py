@@ -6,9 +6,9 @@ from router.cards import cards
 
 from models.base import Base, engine
 
-
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
-
+from models.figure import FigureTable
+from models.move import MoveTable
 
 app = FastAPI(
     title="Switcher - TuringSoft™",
