@@ -48,11 +48,10 @@ def list_games() :
     """Listar los juegos creados."""
 
     #En caso de exito debe retornar un json con todos los juegos disponibles.
-    example1 = Game(id=1,name="LaPartida1",isFull=False)
-    example2 = Game(id=2,name="LaPartida2",isFull=True)
+    # TODO Testing ->
+    g_list = listing_games()
 
-    # TODO Implementacion ->
-    return ResponseList(games_list=[example1,example2])
+    return ResponseList(games_list=g_list)
 
 @pre_game.post("/start_game")
 def start(id_game: int) :
