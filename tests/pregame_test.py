@@ -23,6 +23,10 @@ class TestPregame(unittest.TestCase):
                 }
         response = requests.post(url,json=payload)
         self.assertEqual(response.status_code,422)
+    
+    def test_list_game(self):
+        pass
+        # TODO mocked si o si
 
 if __name__ == '__main__':
     unittest.main()

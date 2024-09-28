@@ -33,9 +33,10 @@ def get_game(id_game: int) -> game_schema.Game:
                             players=game_ret.players,
                             max_players=game_ret.max_players,
                             min_players=game_ret.min_players,
-                            password=game_ret.password)
+                            password=game_ret.password,
+                            moves_deck=game_ret.moves_deck)
 
-def list_games() -> list[game_schema.Game]:
+def listing_games() -> list[game_schema.Game]:
     """Devuelve la lista de las partidas en la base de datos
     con el estado Waiting."""
     db = base.SessionLocal()
@@ -50,7 +51,8 @@ def list_games() -> list[game_schema.Game]:
                                           players=game.players,
                                           max_players=game.max_players,
                                           min_players=game.min_players,
-                                          password=game.password))
+                                          password=game.password,
+                                          moves_deck=game.moves_deck))
     return game_list
 
 def set_game_state(id_game: int, state: str):
