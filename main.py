@@ -10,6 +10,8 @@ from models.base import Base, engine
 from models.figure import FigureTable
 from models.move import MoveTable
 
+from tests import move_queries
+
 app = FastAPI(
     title="Switcher - TuringSoft™",
     description="Descripcion de prueba.",
@@ -37,3 +39,4 @@ app.include_router(cards)
 
 Base.metadata.create_all(bind=engine)
 
+move_queries.test_create_move()
