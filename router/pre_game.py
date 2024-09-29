@@ -80,18 +80,14 @@ async def start(game_id: int) :
 
     return {"message": "El juego comenzo correctamente."}
 
-#class ConnectJson(BaseModel):
-#    game_id: int
-#    user_id: int
-
-@pre_game.websocket("/ws/{game_id}")
-async def websocket_endpoint(websocket: WebSocket, game_id: int):
-    await manager.connect(websocket, game_id)
+@pre_game.websocket("/ws/{game_id}/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, game_id: int, user_id: int) :
+    await manager.connect(websocket, game_id, user_id)
     try:
         while True:
             data = await websocket.receive_text()
-            #await manager.send_personal_message(f"You wrote: {data}", websocket, j.game_id, j.user_id)
-            await manager.broadcast(f"Client from game: {game_id} says: {data}", game_id)
+            await manager.send_personal_message(f"You wrote: {data}", game_id, user_id)
+            await manager.broadcast(f"Client {user_id} from game: {game_id} says: {data}", game_id)
     except WebSocketDisconnect:
-        manager.disconnect(websocket, game_id)
-        await manager.broadcast(f"Client left the game: {game_id}", game_id)
+        manager.disconnect(websocket, game_id, user_id)
+        await manager.broadcast(f"Client {user_id} the game: {game_id}", game_id)
