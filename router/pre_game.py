@@ -5,8 +5,8 @@ from schemas.user_schema import User
 from schemas.response_models import *
 from querys.user_queries import *
 from querys.game_queries import *
-from utils.ws import ConnectionManager
-manager = ConnectionManager()
+from utils.ws import manager
+
 pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
