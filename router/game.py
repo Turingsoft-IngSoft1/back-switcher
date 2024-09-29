@@ -27,7 +27,7 @@ async def skip(id_player: int, id_game: int) :
     actual_turn = game_actual.turn
     game_queries.set_game_turn(id_game, ((actual_turn + 1) % game_actual.players)+1)
     
-    await manager.broadcast(f"Turno {game_queries.get_game(id_game).turn}")
+    await manager.broadcast(f"Turno {game_queries.get_game(id_game).turn}", id_game)
     
     return {"Skip Successful."}
 
