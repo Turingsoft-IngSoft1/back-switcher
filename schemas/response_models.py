@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from .game_schema import Game
+from .user_schema import User
 
 class ResponseCreate(BaseModel) :
     """Datos obtenidos de crear una partida"""
@@ -20,7 +21,17 @@ class ResponseUser(BaseModel) :
     id_game: int
 
 class CreateEntry(BaseModel) :
+    """Json de entrada para crear partida"""
     game_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this game.")
     owner_name: str = Field(min_length=1,max_length=100,description="Unique string that specifies this player.")
     min_player: int = Field(ge=2,le=4,description="Game's minimum player number.")
     max_player: int = Field(ge=2,le=4,description="Game's maximum player number.")
+
+class JoinEntry(BaseModel) :
+    """Json de entrada para unirse a partida"""
+    id_game: int = Field(description="Game's unique ID.")
+    player_name: str = Field(min_length=1,max_length=100,description="New player's name.")
+
+class CurrentUsers(BaseModel) :
+    """Lista de usuarios conectados"""
+    users_list: list[User] = Field(description="Current users in game lobby.")

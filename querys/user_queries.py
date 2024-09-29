@@ -1,6 +1,7 @@
 from models import base
 from models.user import UserTable
-from schemas.response_models import ResponseUser
+from schemas.response_models import CurrentUsers
+from schemas.user_schema import User
 
 def create_user(name: str,game_id: int):
     """Crear un usuario y agregarlo."""
@@ -18,11 +19,11 @@ def create_user(name: str,game_id: int):
     finally:
         db.close()
 
-def get_games(user_id: int):
+def get_game(user_id: int) :
     """Devuelve el id del juego que el jugador esta jugando."""
     db = base.SessionLocal()
     ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    return ret.game
+    return ret.game_id
 
 def remove_user(user_id: int):
     """Elimina de la base de datos al jugador con el id correspondiente."""
@@ -38,6 +39,19 @@ def remove_user(user_id: int):
     finally:
         db.close()
 
-def get_user(user_id: int) -> ResponseUser :
+def get_users(game_id: int) -> CurrentUsers :
+    """Lista los jugadores activos en una partida."""
     db = base.SessionLocal()
-    ret = db.query(UserTable).filter(UserTable.id == user_id).first()
+    try:
+        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        l = []
+        for u in users:
+            l.append(User(id=u.id,
+                          name=u.name,
+                          game=u.game_id,
+                          figures_deck=0))
+    
+        return CurrentUsers(users_list=l)
+    except Exception as e:
+        print(f"Error: {e}")
+        return CurrentUsers(users_list=[])

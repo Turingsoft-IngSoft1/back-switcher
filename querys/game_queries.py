@@ -69,3 +69,19 @@ def set_game_host(id_game: int, host: int):
     db = base.SessionLocal()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.host: host})
     db.commit()
+
+def get_players(id_game: int):
+    db = base.SessionLocal()
+    tab = db.query(GameTable).filter(GameTable.id == id_game).first()
+    return tab.players
+
+def get_max_players(id_game: int):
+    db = base.SessionLocal()
+    tab = db.query(GameTable).filter(GameTable.id == id_game).first()
+    return tab.max_players
+
+def add_player(id_game: int):
+    db = base.SessionLocal()
+    tab = db.query(GameTable).filter(GameTable.id == id_game).first()
+    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players + 1})
+    db.commit()
