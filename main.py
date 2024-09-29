@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from router.pre_game import pre_game
 from router.game import game
@@ -9,8 +9,6 @@ from models.base import Base, engine
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 from models.figure import FigureTable
 from models.move import MoveTable
-
-
 app = FastAPI(
     title="Switcher - TuringSoft™",
     description="Descripcion de prueba.",
@@ -19,7 +17,8 @@ app = FastAPI(
 
 origins = ["http://localhost:5173",
            "http://localhost:5174",
-           "http://localhost:5175"]
+           "http://localhost:5175",
+           "http://localhost:8000",]
 
 app.add_middleware(
     CORSMiddleware,
