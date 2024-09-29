@@ -1,12 +1,11 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from schemas.game_schema import Game
 from schemas.user_schema import User
 from schemas.response_models import *
 from querys.user_queries import *
 from querys.game_queries import *
-from main import manager
 import asyncio
-
+from utils.ws import manager
 pre_game = APIRouter()
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
@@ -80,3 +79,16 @@ def start(id_game: int) :
     asyncio.run(manager.broadcast(f"Game {id_game} has started"))
 
     return {"message": "El juego comenzo correctamente."}
+
+@pre_game.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"Client #{client_id} says: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{client_id} left the chat")
+
