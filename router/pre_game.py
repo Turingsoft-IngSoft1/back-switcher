@@ -78,7 +78,7 @@ async def start(game_id: int) :
         set_game_state(game_id, "Playing")
 
         await manager.broadcast(f"GAME_STARTED", game_id)
-
+        # TODO Setear turnos ->
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
 
