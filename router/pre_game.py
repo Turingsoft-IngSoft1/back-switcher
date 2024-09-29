@@ -1,8 +1,12 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter
 from schemas.game_schema import Game
 from schemas.user_schema import User
 from schemas.response_models import ResponseCreate,ResponseJoin,ResponseList
+from querys import game_queries
+import asyncio
+from utils.ws import manager
 pre_game = APIRouter()
+
 
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
@@ -60,7 +64,10 @@ def start(id_game: int) :
     #Tiene que inicializar el tablero randomizado.
     #Tiene que avisar a todos los clientes.
     
+    # Update the game state
+    game_queries.set_game_state(id_game, "Playing")
 
-    # TODO Implementacion ->
+    # Notify players via WebSocket
+    asyncio.run(manager.broadcast(f"Game {id_game} has started"))
 
-    return {"El juego comenzo correctamente."}
+    return {"message": "El juego comenzo correctamente."}
