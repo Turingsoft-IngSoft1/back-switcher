@@ -1,10 +1,10 @@
-from fastapi import APIRouter,HTTPException
-
+from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from schemas.game_schema import Game
 from schemas.user_schema import User
 from schemas.response_models import *
 from querys.user_queries import *
 from querys.game_queries import *
+from utils.ws import manager
 
 pre_game = APIRouter()
 
@@ -63,13 +63,32 @@ def list_games() :
 
     return ResponseList(games_list=g_list)
 
-@pre_game.post("/start_game")
-def start(id_game: int) :
+@pre_game.post("/start_game/{game_id}")
+async def start(game_id: int) :
     """Empezar un juego."""
 
     #En caso de exito debe iniciar la partida posteriormente sera implementado.
     #Actualizar los datos de la partida para que no se siga listando como disponible para unirse.
+    #Tiene que repartir las cartas a todos los jugadores.
+    #Tiene que cambiar el estado a "Playing".
+    #Tiene que inicializar el tablero randomizado.
+    #Tiene que avisar a todos los clientes.
 
-    # TODO Implementacion ->
+    if get_players(game_id) >= get_min_players(game_id):
+        set_game_state(game_id, "Playing")
 
-    return {"El juego comenzo correctamente."}
+        await manager.broadcast(f"GAME_STARTED", game_id)
+
+    else:
+        raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
+
+    return {"message": "El juego comenzo correctamente."}
+
+@pre_game.websocket("/ws/{game_id}/{user_id}")
+async def websocket_endpoint(ws: WebSocket, game_id: int, user_id: int) :
+    await manager.connect(ws, game_id, user_id)
+    try:
+        while True:
+            await ws.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(ws, game_id, user_id)
