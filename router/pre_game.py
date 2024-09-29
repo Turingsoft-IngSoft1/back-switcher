@@ -1,4 +1,3 @@
-import asyncio
 from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from schemas.game_schema import Game
 from schemas.user_schema import User
@@ -64,8 +63,8 @@ def list_games() :
 
     return ResponseList(games_list=g_list)
 
-@pre_game.post("/start_game")
-def start(id_game: int) :
+@pre_game.post("/start_game/{game_id}")
+async def start(game_id: int) :
     """Empezar un juego."""
 
     #En caso de exito debe iniciar la partida posteriormente sera implementado.
@@ -75,20 +74,24 @@ def start(id_game: int) :
     #Tiene que inicializar el tablero randomizado.
     #Tiene que avisar a todos los clientes.
     
-    set_game_state(id_game, "Playing")
+    set_game_state(game_id, "Playing")
 
-    asyncio.run(manager.broadcast(f"Game {id_game} has started"))
+    await manager.broadcast(f"Game {game_id} has started", game_id)
 
     return {"message": "El juego comenzo correctamente."}
 
-@pre_game.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
-    await manager.connect(websocket)
+#class ConnectJson(BaseModel):
+#    game_id: int
+#    user_id: int
+
+@pre_game.websocket("/ws/{game_id}")
+async def websocket_endpoint(websocket: WebSocket, game_id: int):
+    await manager.connect(websocket, game_id)
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            #await manager.send_personal_message(f"You wrote: {data}", websocket, j.game_id, j.user_id)
+            await manager.broadcast(f"Client from game: {game_id} says: {data}", game_id)
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        manager.disconnect(websocket, game_id)
+        await manager.broadcast(f"Client left the game: {game_id}", game_id)

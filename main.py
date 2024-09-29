@@ -37,3 +37,6 @@ app.include_router(cards)
 
 Base.metadata.create_all(bind=engine)
 
+from utils.ws import manager
+#manager.connect(websocket=WebSocket,game_id=1,user_id=1)
+print(manager.active_connections)
