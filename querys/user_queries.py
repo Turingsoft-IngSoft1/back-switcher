@@ -55,4 +55,3 @@ def get_users(game_id: int) -> CurrentUsers :
     except Exception as e:
         print(f"Error: {e}")
         return CurrentUsers(users_list=[])
-    
