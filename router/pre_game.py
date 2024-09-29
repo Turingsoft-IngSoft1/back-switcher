@@ -73,21 +73,23 @@ async def start(game_id: int) :
     #Tiene que cambiar el estado a "Playing".
     #Tiene que inicializar el tablero randomizado.
     #Tiene que avisar a todos los clientes.
-    
-    set_game_state(game_id, "Playing")
 
-    await manager.broadcast(f"Game {game_id} has started", game_id)
+    if get_players(game_id) >= get_min_players(game_id):
+        set_game_state(game_id, "Playing")
+
+        await manager.broadcast(f"GAME_STARTED", game_id)
+
+    else:
+        raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
 
     return {"message": "El juego comenzo correctamente."}
 
 @pre_game.websocket("/ws/{game_id}/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, game_id: int, user_id: int) :
-    await manager.connect(websocket, game_id, user_id)
+async def websocket_endpoint(ws: WebSocket, game_id: int, user_id: int) :
+    await manager.connect(ws, game_id, user_id)
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", game_id, user_id)
-            await manager.broadcast(f"Client {user_id} from game: {game_id} says: {data}", game_id)
+            await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket, game_id, user_id)
-        await manager.broadcast(f"Client {user_id} the game: {game_id}", game_id)
+        manager.disconnect(ws, game_id, user_id)
+

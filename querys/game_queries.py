@@ -85,3 +85,8 @@ def add_player(id_game: int):
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players + 1})
     db.commit()
+
+def get_min_players(id_game: int):
+    db = base.SessionLocal()
+    tab = db.query(GameTable).filter(GameTable.id == id_game).first()
+    return tab.min_players
