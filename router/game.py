@@ -1,5 +1,7 @@
 from fastapi import APIRouter,HTTPException
 from schemas import game_schema
+from utils.ws import manager
+from querys import game_queries
 
 game = APIRouter()
 
@@ -15,14 +17,18 @@ def leave(id_player: int, id_game: int) :
 
     return {"Exit Successful."}
 
+
 @game.post("/skip_turn")
-def skip(id_player: int, id_game: int) :
+async def skip(id_player: int, id_game: int) :
     """Pasar el turno."""
 
     #En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
-
-    # TODO Implementacion ->
-
+    game_actual = game_queries.get_game(id_game)
+    actual_turn = game_actual.turn
+    game_queries.set_game_turn(id_game, ((actual_turn + 1) % game_actual.players)+1)
+    
+    await manager.broadcast(f"Turno {game_queries.get_game(id_game).turn}", id_game)
+    
     return {"Skip Successful."}
 
 @game.get("/game_status")
