@@ -62,11 +62,12 @@ def get_users(game_id: int) -> CurrentUsers :
         print(f"Error: {e}")
         return CurrentUsers(users_list=[])
 
-def users_set_turn(game_id: int) :
+def set_users_turn(game_id: int, players: int) :
+    """Le asigna turnos al azar a los jugadores."""
     db = base.SessionLocal()
     try:
         users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
-        ramdom_turns = random.sample(range(4), 4)
+        ramdom_turns = random.sample(range(players), players)
         for u,t in zip(users,ramdom_turns):
             u.turn = t
 

@@ -78,7 +78,7 @@ async def start(game_id: int) :
 
     if get_players(game_id) >= get_min_players(game_id):
         set_game_state(game_id, "Playing")
-        users_set_turn(game_id)
+        set_users_turn(game_id, get_players(game_id))
         await manager.broadcast(f"GAME_STARTED", game_id)
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
