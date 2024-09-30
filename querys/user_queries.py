@@ -77,5 +77,3 @@ def set_users_turn(game_id: int, players: int) :
         print(f"Error: {e}")
     finally:
         db.close()
-
-

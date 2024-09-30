@@ -1,5 +1,11 @@
-from fastapi import APIRouter,HTTPException
-from schemas import game_schema
+from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
+
+from querys.move_queries import set_users
+from schemas.game_schema import Game
+from schemas.user_schema import User
+from schemas import response_models
+from querys.user_queries import *
+from querys.game_queries import *
 from utils.ws import manager
 from querys import game_queries
 from schemas.response_models import InGame
@@ -8,12 +14,20 @@ game = APIRouter()
 #Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
 @game.post("/leave_game")
-def leave(id_player: int, id_game: int) :
+async def leave(e: InGame) :
     """Abandonar Partida."""
     #En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
-    #Debe avisar al resto de jugadores por WebSockets ?
+    remove_player(e.id_game)
+    remove_user(e.id_player)
+    await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
 
-    # TODO Implementacion ->
+    if get_players(e.id_game) == 1:
+        set_game_state(e.id_game, "Finished")
+        winner = get_users(e.id_game).users_list
+        await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
+
+    if get_players(e.id_game) == 0:
+        remove_game(e.id_game)
 
     return {"Exit Successful."}
 
