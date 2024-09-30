@@ -1,17 +1,12 @@
-import unittest
-from csv import excel
-
-import requests
-import json
-from http.client import responses
+import unittest,requests,json,pytest
 
 from main import db
 
-db.teardown()
-
 class TestPregame(unittest.TestCase):
 
-    def test1_create_game(self):
+    @pytest.mark.order(1)
+    def test_create_game(self):
+        db.teardown()
 
         url = "http://localhost:8000/create_game"
         payload = {
@@ -31,8 +26,9 @@ class TestPregame(unittest.TestCase):
                 }
         response = requests.post(url,json=payload)
         self.assertEqual(response.status_code,422)
-    
-    def test2_list_game(self):
+
+    @pytest.mark.order(2)
+    def test_list_game(self):
 
         url = "http://localhost:8000/list_games"
         expected_json ={
@@ -57,7 +53,8 @@ class TestPregame(unittest.TestCase):
         self.assertEqual(response.status_code,200)
         self.assertEqual(formatted_expected, formatted_response)
 
-    def test3_join_game(self):
+    @pytest.mark.order(3)
+    def test_join_game(self):
 
         url = "http://localhost:8000/join_game"
         payload = {
@@ -75,6 +72,7 @@ class TestPregame(unittest.TestCase):
         formatted_expected = json.dumps(expected_json, sort_keys=True)
         self.assertEqual(formatted_expected, formatted_response)
 
+    @pytest.mark.order(4)
     def test4_active_players(self):
         url = "http://localhost:8000/active_players/1"
         response = requests.get(url)
@@ -101,7 +99,8 @@ class TestPregame(unittest.TestCase):
         formatted_response = json.dumps(response.json(), sort_keys=True)
         self.assertEqual(formatted_expected, formatted_response)
 
-    def test5_start_game(self):
+    @pytest.mark.order(5)
+    def test_start_game(self):
         url = "http://localhost:8000/start_game/1"
         response = requests.post(url)
         error_json = {

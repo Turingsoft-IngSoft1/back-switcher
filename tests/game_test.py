@@ -1,14 +1,11 @@
-import requests
-import json
-import unittest
+import requests,json,unittest,pytest
 
 from main import db
 
-
-db.teardown()
-
 class TestGame(unittest.TestCase):
-    def test6_leave(self):
+    @pytest.mark.order(0)
+    def test_leave(self):
+        db.teardown()
         url_create = "http://localhost:8000/create_game"
         payload = {
             "game_name": "PartidaEjemplo",
