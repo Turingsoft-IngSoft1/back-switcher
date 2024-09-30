@@ -4,7 +4,7 @@ from router.pre_game import pre_game
 from router.game import game
 from router.cards import cards
 
-from models.base import Base, engine
+from models.base import DBManager
 
 # TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 from models.figure import FigureTable
@@ -33,6 +33,4 @@ app.include_router(game)
 app.include_router(cards)
 
 # Crea las tablas en base a los models importados.
-
-
-Base.metadata.create_all(bind=engine)
+db = DBManager()
