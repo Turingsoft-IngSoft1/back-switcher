@@ -85,8 +85,28 @@ def add_player(id_game: int):
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players + 1})
     db.commit()
+    
+def remove_player(id_game: int):
+    db = base.SessionLocal()
+    tab = db.query(GameTable).filter(GameTable.id == id_game).first()
+    db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players - 1})
+    db.commit()
 
 def get_min_players(id_game: int):
     db = base.SessionLocal()
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.min_players
+
+def remove_game(id_game: int):
+    """Elimina de la base de datos la partida con el id correspondiente."""
+    db = base.SessionLocal()
+    to_remove = db.query(GameTable).filter(GameTable.id == id_game).first()
+    try:
+        db.delete(to_remove)
+        db.commit()
+        print(f"Game deleted.")
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+    finally:
+        db.close()    
