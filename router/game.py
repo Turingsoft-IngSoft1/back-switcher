@@ -29,7 +29,7 @@ async def leave(e: InGame) :
     if get_players(e.id_game) == 0:
         remove_game(e.id_game)
 
-    return {"Exit Successful."}
+    return {"message": "Exit Successful."}
 
 
 @game.post("/skip_turn")
