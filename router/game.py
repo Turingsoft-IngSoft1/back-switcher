@@ -37,7 +37,8 @@ async def skip(e: InGame):
     actual_players = get_players(e.id_game)
     set_game_turn(e.id_game, (actual_turn + 1))
     game_turn = (get_game_turn(e.id_game) % actual_players)
-    await manager.broadcast(f"TURN {game_turn}", e.id_game)
+    uid = get_user_from_turn(e.id_game,game_turn)
+    await manager.broadcast(f"TURN {uid}", e.id_game)
 
     return {"Skip Successful."}
 

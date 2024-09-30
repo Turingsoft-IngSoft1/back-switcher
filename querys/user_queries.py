@@ -86,3 +86,18 @@ def set_users_turn(game_id: int, players: int) -> int :
     finally:
         db.close()
         return first
+
+def get_user_from_turn(game_id: int, turn: int) -> int | None:
+    db = base.SessionLocal()
+    try:
+        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        user_tuples = [(user.id, user.turn) for user in users]
+
+        for user_id, user_turn in user_tuples:
+            if turn == user_turn:
+                return user_id
+
+        return user_tuples[0][0] #
+
+    finally:
+        db.close()
