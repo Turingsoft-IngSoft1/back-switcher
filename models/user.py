@@ -10,6 +10,7 @@ class UserTable(Base):
     name = Column(String, index=True)
     game_id = Column(Integer, ForeignKey('Games.id'), index=True)
     figures_deck = Column(Integer, default=13)
+    turn = Column(Integer, default=0)
 
     Moves = relationship("FigureTable",backref="UserTable")
     Figures = relationship("MoveTable",backref="UserTable")

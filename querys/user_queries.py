@@ -1,3 +1,4 @@
+import random
 from models import base
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
@@ -23,7 +24,11 @@ def get_game(user_id: int) :
     """Devuelve el id del juego que el jugador esta jugando."""
     db = base.SessionLocal()
     ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    return ret.game_id
+    ret = ret.game_id
+    try:
+        ret=ret.game_id.id
+    finally:
+        return ret
 
 def remove_user(user_id: int):
     """Elimina de la base de datos al jugador con el id correspondiente."""
@@ -49,9 +54,28 @@ def get_users(game_id: int) -> CurrentUsers :
             l.append(User(id=u.id,
                           name=u.name,
                           game=u.game_id,
-                          figures_deck=0))
+                          figures_deck=u.figures_deck,
+                          turn=u.turn))
     
         return CurrentUsers(users_list=l)
     except Exception as e:
         print(f"Error: {e}")
         return CurrentUsers(users_list=[])
+
+def set_users_turn(game_id: int, players: int) :
+    """Le asigna turnos al azar a los jugadores."""
+    db = base.SessionLocal()
+    try:
+        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        ramdom_turns = random.sample(range(players), players)
+        for u,t in zip(users,ramdom_turns):
+            u.turn = t
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+    finally:
+        db.close()
+
+

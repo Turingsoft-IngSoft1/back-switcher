@@ -1,4 +1,6 @@
 from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
+
+from querys.move_queries import set_users
 from schemas.game_schema import Game
 from schemas.user_schema import User
 from schemas.response_models import *
@@ -76,9 +78,8 @@ async def start(game_id: int) :
 
     if get_players(game_id) >= get_min_players(game_id):
         set_game_state(game_id, "Playing")
-
+        set_users_turn(game_id, get_players(game_id))
         await manager.broadcast(f"GAME_STARTED", game_id)
-        # TODO Setear turnos ->
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
 
@@ -86,6 +87,7 @@ async def start(game_id: int) :
 
 @pre_game.websocket("/ws/{game_id}/{user_id}")
 async def websocket_endpoint(ws: WebSocket, game_id: int, user_id: int) :
+    """Canal para que el servidor envie datos de la partida."""
     await manager.connect(ws, game_id, user_id)
     try:
         while True:
