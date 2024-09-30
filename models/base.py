@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Crear el motor de la base de datos
-engine = create_engine("sqlite:///./database.db")
+engine = create_engine("sqlite:///./database.db",pool_size=50,max_overflow=200)
 
 # Crear la base declarativa
 Base = declarative_base()
