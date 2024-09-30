@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from models.base import Base
 from sqlalchemy.orm import relationship
+
+from models.base import Base
+
 
 class UserTable(Base):
     """Implementacion de la tabla user en la base de datos."""
@@ -12,5 +14,5 @@ class UserTable(Base):
     figures_deck = Column(Integer, default=13)
     turn = Column(Integer, default=0)
 
-    Moves = relationship("FigureTable",backref="UserTable")
-    Figures = relationship("MoveTable",backref="UserTable")
+    Moves = relationship("FigureTable", backref="UserTable")
+    Figures = relationship("MoveTable", backref="UserTable")

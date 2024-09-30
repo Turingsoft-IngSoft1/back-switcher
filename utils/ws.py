@@ -1,10 +1,13 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from typing import Dict, Tuple
+
+from fastapi import WebSocket
+
 
 class ConnectionManager:
     """"Clase Manejadora de conexiones."""
+
     def __init__(self):
-        self.active_connections: Dict[int, list[Tuple [int,WebSocket]]] = {}
+        self.active_connections: Dict[int, list[Tuple[int, WebSocket]]] = {}
 
     async def connect(self, websocket: WebSocket, game_id: int, user_id: int):
         await websocket.accept()
@@ -25,8 +28,9 @@ class ConnectionManager:
                     break
 
     async def broadcast(self, message: str, game_id: int):
-        if game_id  in self.active_connections:
-            for _,ws in self.active_connections[game_id]:
+        if game_id in self.active_connections:
+            for _, ws in self.active_connections[game_id]:
                 await ws.send_text(message)
+
 
 manager = ConnectionManager()
