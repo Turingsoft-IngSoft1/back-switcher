@@ -1,4 +1,6 @@
 from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
+
+from querys.move_queries import set_users
 from schemas.game_schema import Game
 from schemas.user_schema import User
 from schemas.response_models import *
@@ -76,7 +78,7 @@ async def start(game_id: int) :
 
     if get_players(game_id) >= get_min_players(game_id):
         set_game_state(game_id, "Playing")
-
+        users_set_turn(game_id)
         await manager.broadcast(f"GAME_STARTED", game_id)
         # TODO Setear turnos ->
     else:
