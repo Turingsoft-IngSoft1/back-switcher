@@ -4,12 +4,12 @@ from .user_schema import User
 
 class ResponseCreate(BaseModel) :
     """Datos obtenidos de crear una partida"""
-    id_game: int = Field(ge=0,description="Unique integer that specifies this game.")
-    id_player: int = Field(ge=0,description="Unique integer that specifies this player.")
+    id_game: int = Field(ge=1,description="Unique integer that specifies this game.")
+    id_player: int = Field(ge=1,description="Unique integer that specifies this player.")
 
 class ResponseJoin(BaseModel) :
     """Datos obtenidos de unirse a una partida"""
-    new_player_id: int = Field(ge=0,description="Unique integer that specifies this player.")
+    new_player_id: int = Field(ge=1,description="Unique integer that specifies this player.")
 
 class ResponseList(BaseModel) :
     """Datos obtenidos al listar partidas"""
@@ -29,9 +29,13 @@ class CreateEntry(BaseModel) :
 
 class JoinEntry(BaseModel) :
     """Json de entrada para unirse a partida"""
-    id_game: int = Field(description="Game's unique ID.")
+    id_game: int = Field(ge=1,description="Game's unique ID.")
     player_name: str = Field(min_length=1,max_length=100,description="New player's name.")
 
 class CurrentUsers(BaseModel) :
     """Lista de usuarios conectados"""
     users_list: list[User] = Field(description="Current users in game lobby.")
+
+class InGame(BaseModel) :
+    id_player: int = Field(ge=1,description="Unique integer that specifies this player.")
+    id_game: int = Field(ge=1,description="Unique integer that specifies this game.")
