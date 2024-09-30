@@ -1,19 +1,14 @@
-import websockets
-from fastapi.testclient import TestClient
 import requests
 import json
-import asyncio
 import unittest
 
-from main import app
 from main import db
 
-client = TestClient(app)
 
 db.teardown()
 
 class TestGame(unittest.TestCase):
-    async def test_leave(self):
+    def test6_leave(self):
         url_create = "http://localhost:8000/create_game"
         payload = {
             "game_name": "PartidaEjemplo",
@@ -46,8 +41,7 @@ class TestGame(unittest.TestCase):
         formatted_expected = json.dumps(expected_json, sort_keys=True)
         self.assertEqual(formatted_response, formatted_expected)
         
-       
-            
+                   
 if __name__ == '__main__':
     unittest.main()
 

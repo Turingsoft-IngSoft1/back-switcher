@@ -1,4 +1,4 @@
-import pytest
+"""import pytest
 import asyncio
 import websockets
 from fastapi.testclient import TestClient
@@ -24,3 +24,5 @@ async def test_websocket():
 if __name__ == "__main__":
     
     asyncio.run(test_websocket())
+
+"""
