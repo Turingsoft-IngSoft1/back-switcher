@@ -18,18 +18,16 @@ async def leave(e: InGame) :
     """Abandonar Partida."""
     #En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
     remove_player(e.id_game)
-
-    await manager.broadcast(f"{e.id_player} se fue", e.id_game)
+    remove_user(e.id_player)
+    await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
 
     if get_players(e.id_game) == 1:
         set_game_state(e.id_game, "Finished")
         winner = get_users(e.id_game).users_list
-        await manager.broadcast(f"{winner[0].id} gano", e.id_game)
+        await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
     if get_players(e.id_game) == 0:
         remove_game(e.id_game)
-
-    remove_user(e.id_player)
 
     return {"Exit Successful."}
 
