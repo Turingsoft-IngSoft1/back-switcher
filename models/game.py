@@ -1,11 +1,12 @@
 from sqlalchemy import Column, Integer, String
-from models.base import Base
 from sqlalchemy.orm import relationship
 
+from models.base import Base
+
+
 class GameTable(Base):
-    
     __tablename__ = 'Games'
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     state = Column(String, default="Waiting", index=True)
@@ -17,4 +18,4 @@ class GameTable(Base):
     password = Column(String, default="password")
     moves_deck = Column(Integer, default=50)
     Users = relationship("UserTable", backref="GameTable")
-    #Boards = relationship("Board", backref="GameTable")
+    # Boards = relationship("Board", backref="GameTable")
