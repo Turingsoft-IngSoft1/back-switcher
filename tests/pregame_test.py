@@ -1,4 +1,6 @@
 import unittest
+from csv import excel
+
 import requests
 import json
 from http.client import responses
@@ -9,13 +11,13 @@ db.teardown()
 
 class TestPregame(unittest.TestCase):
 
-    def test_create_game(self):
+    def test1_create_game(self):
 
         url = "http://localhost:8000/create_game"
         payload = {
             "game_name": "PartidaEjemplo",
             "owner_name": "UsuarioEjemplo",
-            "min_player": 2,
+            "min_player": 3,
             "max_player": 4
         }
         response = requests.post(url,json=payload)
@@ -30,7 +32,7 @@ class TestPregame(unittest.TestCase):
         response = requests.post(url,json=payload)
         self.assertEqual(response.status_code,422)
     
-    def test_list_game(self):
+    def test2_list_game(self):
 
         url = "http://localhost:8000/list_games"
         expected_json ={
@@ -43,7 +45,7 @@ class TestPregame(unittest.TestCase):
                 "host": 1,
                 "players": 1,
                 "max_players": 4,
-                "min_players": 2,
+                "min_players": 3,
                 "password": "password",
                 "moves_deck": 50
             }
@@ -54,6 +56,78 @@ class TestPregame(unittest.TestCase):
         formatted_expected = json.dumps(expected_json, sort_keys=True)
         self.assertEqual(response.status_code,200)
         self.assertEqual(formatted_expected, formatted_response)
+
+    def test3_join_game(self):
+
+        url = "http://localhost:8000/join_game"
+        payload = {
+          "id_game": 1,
+          "player_name": "UsuarioUnido"
+        }
+
+        expected_json = {
+          "new_player_id": 2
+        }
+
+        response = requests.post(url,json=payload)
+        self.assertEqual(response.status_code,200)
+        formatted_response = json.dumps(response.json(), sort_keys=True)
+        formatted_expected = json.dumps(expected_json, sort_keys=True)
+        self.assertEqual(formatted_expected, formatted_response)
+
+    def test4_active_players(self):
+        url = "http://localhost:8000/active_players/1"
+        response = requests.get(url)
+        expected_json = {
+          "users_list": [
+            {
+              "id": 1,
+              "name": "UsuarioEjemplo",
+              "game": 1,
+              "figures_deck": 13,
+              "turn": 0
+            } ,
+            {
+              "id": 2,
+              "name": "UsuarioUnido",
+              "game": 1,
+              "figures_deck": 13,
+              "turn": 0
+            }
+          ]
+        }
+        self.assertEqual(response.status_code,200)
+        formatted_expected = json.dumps(response.json(), sort_keys=True)
+        formatted_response = json.dumps(response.json(), sort_keys=True)
+        self.assertEqual(formatted_expected, formatted_response)
+
+    def test5_start_game(self):
+        url = "http://localhost:8000/start_game/1"
+        response = requests.post(url)
+        error_json = {
+            "detail": "El lobby no alcanzo su capacidad minima para comenzar."
+        }
+        self.assertEqual(response.status_code, 409)
+        formatted_response = json.dumps(response.json(), sort_keys=True)
+        formatted_error = json.dumps(error_json, sort_keys=True)
+        self.assertEqual(formatted_response, formatted_error)
+
+        urljoin = "http://localhost:8000/join_game"
+        payload = {
+            "id_game": 1,
+            "player_name": "UsuarioParaLlenarLobby"
+        }
+        requests.post(urljoin,json=payload)
+
+        response = requests.post(url)
+        expected_json = {
+          "message": "El juego comenzo correctamente."
+        }
+        self.assertEqual(response.status_code, 200)
+        formatted_response = json.dumps(response.json(), sort_keys=True)
+        formatted_expected = json.dumps(expected_json, sort_keys=True)
+        self.assertEqual(formatted_response, formatted_expected)
+
 
 if __name__ == '__main__':
     unittest.main()
