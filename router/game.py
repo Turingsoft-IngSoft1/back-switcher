@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from querys.game_queries import *
 from querys.user_queries import *
+from querys import remove_board
 from schemas.response_models import InGame
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -24,6 +25,7 @@ async def leave(e: InGame):
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
     if get_players(e.id_game,SERVER_DB) == 0:
+        remove_board(e.id_game,SERVER_DB)
         remove_game(e.id_game,SERVER_DB)
 
     return {"message": "Exit Successful."}
