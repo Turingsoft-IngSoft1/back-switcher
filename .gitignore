@@ -5,4 +5,5 @@ schemas/__pycache__/
 .venv/
 */__pycache__
 *.db
-tests/.pytest_cache
+*/.pytest_cache
+.coverage

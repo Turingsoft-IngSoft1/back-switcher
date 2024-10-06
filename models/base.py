@@ -21,11 +21,13 @@ class DBManager:
         self.db = self.SessionLocal()
 
     def teardown(self):
-        with self.db.begin():
+        with self.engine.connect() as connection:
             for table in Base.metadata.tables.values():
-                self.db.execute(table.delete())
+                connection.execute(table.delete())
         self.db.commit()
         self.db.close()
+
+
 
     def close(self):
         self.db.close()
