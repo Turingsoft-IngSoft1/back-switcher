@@ -7,7 +7,7 @@ class Board(BaseModel):
     matrix: list[list[str]] = Field(description="List of cells in the board.")
 
     @classmethod
-    def create(cls, id_game: int):
-        color = get_color(id_game)
-        matrix = get_board(id_game)
+    def create(cls, id_game: int, db):
+        color = get_color(id_game, db)
+        matrix = get_board(id_game, db)
         return cls(id_game=id_game, color=color, matrix=matrix)
