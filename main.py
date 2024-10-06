@@ -10,6 +10,7 @@ from router.pre_game import pre_game
 
 from models.figure import FigureTable
 from models.move import MoveTable
+from models.board import  BoardTable
 
 app = FastAPI(
     title="Switcher - TuringSoft™",
@@ -36,3 +37,11 @@ app.include_router(cards)
 
 # Crea las tablas en base a los models importados.
 db = DBManager()
+db.teardown()
+
+from schemas.board_schema import Board
+from querys.board_queries import *
+
+i = create_board(1)
+print(get_color(1))
+print(get_board(1)[1][0])
