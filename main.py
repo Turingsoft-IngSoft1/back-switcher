@@ -42,6 +42,11 @@ db.teardown()
 from schemas.board_schema import Board
 from querys.board_queries import *
 
-i = create_board(1)
-print(get_color(1))
-print(get_board(1)[1][0])
+create_board(1)
+b=Board.create(1)
+print(b.matrix)
+aux = b.matrix[0][0]
+b.matrix[0][0] = b.matrix[1][0]
+b.matrix[1][0] = aux
+print(b.matrix)
+update_board(b.id_game,b.matrix)

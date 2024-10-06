@@ -1,5 +1,5 @@
 from models import base
-from models.board import BoardTable
+from models.board import BoardTable,BoardValidationError
 
 def create_board(id_game: int):  # Chequear si va id
     """Crea un tablero y lo inserta en la base de datos."""
@@ -31,3 +31,15 @@ def get_color(id_game: int) -> str:
     color_ret = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
     return color_ret.color
 
+def update_board(id_game: int, matrix: list[list[str]]):
+    db = base.SessionLocal()
+    try:
+        b_table = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
+        b_table.board_json = matrix
+        db.commit()
+        print(f"Board {b_table.id} updated")
+    except BoardValidationError as e:
+        db.rollback()
+        print(f"Error: {e}")
+    finally:
+        db.close()
