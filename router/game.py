@@ -18,9 +18,9 @@ async def leave(e: InGame):
     remove_user(e.id_player,SERVER_DB)
     await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
 
-    if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game) == "Playing":
+    if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished",SERVER_DB)
-        winner = get_users(e.id_game).users_list
+        winner = get_users(e.id_game,SERVER_DB).users_list
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
     if get_players(e.id_game,SERVER_DB) == 0:
@@ -37,9 +37,9 @@ async def skip(e: InGame):
     actual_turn = get_game_turn(e.id_game,SERVER_DB)
     actual_players = get_players(e.id_game,SERVER_DB)
     set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
-    game_turn = (get_game_turn(e.id_game) % actual_players,SERVER_DB)
+    game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
     uid = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
-    await manager.broadcast(f"TURN {uid}", e.id_game,SERVER_DB)
+    await manager.broadcast(f"TURN {uid}", e.id_game)
 
     return {"Skip Successful."}
 

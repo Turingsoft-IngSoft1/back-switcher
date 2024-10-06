@@ -38,3 +38,15 @@ def update_board(id_game: int, matrix: list[list[str]], db):
         print(f"Error: {e}")
     finally:
         db.close()
+
+def remove_game(id_game: int, db):
+    to_remove = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
+    try:
+        db.delete(to_remove)
+        db.commit()
+        print(f"Game deleted.")
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+    finally:
+        db.close()

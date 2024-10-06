@@ -98,7 +98,6 @@ def add_player(id_game: int, db):
 
 
 def remove_player(id_game: int, db):
-    db = base.SessionLocal()
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players - 1})
     db.commit()

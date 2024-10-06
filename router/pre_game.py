@@ -100,7 +100,7 @@ async def start(id_game: int):
                        db=SERVER_DB)
         
         first = set_users_turn(id_game=id_game,
-                               players=get_players(id_game),
+                               players=get_players(id_game, SERVER_DB),
                                db=SERVER_DB)
         
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
