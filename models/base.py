@@ -26,8 +26,3 @@ class DBManager:
                 connection.execute(table.delete())
         self.db.commit()
         self.db.close()
-
-
-
-    def close(self):
-        self.db.close()

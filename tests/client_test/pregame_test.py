@@ -1,10 +1,8 @@
 import json,pytest
 from unittest.mock import patch
 
-@pytest.mark.order(2)
-def test_create_game(mocker,test_db,client):
-    mocker.patch("utils.database.SERVER_DB", test_db)
-
+def test_create_game(mock_server_db,test_db,client,force_teardown):
+    #Crear PartidaEjempo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
@@ -14,7 +12,7 @@ def test_create_game(mocker,test_db,client):
     }
     response = client.post(url, json=payload)
     assert response.status_code == 200
-
+    #Intento crear PartidaErronea.
     payload = {
         "game_name": "PartidaErronea",
         "owner_name": "UsuarioErroneo",
@@ -24,10 +22,17 @@ def test_create_game(mocker,test_db,client):
     response = client.post(url, json=payload)
     assert response.status_code == 422
 
-@pytest.mark.order(3)
-def test_list_game(mocker,test_db,client):
-    mocker.patch("utils.database.SERVER_DB", test_db)
-
+def test_list_game(mock_server_db,test_db,client,force_teardown):
+    #Crear PartidaEjempo y UsuarioEjemplo. 
+    url = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 3,
+        "max_player": 4
+    }
+    response = client.post(url, json=payload)
+    #Listar partidas, solo deberia aparecer PartidaEjemplo
     url = "http://localhost:8000/list_games"
     expected_json = {
         "games_list": [
@@ -51,10 +56,17 @@ def test_list_game(mocker,test_db,client):
     assert response.status_code == 200
     assert formatted_expected, formatted_response
 
-@pytest.mark.order(4)
-def test_join_game(mocker,test_db,client):
-    mocker.patch("utils.database.SERVER_DB", test_db)
-
+def test_join_game(mock_server_db,test_db,client,force_teardown):
+    #Crear PartidaEjempo y UsuarioEjemplo. 
+    url = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 3,
+        "max_player": 4
+    }
+    response = client.post(url, json=payload)
+    #Unir a UsuarioUnido a la partida.
     url = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
@@ -71,10 +83,17 @@ def test_join_game(mocker,test_db,client):
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_expected == formatted_response
 
-@pytest.mark.order(5)
-def test4_active_players(mocker,test_db,client):
-    mocker.patch("utils.database.SERVER_DB", test_db)
-
+def test_active_players(mock_server_db,test_db,client,force_teardown):
+    #Crear PartidaEjempo y UsuarioEjemplo.    
+    url = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    response = client.post(url, json=payload)
+    #Listar jugadores activos en el juego con id 1.
     url = "http://localhost:8000/active_players/1"
     response = client.get(url)
     expected_json = {
@@ -82,13 +101,6 @@ def test4_active_players(mocker,test_db,client):
             {
                 "id": 1,
                 "name": "UsuarioEjemplo",
-                "game": 1,
-                "figures_deck": 13,
-                "turn": 0
-            },
-            {
-                "id": 2,
-                "name": "UsuarioUnido",
                 "game": 1,
                 "figures_deck": 13,
                 "turn": 0
@@ -100,10 +112,17 @@ def test4_active_players(mocker,test_db,client):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     assert formatted_expected == formatted_response
 
-@pytest.mark.order(6)
-def test_start_game(mocker,test_db,client):
-    mocker.patch("utils.database.SERVER_DB", test_db)
-
+def test_start_game(mock_server_db,test_db,client,force_teardown):
+    #Crear partida y jugador 1.    
+    url = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    response = client.post(url, json=payload)
+    #Inteto errorneo de iniciar partida.
     url = "http://localhost:8000/start_game/1"
     response = client.post(url)
     error_json = {
@@ -113,14 +132,14 @@ def test_start_game(mocker,test_db,client):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     formatted_error = json.dumps(error_json, sort_keys=True)
     assert formatted_response == formatted_error
-
+    #Unir a jugador2 para poder iniciar partida.
     urljoin = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
     client.post(urljoin, json=payload)
-
+    #Se inicia partida correctamente.
     response = client.post(url)
     expected_json = {
         "message": "El juego comenzo correctamente."
