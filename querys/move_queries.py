@@ -1,10 +1,10 @@
 from models.move import MoveTable
 
 
-def create_move(name: str, db):
+def create_move(name: str, id_game: int, db):
     """Crear movimiento y agregarlo."""
     try:
-        new_move = MoveTable(name=name)
+        new_move = MoveTable(name=name, id_game=id_game)
         db.add(new_move)
         db.commit()
         db.refresh(new_move)
@@ -17,13 +17,13 @@ def create_move(name: str, db):
         db.close()
 
 
-def get_users(id: int, db):
+def get_move_user(id: int, db):
     """Devuelve la id del jugador al cual le pertenece el movimiento."""
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.user_id
 
 
-def set_users(id: int, user_id: int, db):
+def set_move_user(id: int, user_id: int, db):
     """Cambia el jugador al que pertenece el movimiento."""
     try:
         db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.user_id: user_id})
