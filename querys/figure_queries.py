@@ -17,7 +17,7 @@ def create_figure(name: str, user_id: int, db):
         db.close()
 
 
-def get_users(id: int, db):
+def get_figure_user(id: int, db):
     """Devuelve la id del jugador al cual le pertenece la figura."""
     ret = db.query(FigureTable).filter(FigureTable.id == id).first()
     return ret.user_id
