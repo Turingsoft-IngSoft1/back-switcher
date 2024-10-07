@@ -111,28 +111,28 @@ async def start(id_game: int):
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
     
     for _ in range(7):
-        create_move("mov1", game_id)
-        create_move("mov2", game_id)
-        create_move("mov3", game_id)
-        create_move("mov4", game_id)
-        create_move("mov5", game_id)
-        create_move("mov6", game_id)
-        create_move("mov7", game_id)
+        create_move("mov1", id_game, SERVER_DB)
+        create_move("mov2", id_game, SERVER_DB)
+        create_move("mov3", id_game, SERVER_DB)
+        create_move("mov4", id_game, SERVER_DB)
+        create_move("mov5", id_game, SERVER_DB)
+        create_move("mov6", id_game, SERVER_DB)
+        create_move("mov7", id_game, SERVER_DB)
     
     easy_figures = ["fige01","fige02","fige03","fige04","fige05","fige06","fige07"]            
     hard_figures = ["fig01","fig02","fig03","fig04","fig05","fig06",
                     "fig07","fig08","fig09","fig10","fig11","fig12",
                     "fig13","fig14","fig15","fig16","fig17","fig18"]
     
-    for player in range(get_players(game_id)):
+    for player in range(get_players(id_game, SERVER_DB)):
         for _ in range(3):
             random_easy_figure = random.sample(easy_figures, 1)[0]
-            create_figure(random_easy_figure, player)
-            await manager.send_personal_message(random_easy_figure, game_id, player)
+            create_figure(random_easy_figure, player, SERVER_DB)
+            await manager.send_personal_message(random_easy_figure, id_game, player)
         for _ in range(9):
             random_hard_figure = random.sample(hard_figures, 1)[0]
-            create_figure(random_hard_figure, player)
-            await manager.send_personal_message(random_hard_figure, game_id, player)
+            create_figure(random_hard_figure, player, SERVER_DB)
+            await manager.send_personal_message(random_hard_figure, id_game, player)
     
     return {"message": "El juego comenzo correctamente."}
 

@@ -96,14 +96,12 @@ def add_player(id_game: int, db):
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players + 1})
     db.commit()
     
-def add_move_to_deck(id_game: int):
-    db = base.SessionLocal()
+def add_move_to_deck(id_game: int, db):
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.moves_deck: tab.moves_deck + 1})
     db.commit()
     
-def remove_move_from_deck(id_game: int):
-    db = base.SessionLocal()
+def remove_move_from_deck(id_game: int, db):
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.moves_deck: tab.moves_deck - 1})
     db.commit()
