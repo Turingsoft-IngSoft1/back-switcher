@@ -19,4 +19,4 @@ class GameTable(Base):
     moves_deck = Column(Integer, default=49)
     Users = relationship("UserTable", backref="GameTable")
     Moves = relationship("MoveTable", backref="GameTable")
-    # Boards = relationship("Board", backref="GameTable")
+    Boards = relationship("BoardTable", backref="GameTable")
