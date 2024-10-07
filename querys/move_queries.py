@@ -2,11 +2,11 @@ from models import base
 from models.move import MoveTable
 
 
-def create_move(name: str):
+def create_move(name: str, game_id: int):
     """Crear movimiento y agregarlo."""
     db = base.SessionLocal()
     try:
-        new_move = MoveTable(name=name)
+        new_move = MoveTable(name=name, game_id=game_id)
         db.add(new_move)
         db.commit()
         db.refresh(new_move)

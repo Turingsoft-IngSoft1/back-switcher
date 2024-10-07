@@ -25,7 +25,6 @@ def get_users(id: int):
     ret = db.query(FigureTable).filter(FigureTable.id == id).first()
     return ret.user_id
 
-
 def get_figure_name(id: int):
     """Devuelve el nombre de la figura."""
     db = base.SessionLocal()

@@ -7,3 +7,4 @@ class Move(BaseModel):
     name: str = Field(min_length=1, max_length=100, description="Name of the move.")
     pile: str = Field(min_length=1, max_length=100, description="Pile the card is in (Deck, In Hand or Discard).")
     user_id: int = Field(description="Unique integer that specifies the owner of the card.")
+    game_id: int = Field(description="Unique integer that specifies which game the card is in.")
