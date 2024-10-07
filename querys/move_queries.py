@@ -23,7 +23,7 @@ def get_move_user(id: int, db):
     return ret.user_id
 
 
-def set_users(id: int, user_id: int, db):
+def set_move_user(id: int, user_id: int, db):
     """Cambia el jugador al que pertenece el movimiento."""
     try:
         db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.user_id: user_id})

@@ -110,19 +110,11 @@ async def start(id_game: int):
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
     
-    for _ in range(7):
-        create_move("mov1", id_game, SERVER_DB)
-        create_move("mov2", id_game, SERVER_DB)
-        create_move("mov3", id_game, SERVER_DB)
-        create_move("mov4", id_game, SERVER_DB)
-        create_move("mov5", id_game, SERVER_DB)
-        create_move("mov6", id_game, SERVER_DB)
-        create_move("mov7", id_game, SERVER_DB)
+    for i in range(1, 8):
+        create_move(f"mov{i}", id_game, SERVER_DB)
     
-    easy_figures = ["fige01","fige02","fige03","fige04","fige05","fige06","fige07"]            
-    hard_figures = ["fig01","fig02","fig03","fig04","fig05","fig06",
-                    "fig07","fig08","fig09","fig10","fig11","fig12",
-                    "fig13","fig14","fig15","fig16","fig17","fig18"]
+    easy_figures = [f"fige{i:02d}" for i in range(1, 8)]            
+    hard_figures = [f"fig{i:02d}" for i in range(1, 19)]
     
     for player in range(get_players(id_game, SERVER_DB)):
         for _ in range(3):

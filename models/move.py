@@ -12,5 +12,4 @@ class MoveTable(Base):
     pile = Column(String, default="Deck")
 
     user_id = Column(Integer, ForeignKey('Users.id'))
-    game_id = Column(Integer, ForeignKey('Games.id'))
-    
+    id_game = Column(Integer, ForeignKey('Games.id'))
