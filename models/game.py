@@ -18,4 +18,4 @@ class GameTable(Base):
     password = Column(String, default="password")
     moves_deck = Column(Integer, default=50)
     Users = relationship("UserTable", backref="GameTable")
-    # Boards = relationship("Board", backref="GameTable")
+    Boards = relationship("BoardTable", backref="GameTable")

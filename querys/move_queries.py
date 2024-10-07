@@ -1,10 +1,8 @@
-from models import base
 from models.move import MoveTable
 
 
-def create_move(name: str):
+def create_move(name: str, db):
     """Crear movimiento y agregarlo."""
-    db = base.SessionLocal()
     try:
         new_move = MoveTable(name=name)
         db.add(new_move)
@@ -19,16 +17,14 @@ def create_move(name: str):
         db.close()
 
 
-def get_users(id: int):
+def get_users(id: int, db):
     """Devuelve la id del jugador al cual le pertenece el movimiento."""
-    db = base.SessionLocal()
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.user_id
 
 
-def set_users(id: int, user_id: int):
+def set_users(id: int, user_id: int, db):
     """Cambia el jugador al que pertenece el movimiento."""
-    db = base.SessionLocal()
     try:
         db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.user_id: user_id})
         db.commit()
@@ -40,23 +36,20 @@ def set_users(id: int, user_id: int):
         db.close()
 
 
-def get_move_name(id: int):
+def get_move_name(id: int, db):
     """Devuelve el nombre del movimiento."""
-    db = base.SessionLocal()
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.name
 
 
-def get_move_pile(id: int):
+def get_move_pile(id: int, db):
     """Devuelve la pila a la que pertenece el movimiento."""
-    db = base.SessionLocal()
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.pile
 
 
-def set_move_pile(id: int, pile: str):
+def set_move_pile(id: int, pile: str, db):
     """Cambia la pila a la que pertence el movimiento."""
-    db = base.SessionLocal()
     try:
         db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.pile: pile})
         db.commit()
@@ -68,9 +61,8 @@ def set_move_pile(id: int, pile: str):
         db.close()
 
 
-def remove_move(id: int):
+def remove_move(id: int, db):
     """Elimina de la base de datos el movimiento con el id correspondiente."""
-    db = base.SessionLocal()
     toRemove = db.query(MoveTable).filter(MoveTable.id == id).first()
     try:
         db.delete(toRemove)

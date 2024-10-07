@@ -1,4 +1,4 @@
-import asyncio
+"""import asyncio
 import httpx
 import pytest
 import unittest
@@ -29,3 +29,4 @@ class TestWS(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+"""

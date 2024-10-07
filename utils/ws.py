@@ -9,27 +9,27 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[int, list[Tuple[int, WebSocket]]] = {}
 
-    async def connect(self, websocket: WebSocket, game_id: int, user_id: int):
+    async def connect(self, websocket: WebSocket, id_game: int, user_id: int):
         await websocket.accept()
-        if game_id not in self.active_connections:
-            self.active_connections[game_id] = []
-        self.active_connections[game_id].append((user_id, websocket))
+        if id_game not in self.active_connections:
+            self.active_connections[id_game] = []
+        self.active_connections[id_game].append((user_id, websocket))
 
-    def disconnect(self, websocket: WebSocket, game_id: int, user_id: int):
-        self.active_connections[game_id].remove((user_id, websocket))
-        if not self.active_connections[game_id]:
-            del self.active_connections[game_id]
+    def disconnect(self, websocket: WebSocket, id_game: int, user_id: int):
+        self.active_connections[id_game].remove((user_id, websocket))
+        if not self.active_connections[id_game]:
+            del self.active_connections[id_game]
 
-    async def send_personal_message(self, message: str, game_id: int, user_id: int):
-        if game_id in self.active_connections:
-            for uid, ws in self.active_connections[game_id]:
+    async def send_personal_message(self, message: str, id_game: int, user_id: int):
+        if id_game in self.active_connections:
+            for uid, ws in self.active_connections[id_game]:
                 if uid == user_id:
                     await ws.send_text(message)
                     break
 
-    async def broadcast(self, message: str, game_id: int):
-        if game_id in self.active_connections:
-            for _, ws in self.active_connections[game_id]:
+    async def broadcast(self, message: str, id_game: int):
+        if id_game in self.active_connections:
+            for _, ws in self.active_connections[id_game]:
                 await ws.send_text(message)
 
 

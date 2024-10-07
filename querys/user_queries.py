@@ -1,16 +1,13 @@
 import random
-
-from models import base
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
 from schemas.user_schema import User
 
 
-def create_user(name: str, game_id: int):
+def create_user(name: str, id_game: int, db):
     """Crear un usuario y agregarlo."""
-    db = base.SessionLocal()
     try:
-        new_user = UserTable(name=name, game_id=game_id)
+        new_user = UserTable(name=name, id_game=id_game)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -23,20 +20,18 @@ def create_user(name: str, game_id: int):
         db.close()
 
 
-def get_game(user_id: int):
+def get_game(user_id: int, db):
     """Devuelve el id del juego que el jugador esta jugando."""
-    db = base.SessionLocal()
     ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    ret = ret.game_id
+    ret = ret.id_game
     try:
-        ret = ret.game_id.id
+        ret = ret.id_game.id
     finally:
         return ret
 
 
-def remove_user(user_id: int):
+def remove_user(user_id: int, db):
     """Elimina de la base de datos al jugador con el id correspondiente."""
-    db = base.SessionLocal()
     to_remove = db.query(UserTable).filter(UserTable.id == user_id).first()
     try:
         db.delete(to_remove)
@@ -49,16 +44,15 @@ def remove_user(user_id: int):
         db.close()
 
 
-def get_users(game_id: int) -> CurrentUsers:
+def get_users(id_game: int, db) -> CurrentUsers:
     """Lista los jugadores activos en una partida."""
-    db = base.SessionLocal()
     try:
-        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
         l = []
         for u in users:
             l.append(User(id=u.id,
                           name=u.name,
-                          game=u.game_id,
+                          game=u.id_game,
                           figures_deck=u.figures_deck,
                           turn=u.turn))
 
@@ -68,12 +62,11 @@ def get_users(game_id: int) -> CurrentUsers:
         return CurrentUsers(users_list=[])
 
 
-def set_users_turn(game_id: int, players: int) -> int :
+def set_users_turn(id_game: int, players: int, db) -> int :
     """Le asigna turnos al azar a los jugadores."""
-    db = base.SessionLocal()
     first = 0
     try:
-        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
         ramdom_turns = random.sample(range(players), players)
         for u, t in zip(users, ramdom_turns):
             u.turn = t
@@ -87,10 +80,9 @@ def set_users_turn(game_id: int, players: int) -> int :
         db.close()
         return first
 
-def get_user_from_turn(game_id: int, turn: int) -> int | None:
-    db = base.SessionLocal()
+def get_user_from_turn(id_game: int, turn: int, db) -> int | None:
     try:
-        users = db.query(UserTable).filter(UserTable.game_id == game_id).all()
+        users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
         user_tuples = [(user.id, user.turn) for user in users]
 
         for user_id, user_turn in user_tuples:
