@@ -12,7 +12,7 @@ cards = APIRouter()
 
 
 @cards.get("/get_moves")
-async def get_moves(player_id: int, game_id: int):
+async def get_moves(player_id: int, id_game: int):
     """Obtener cartas de movimiento."""
 
     # En caso de exito debe de modificar el estado del jugador dandole nuevas cartas y sacando estas de las disponibles.
@@ -24,8 +24,8 @@ async def get_moves(player_id: int, game_id: int):
         if get_move_pile(random_move, SERVER_DB)=="Deck":
             set_move_pile(random_move, "In Hand", SERVER_DB)
             set_users(random_move, player_id, SERVER_DB)
-            remove_move_from_deck(game_id, SERVER_DB)
-            await manager.send_personal_message(random_move, game_id, player_id)
+            remove_move_from_deck(id_game, SERVER_DB)
+            await manager.send_personal_message(random_move, id_game, player_id)
             i+=1
 
     return {"Movimientos Entregados Correctamente."}

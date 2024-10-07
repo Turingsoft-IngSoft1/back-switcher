@@ -1,10 +1,10 @@
 from models.move import MoveTable
 
 
-def create_move(name: str, game_id, db):
+def create_move(name: str, id_game, db):
     """Crear movimiento y agregarlo."""
     try:
-        new_move = MoveTable(name=name, game_id=game_id)
+        new_move = MoveTable(name=name, id_game=id_game)
         db.add(new_move)
         db.commit()
         db.refresh(new_move)
