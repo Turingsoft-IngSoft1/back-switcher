@@ -1,7 +1,7 @@
 from models.move import MoveTable
 
 
-def create_move(name: str, id_game, db):
+def create_move(name: str, id_game: int, db):
     """Crear movimiento y agregarlo."""
     try:
         new_move = MoveTable(name=name, id_game=id_game)
