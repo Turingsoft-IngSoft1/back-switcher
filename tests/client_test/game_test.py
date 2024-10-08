@@ -1,5 +1,6 @@
 import json,pytest
 from unittest.mock import patch
+from querys.board_queries import update_board
 
 def test_leave(mock_server_db,test_db,client,force_teardown):
     #Crear PartidaEjempo y UsuarioEjemplo. 
@@ -67,3 +68,38 @@ def test_skip_turn(mock_server_db,test_db,client,force_teardown):
     }
     response = client.post(url, json=payload)
     assert response.status_code == 200
+
+def test_get_board_status(mock_server_db,test_db,client,force_teardown):
+    #Crear PartidaEjempo y UsuarioEjemplo. 
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaTurnos",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    client.post(url_create, json=payload)
+    
+    sucess=[['R','R','R','R','R','R'],
+            ['R','R','R','G','G','G'],
+            ['G','G','G','G','G','G'],
+            ['B','B','B','B','B','B'],
+            ['B','B','B','Y','Y','Y'],
+            ['Y','Y','Y','Y','Y','Y']]
+    
+    expected_json = {"board":sucess}
+    update_board(1,sucess,test_db)
+
+    url_board= "http://localhost:8000/board_status/1"
+    
+    response=client.get(url_board)
+    
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    
+    assert response.status_code == 200
+    assert formatted_response == formatted_expected    
+
+    url_board= "http://localhost:8000/board_status/2"
+    response=client.get(url_board)
+    assert response.status_code == 404

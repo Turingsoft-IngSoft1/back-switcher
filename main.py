@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from router.cards import cards
 from router.game import game
 from router.pre_game import pre_game
 
-# TODO -> Agregar los import con los modelos implementados, esto crea la tabla en la base de datos.
 app = FastAPI(
     title="Switcher - TuringSoft™",
     description="Descripcion de prueba.",
@@ -28,3 +26,4 @@ app.add_middleware(
 app.include_router(pre_game)
 app.include_router(game)
 app.include_router(cards)
+

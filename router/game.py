@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import remove_board
-from schemas.response_models import InGame
+from querys import remove_board,get_board
+from schemas.response_models import InGame,BoardStatus
 from utils.ws import manager
 from utils.database import SERVER_DB
 
@@ -55,10 +55,10 @@ def get_status(id_player: int, id_game: int):
     return {"Game Status Sucessful."}
 
 
-@game.get("/board_status")
-def get_board(id_player: int, id_game: int):
+@game.get("/board_status/{id_game}", response_model=BoardStatus)
+def get_board_status(id_game: int):
     """Consultar estado del tablero."""
-
-    # TODO Implementacion ->
-
-    return {"Board Status."}
+    if get_game(id_game=id_game,db=SERVER_DB) is not None:
+        return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB))
+    else:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
