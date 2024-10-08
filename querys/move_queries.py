@@ -52,8 +52,8 @@ def get_deck(id_game: int, db):
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                      MoveTable.status == "Deck").all()
     deck = []
-    for _ in range(len(ret)):
-        deck.append(ret.id)
+    for i in range(len(ret)):
+        deck.append(ret[i].id)
     return deck
 
 def moves_in_deck(id_game: int, db):
