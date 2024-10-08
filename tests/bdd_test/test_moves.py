@@ -22,33 +22,33 @@ def test_create_move(test_db, force_teardown):
     #Caso 3: Crear movimiento incorrectamente.
     #Falta implementar una validacion del nombre de los movimientos en models.
     
-def test_get_move_pile(test_db, force_teardown):
+def test_get_move_status(test_db, force_teardown):
     
-    #Obtiene la pila actual de la carta.
+    #Obtiene el status actual de la carta.
     id = create_move("mov1", id_game=1, db=test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.pile == "Deck" == get_move_pile(id, test_db)
+    assert tab.status == "Deck" == get_move_status(id, test_db)
     
-def test_set_move_pile(test_db, force_teardown):
+def test_set_move_status(test_db, force_teardown):
     
     #Caso 1: Asigna la carta a la mano de un jugador
     id = create_move("mov1", id_game=1, db=test_db)
-    set_move_pile(id, "In Hand", test_db)
+    set_move_status(id, "InHand", test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.pile == "In Hand"
+    assert tab.status == "InHand"
     
-    #Caso 2: Asigna la carta a la pila de descarte
-    set_move_pile(id, "Discard", test_db)
+    #Caso 2: Asigna la carta a el status de descarte
+    set_move_status(id, "Discard", test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.pile == "Discard"
+    assert tab.status == "Discard"
     
     #Caso 3: Asigna la carta al deck
-    set_move_pile(id, "Deck", test_db)
+    set_move_status(id, "Deck", test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.pile == "Deck"
+    assert tab.status == "Deck"
     
-    #Caso 4: Se asigna a una pila incorrectamente.
-    #Falta implementar validacion de las pilas en models.
+    #Caso 4: Se asigna un status incorrectamente.
+    
     
 def test_set__move_user(test_db, force_teardown):
     

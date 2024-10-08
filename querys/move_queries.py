@@ -42,18 +42,18 @@ def get_move_name(id: int, db):
     return ret.name
 
 
-def get_move_pile(id: int, db):
-    """Devuelve la pila a la que pertenece el movimiento."""
+def get_move_status(id: int, db):
+    """Devuelve el status a la que pertenece el movimiento."""
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
-    return ret.pile
+    return ret.status
 
 
-def set_move_pile(id: int, pile: str, db):
-    """Cambia la pila a la que pertence el movimiento."""
+def set_move_status(id: int, status: str, db):
+    """Cambia el status a la que pertence el movimiento."""
     try:
-        db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.pile: pile})
+        db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.status: status})
         db.commit()
-        print(f"Set to different pile.")
+        print(f"Set to different status.")
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")

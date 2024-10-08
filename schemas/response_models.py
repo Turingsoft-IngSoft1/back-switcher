@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 
 from .game_schema import Game
 from .user_schema import User
+from .move_schema import Move
+from .figure_schema import Figure
 
 
 class ResponseCreate(BaseModel):
@@ -51,3 +53,9 @@ class InGame(BaseModel):
 
 class BoardStatus(BaseModel):
     board: list[list[str]] = Field(description="Game's actual board status.")
+    
+class RespondeMoves(BaseModel):
+    moves: list[Move] = Field(description="List of moves.")
+    
+class RespondeFigures(BaseModel):
+    figures: list[Figure] = Field(description="List of figures.")
