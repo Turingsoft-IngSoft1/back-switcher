@@ -20,16 +20,6 @@ def create_user(name: str, id_game: int, db):
         db.close()
 
 
-def get_game(user_id: int, db):
-    """Devuelve el id del juego que el jugador esta jugando."""
-    ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    ret = ret.id_game
-    try:
-        ret = ret.id_game.id
-    finally:
-        return ret
-
-
 def remove_user(user_id: int, db):
     """Elimina de la base de datos al jugador con el id correspondiente."""
     to_remove = db.query(UserTable).filter(UserTable.id == user_id).first()

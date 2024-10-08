@@ -23,18 +23,21 @@ def create_game(name: str, max_players: int, min_players: int, db):
 def get_game(id_game: int, db) -> game_schema.Game:
     """Encuentra y muestra el juego que esta almacenado
     en la base de datos con el respectivo id."""
-    game_ret = db.query(GameTable).filter(GameTable.id == id_game).first()
-    return game_schema.Game(id=game_ret.id,
-                            name=game_ret.name,
-                            state=game_ret.state,
-                            turn=game_ret.turn,
-                            host=game_ret.host,
-                            players=game_ret.players,
-                            max_players=game_ret.max_players,
-                            min_players=game_ret.min_players,
-                            password=game_ret.password,
-                            moves_deck=game_ret.moves_deck)
-
+    if db.query(GameTable).filter(GameTable.id == id_game).count() != 0:
+        
+        game_ret = db.query(GameTable).filter(GameTable.id == id_game).first()
+        return game_schema.Game(id=game_ret.id,
+                                name=game_ret.name,
+                                state=game_ret.state,
+                                turn=game_ret.turn,
+                                host=game_ret.host,
+                                players=game_ret.players,
+                                max_players=game_ret.max_players,
+                                min_players=game_ret.min_players,
+                                password=game_ret.password,
+                                moves_deck=game_ret.moves_deck)
+    else:
+        return None
 
 def listing_games(db) -> list[game_schema.Game]:
     """Devuelve la lista de las partidas en la base de datos
