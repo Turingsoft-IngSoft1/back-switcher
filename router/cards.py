@@ -19,7 +19,7 @@ def get_moves(id_player: int, id_game: int):
         refill_moves(id_game, SERVER_DB)
     
     deck = get_deck(id_game, SERVER_DB)
-    random.shuffle(deck)
+    deck = random.sample()
     
     for _ in range(3-in_hand):
         set_move_user(deck.pop(), id_player, SERVER_DB)
