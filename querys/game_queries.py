@@ -34,8 +34,7 @@ def get_game(id_game: int, db) -> game_schema.Game:
                                 players=game_ret.players,
                                 max_players=game_ret.max_players,
                                 min_players=game_ret.min_players,
-                                password=game_ret.password,
-                                moves_deck=game_ret.moves_deck)
+                                password=game_ret.password)
     else:
         return None
 
@@ -53,8 +52,7 @@ def listing_games(db) -> list[game_schema.Game]:
                                           players=game.players,
                                           max_players=game.max_players,
                                           min_players=game.min_players,
-                                          password=game.password,
-                                          moves_deck=game.moves_deck))
+                                          password=game.password))
     return game_list
 
 

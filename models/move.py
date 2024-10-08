@@ -11,7 +11,7 @@ class MoveTable(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    status = Column(String, default="Deck")
+    status = Column(String, default="Deck", index=True)
 
     user_id = Column(Integer, ForeignKey('Users.id'))
     id_game = Column(Integer, ForeignKey('Games.id'))

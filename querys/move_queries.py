@@ -47,6 +47,42 @@ def get_move_status(id: int, db):
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.status
 
+def get_deck(id_game: int, db):
+    """Devuelve el mazo de movimientos."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.status == "Deck").all()
+    deck = []
+    for _ in range(len(ret)):
+        deck.append(ret.id)
+    return deck
+
+def moves_in_deck(id_game: int, db):
+    """Devuelve la cantidad de movimientos en el mazo."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.status == "Deck").count()
+    return ret
+
+def moves_in_hand(id_game: int, user_id: int, db):
+    """Devuelve la cantidad de movimientos que el usuario tiene en mano."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.user_id == user_id,
+                                     MoveTable.status == "InHand").count()
+    return ret
+
+def refill_moves(id_game: int, db):
+    """Devuelve todos los movimientos descartados al mazo."""
+    try:
+        ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                         MoveTable.status == "Discarded").all()
+        for m in ret:
+            m.status = "Deck"
+            db.add(m)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+    finally:
+        db.close()
 
 def set_move_status(id: int, status: str, db):
     """Cambia el status a la que pertence el movimiento."""
@@ -59,7 +95,6 @@ def set_move_status(id: int, status: str, db):
         print(f"Error: {e}")
     finally:
         db.close()
-
 
 def remove_move(id: int, db):
     """Elimina de la base de datos el movimiento con el id correspondiente."""

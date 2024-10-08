@@ -45,8 +45,7 @@ def test_list_game(mock_server_db,test_db,client,force_teardown):
                 "players": 1,
                 "max_players": 4,
                 "min_players": 3,
-                "password": "password",
-                "moves_deck": 50
+                "password": "password"
             }
         ]
     }

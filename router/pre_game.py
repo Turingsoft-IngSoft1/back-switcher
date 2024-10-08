@@ -111,9 +111,10 @@ async def start(id_game: int):
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
     
     #Inicialización de las cartas de movimiento.
-    for i in range(1, 8):
-        create_move(f"mov{i}", id_game, SERVER_DB)
-    
+    for _ in range(7):
+        for i in range(1, 8):
+            create_move(f"mov{i}", id_game, SERVER_DB)
+                
     #Inicialización de las cartas de figuras.
     easy_figures = []
     hard_figures = []
@@ -123,7 +124,9 @@ async def start(id_game: int):
                 easy_figures.append((f"fige{i:02d}"))     
         for i in range(1,19):     
                 hard_figures.append((f"fig{i:02d}"))
-                   
+    
+    
+    #Agregar orden
     random.shuffle(easy_figures)
     random.shuffle(hard_figures)
     
