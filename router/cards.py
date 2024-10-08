@@ -18,11 +18,10 @@ def get_moves(id_player: int, id_game: int):
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
     
-    deck = get_deck(id_game, SERVER_DB)
-    deck = random.sample()
+    deck = random.sample(get_deck(id_game, SERVER_DB), 3-in_hand)
     
-    for _ in range(3-in_hand):
-        set_move_user(deck.pop(), id_player, SERVER_DB)
+    for i in deck:
+        set_move_user(i, id_player, SERVER_DB)
     
     return {"Movimientos Entregados Correctamente."}
 
