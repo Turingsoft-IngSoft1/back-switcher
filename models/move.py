@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, CheckConstraint
 from sqlalchemy.orm import validates
 
 from models.base import Base
@@ -16,16 +16,8 @@ class MoveTable(Base):
     user_id = Column(Integer, ForeignKey('Users.id'))
     id_game = Column(Integer, ForeignKey('Games.id'))
     
+    __table_args__ = (
+        CheckConstraint(f"status IN {valid_status}", name="valid_status_check"),
+        CheckConstraint(f"name IN {valid_moves}", name="valid_name_check")
+    )
     
-    @validates('name', 'status')
-    def validate(self, key, value):
-        if key == 'name':
-            if value not in valid_moves:
-                raise ValueError('El nombre debe estar dentro de los valores validos')
-            else:
-                return value
-        elif key == 'status':
-            if value not in valid_status:
-                raise ValueError('El status debe estar dentro de los valores validos')
-            else:
-                return value

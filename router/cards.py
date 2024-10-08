@@ -23,8 +23,8 @@ def use_moves(id_player: int, id_game: int):
     return {"Movimientos Usados Correctamente."}
 
 
-@cards.get("/get_shape")
-def get_shape(id_player: int, id_game: int):
+@cards.get("/get_figure")
+def get_figure(id_player: int, id_game: int):
     """Obtener cartas de figura."""
 
     # En caso de exito debe de modificar el estado del jugador dandole nuevas cartas y sacando estas de las disponibles.
@@ -34,8 +34,8 @@ def get_shape(id_player: int, id_game: int):
     return {"Figuras Entregadas Correctamente."}
 
 
-@cards.post("/use_shape")
-def use_shape(id_player: int, id_game: int):
+@cards.post("/use_figure")
+def use_figure(id_player: int, id_game: int):
     """Usar una carta de figura."""
 
     # TODO Implementacion ->

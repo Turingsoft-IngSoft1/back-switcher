@@ -38,9 +38,9 @@ def test_set_move_status(test_db, force_teardown):
     assert tab.status == "InHand"
     
     #Caso 2: Asigna la carta a el status de descarte
-    set_move_status(id, "Discard", test_db)
+    set_move_status(id, "Discarded", test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "Discard"
+    assert tab.status == "Discarded"
     
     #Caso 3: Asigna la carta al deck
     set_move_status(id, "Deck", test_db)
