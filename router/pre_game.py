@@ -54,7 +54,7 @@ def create(e: CreateEntry):
 
 
 @pre_game.post("/join_game", response_model=ResponseJoin)
-def join(e: JoinEntry):
+async def join(e: JoinEntry):
     """Unirse al juego."""
 
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
@@ -67,6 +67,8 @@ def join(e: JoinEntry):
         p_id = create_user(name=e.player_name,
                            id_game=e.id_game,
                            db=SERVER_DB)
+        await manager.broadcast(f"{p_id} JOIN",e.id_game)
+        
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 

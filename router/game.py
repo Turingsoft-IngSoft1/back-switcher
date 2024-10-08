@@ -15,33 +15,47 @@ game = APIRouter()
 async def leave(e: InGame):
     """Abandonar Partida."""
     # En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
-    remove_player(e.id_game,SERVER_DB)
-    remove_user(e.id_player,SERVER_DB)
-    await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
+    if is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
+        remove_player(e.id_game,SERVER_DB)
+        remove_user(e.id_player,SERVER_DB)
+        reorder_turns(e.id_game,SERVER_DB)
+        game_turn = (get_game_turn(e.id_game,SERVER_DB) % (get_players(e.id_game,SERVER_DB)))
+        user_id = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
+        await manager.broadcast(f"TURN {user_id}", e.id_game)
+    
+    else:
+        remove_player(e.id_game,SERVER_DB)
+        remove_user(e.id_player,SERVER_DB)
+        reorder_turns(e.id_game,SERVER_DB)
+        await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
 
+    
+
+    #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished",SERVER_DB)
         winner = get_users(e.id_game,SERVER_DB).users_list
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
+    #Cuando no queda ningun jugador se elimina partida.
     if get_players(e.id_game,SERVER_DB) == 0:
         remove_board(e.id_game,SERVER_DB)
         remove_game(e.id_game,SERVER_DB)
 
+    
     return {"message": "Exit Successful."}
 
 
 @game.post("/skip_turn")
 async def skip(e: InGame):
     """Pasar el turno."""
-
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
     actual_turn = get_game_turn(e.id_game,SERVER_DB)
     actual_players = get_players(e.id_game,SERVER_DB)
     set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
     game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
-    uid = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
-    await manager.broadcast(f"TURN {uid}", e.id_game)
+    user_id = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
+    await manager.broadcast(f"TURN {user_id}", e.id_game)
 
     return {"Skip Successful."}
 
