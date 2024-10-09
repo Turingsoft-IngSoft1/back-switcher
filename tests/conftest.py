@@ -22,12 +22,15 @@ def client():
 def mock_server_db(mocker, test_db):
     mocker.patch("router.pre_game.SERVER_DB", test_db)
     mocker.patch("router.game.SERVER_DB", test_db)
+    mocker.patch("router.cards.SERVER_DB", test_db)
     # 
     from router.pre_game import SERVER_DB as pre_game_server_db
     from router.game import SERVER_DB as game_server_db
+    from router.cards import SERVER_DB as cards_server_db
     #
     assert pre_game_server_db is test_db
     assert game_server_db is test_db
+    assert cards_server_db is test_db
 
 
 @pytest.fixture(scope='function',autouse=True)
