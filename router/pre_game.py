@@ -6,6 +6,7 @@ from querys.board_queries import create_board
 from querys.move_queries import *
 from querys.figure_queries import *
 from schemas.response_models import *
+from sqlalchemy.orm.exc import NoResultFound
 from utils.ws import manager
 from utils.database import SERVER_DB
 
@@ -96,25 +97,31 @@ async def start(id_game: int):
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
     # Tiene que avisar a todos los clientes.
-
-    if get_players(id_game,SERVER_DB) >= get_min_players(id_game,SERVER_DB):
+    try:
+        if get_game_state(id_game, SERVER_DB) == "Waiting":
+            if get_players(id_game,SERVER_DB) >= get_min_players(id_game,SERVER_DB):
         
-        set_game_state(id_game=id_game,
-                       state="Playing",
-                       db=SERVER_DB)
-        
-        first = set_users_turn(id_game=id_game,
-                               players=get_players(id_game, SERVER_DB),
+                set_game_state(id_game=id_game,
+                               state="Playing",
                                db=SERVER_DB)
         
-        await manager.broadcast(f"GAME_STARTED {first}", id_game)
+                first = set_users_turn(id_game=id_game,
+                                       players=get_players(id_game, SERVER_DB),
+                                       db=SERVER_DB)
+        
+                initialize_moves(id_game, SERVER_DB)
+                initialize_figures(id_game, SERVER_DB)
+        
+                await manager.broadcast(f"GAME_STARTED {first}", id_game)
+        
+            else:
+                raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
+        else:
+            raise HTTPException(status_code=409, detail="La partida ya esta iniciada.")
+        
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="La partida con ese ID no existe.")
     
-    else:
-        raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
-    
-    initialize_moves(id_game, SERVER_DB)
-    initialize_figures(id_game, SERVER_DB)
-
     return {"message": "El juego comenzo correctamente."}
     
 

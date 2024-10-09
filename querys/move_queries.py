@@ -34,12 +34,6 @@ def get_move_user(id: int, db) -> int:
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
     return ret.user_id
 
-def get_move_name(id: int, db) -> str:
-    """Devuelve el nombre del movimiento."""
-    ret = db.query(MoveTable).filter(MoveTable.id == id).first()
-    return ret.name
-
-
 def get_move_status(id: int, db) -> str:
     """Devuelve el status a la que pertenece el movimiento."""
     ret = db.query(MoveTable).filter(MoveTable.id == id).first()
@@ -71,6 +65,17 @@ def moves_in_deck(id_game: int, db) -> int:
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                      MoveTable.status == "Deck").count()
     return ret
+
+#Agregar test
+def get_hand(id_game: int, user_id: int, db):
+    """Devuelve los movimientos que el usuario posee en su mano."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.user_id == user_id,
+                                     MoveTable.status == "InHand").all()
+    deck = []
+    for i in ret:
+        deck.append(i.name)
+    return deck
 
 def moves_in_hand(id_game: int, user_id: int, db) -> int:
     """Devuelve la cantidad de movimientos que el usuario tiene en mano."""

@@ -21,13 +21,13 @@ def get_moves(id_player: int, id_game: int):
     
     deck = random.sample(get_deck(id_game, SERVER_DB), 3-in_hand)
     
-    moves = []
     for i in deck:
         set_move_user(i, id_player, SERVER_DB)
         set_move_status(i, "InHand", SERVER_DB)
-        moves.append(get_move_name(i, SERVER_DB))
     
-    return ResponseMoves(moves=moves)
+    hand = get_hand(id_game, id_player, SERVER_DB)
+        
+    return ResponseMoves(moves=hand)
 
 
 @cards.post("/use_moves")

@@ -1,5 +1,6 @@
 from models.figure import FigureTable
 from querys.game_queries import get_players
+from querys.user_queries import get_users
 import random
 
 
@@ -57,14 +58,15 @@ def initialize_figures(id_game: int, db):
     random.shuffle(easy_figures)
     random.shuffle(hard_figures)
     
+    players = get_users(id_game, db).users_list
     player_count = get_players(id_game, db)
     
-    for player in range(player_count):
+    for p in range(player_count):
         
         for _ in range(round(14/player_count)):
             random_easy_figure = easy_figures.pop()
-            create_figure(random_easy_figure, player, db)
+            create_figure(random_easy_figure, players[p].id, db)
             
         for _ in range(round(36/player_count)):
             random_hard_figure = hard_figures.pop()
-            create_figure(random_hard_figure, player, db)
+            create_figure(random_hard_figure, players[p].id, db)

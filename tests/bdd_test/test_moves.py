@@ -47,13 +47,6 @@ def test_get_move_user(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.user_id == 1 == get_move_user(id, test_db)
     
-def test_get_move_name(test_db, force_teardown):
-    
-    #Obtiene el nombre del movimiento.
-    id = create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id=id).first()
-    assert tab.name == "mov1" == get_move_name(id, test_db) 
-    
 def test_get_move_status(test_db, force_teardown):
     
     #Obtiene el status actual de la carta.
