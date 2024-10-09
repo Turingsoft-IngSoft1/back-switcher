@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from querys.move_queries import *
+from schemas.response_models import *
 from utils.ws import manager
 from utils.database import SERVER_DB
 
@@ -8,7 +9,7 @@ import random
 cards = APIRouter()
 
 
-@cards.get("/get_moves")
+@cards.get("/get_moves", response_model=ResponseMoves)
 def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
 
@@ -23,7 +24,7 @@ def get_moves(id_player: int, id_game: int):
     for i in deck:
         set_move_user(i, id_player, SERVER_DB)
     
-    return {"Movimientos Entregados Correctamente."}
+    return ResponseMoves(get_move_name(deck[i]) for i in range(len(deck)))
 
 
 @cards.post("/use_moves")

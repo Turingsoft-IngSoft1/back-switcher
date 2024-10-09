@@ -145,6 +145,8 @@ async def start(id_game: int):
     return {"message": "El juego comenzo correctamente."}
 
 
+
+
 @pre_game.websocket("/ws/{id_game}/{user_id}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, user_id: int):
     """Canal para que el servidor envie datos de la partida."""

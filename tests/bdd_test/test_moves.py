@@ -60,7 +60,14 @@ def test_set_move_status(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.status == "Deck"
     
-def test_set__move_user(test_db, force_teardown):
+def test_get_move_name(test_db, force_teardown):
+    
+    #Obtiene el nombre del movimiento.
+    id = create_move("mov1", id_game=1, db=test_db)
+    tab = test_db.query(MoveTable).filter_by(id=id).first()
+    assert tab.name == "mov1" == get_move_name(id, test_db) 
+       
+def test_set_move_user(test_db, force_teardown):
     
     #Se le asigna a un jugador.
     id = create_move("mov1", id_game=1, db=test_db)
@@ -93,3 +100,4 @@ def test_remove_move(test_db, force_teardown):
     remove_move(id, test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab == None
+    
