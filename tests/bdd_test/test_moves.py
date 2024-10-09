@@ -19,8 +19,13 @@ def test_create_move(test_db, force_teardown):
     assert tab[0].id != tab[1].id
     assert tab[0].id_game == tab[1].id_game
     
-    #Caso 3: Crear movimiento incorrectamente.
-    #Falta implementar una validacion del nombre de los movimientos en models.
+    #Caso 3: Crear movimiento con un nombre incorrecto.
+    try:
+        id = create_move("InvalidMove", id_game=1, db=test_db)
+    except IntegrityError:
+        pass
+    tab = test_db.query(MoveTable).filter_by(id=id).first()
+    assert tab == None
     
 def test_get_move_status(test_db, force_teardown):
     
@@ -48,7 +53,12 @@ def test_set_move_status(test_db, force_teardown):
     assert tab.status == "Deck"
     
     #Caso 4: Se asigna un status incorrectamente.
-    
+    try:
+        set_move_status(id, "InvalidStatus", test_db)
+    except IntegrityError:
+        pass
+    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
+    assert tab.status == "Deck"
     
 def test_set__move_user(test_db, force_teardown):
     
