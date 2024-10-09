@@ -51,3 +51,9 @@ class InGame(BaseModel):
 
 class BoardStatus(BaseModel):
     board: list[list[str]] = Field(description="Game's actual board status.")
+    
+class ResponseMoves(BaseModel):
+    moves: list[str] = Field(description="List of move names.")
+    
+class ResponseFigures(BaseModel):
+    figures: list[str] = Field(description="List of figure names.")

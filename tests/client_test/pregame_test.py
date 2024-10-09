@@ -2,7 +2,7 @@ import json,pytest
 from unittest.mock import patch
 
 def test_create_game(mock_server_db,test_db,client,force_teardown):
-    #Crear PartidaEjempo y UsuarioEjemplo. 
+    #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
@@ -23,7 +23,7 @@ def test_create_game(mock_server_db,test_db,client,force_teardown):
     assert response.status_code == 422
 
 def test_list_game(mock_server_db,test_db,client,force_teardown):
-    #Crear PartidaEjempo y UsuarioEjemplo. 
+    #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
@@ -32,7 +32,7 @@ def test_list_game(mock_server_db,test_db,client,force_teardown):
         "max_player": 4
     }
     response = client.post(url, json=payload)
-    #Listar partidas, solo deberia aparecer PartidaEjemplo
+    #Listar partidas, solo deberia aparecer PartidaEjemplo.
     url = "http://localhost:8000/list_games"
     expected_json = {
         "games_list": [
@@ -45,8 +45,7 @@ def test_list_game(mock_server_db,test_db,client,force_teardown):
                 "players": 1,
                 "max_players": 4,
                 "min_players": 3,
-                "password": "password",
-                "moves_deck": 50
+                "password": "password"
             }
         ]
     }
@@ -57,7 +56,7 @@ def test_list_game(mock_server_db,test_db,client,force_teardown):
     assert formatted_expected, formatted_response
 
 def test_join_game(mock_server_db,test_db,client,force_teardown):
-    #Crear PartidaEjempo y UsuarioEjemplo. 
+    #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
@@ -84,7 +83,7 @@ def test_join_game(mock_server_db,test_db,client,force_teardown):
     assert formatted_expected == formatted_response
 
 def test_active_players(mock_server_db,test_db,client,force_teardown):
-    #Crear PartidaEjempo y UsuarioEjemplo.    
+    #Crear PartidaEjemplo y UsuarioEjemplo.    
     url = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
