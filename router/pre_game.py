@@ -112,40 +112,11 @@ async def start(id_game: int):
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
     
-    #Inicialización de las cartas de movimiento.
-    for _ in range(7):
-        for i in range(1, 8):
-            create_move(f"mov{i}", id_game, SERVER_DB)
-                
-    #Inicialización de las cartas de figuras.
-    easy_figures = []
-    hard_figures = []
-    
-    for _ in range(2):
-        for i in range(1, 8):
-                easy_figures.append((f"fige{i:02d}"))     
-        for i in range(1,19):     
-                hard_figures.append((f"fig{i:02d}"))
-    
-    
-    #Agregar orden
-    random.shuffle(easy_figures)
-    random.shuffle(hard_figures)
-    
-    for player in range(get_players(id_game, SERVER_DB)):
-        
-        for _ in range(round(14/get_players(id_game, SERVER_DB))):
-            random_easy_figure = easy_figures.pop()
-            create_figure(random_easy_figure, player, SERVER_DB)
-            
-        for _ in range(round(36/get_players(id_game, SERVER_DB))):
-            random_hard_figure = hard_figures.pop()
-            create_figure(random_hard_figure, player, SERVER_DB)
+    initialize_moves(id_game, SERVER_DB)
+    initialize_figures(id_game, SERVER_DB)
 
     return {"message": "El juego comenzo correctamente."}
-
-
-
+    
 
 @pre_game.websocket("/ws/{id_game}/{user_id}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, user_id: int):

@@ -4,7 +4,7 @@ from models import DBManager,BoardTable,GameTable,UserTable,MoveTable,FigureTabl
 from models.base import Base
 from main import app
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def test_db():
     #Inicializa la base de datos de pruebas.
     bdd_testing = DBManager(testing=True)
