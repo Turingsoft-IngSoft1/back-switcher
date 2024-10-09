@@ -10,7 +10,6 @@ def create_move(name: str, id_game: int, db):
         db.add(new_move)
         db.commit()
         db.refresh(new_move)
-        print(f"Move {new_move.name} created")
         return new_move.id
     except Exception as e:
         db.rollback()

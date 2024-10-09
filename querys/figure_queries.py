@@ -10,7 +10,6 @@ def create_figure(name: str, user_id: int, db):
         db.add(new_figure)
         db.commit()
         db.refresh(new_figure)
-        print(f"Figure {new_figure.name} created")
         return new_figure.id
     except Exception as e:
         db.rollback()
