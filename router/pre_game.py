@@ -61,17 +61,21 @@ async def join(e: JoinEntry):
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
     # Se deben aplicar todos los cambios a la estructura interna de la paritda.
     # TODO Testing ->
-    if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
+    if game_exists(e.id_game, SERVER_DB):
+        if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
         
-        add_player(id_game=e.id_game,
-                   db=SERVER_DB)
-        p_id = create_user(name=e.player_name,
-                           id_game=e.id_game,
-                           db=SERVER_DB)
-        await manager.broadcast(f"{p_id} JOIN",e.id_game)
+            add_player(id_game=e.id_game,
+                       db=SERVER_DB)
+            p_id = create_user(name=e.player_name,
+                               id_game=e.id_game,
+                               db=SERVER_DB)
+            await manager.broadcast(f"{p_id} JOIN",e.id_game)
         
+        else:
+            raise HTTPException(status_code=409, detail="El lobby está lleno.")
+    
     else:
-        raise HTTPException(status_code=409, detail="El lobby está lleno.")
+        raise HTTPException(status_code=404, detail="La partida con el ID ingresado no existe.")
 
     return ResponseJoin(new_player_id=p_id)
 
@@ -97,7 +101,7 @@ async def start(id_game: int):
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
     # Tiene que avisar a todos los clientes.
-    try:
+    if game_exists(id_game, SERVER_DB):
         if get_game_state(id_game, SERVER_DB) == "Waiting":
             if get_players(id_game,SERVER_DB) >= get_min_players(id_game,SERVER_DB):
         
@@ -116,11 +120,12 @@ async def start(id_game: int):
         
             else:
                 raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
+            
         else:
             raise HTTPException(status_code=409, detail="La partida ya esta iniciada.")
         
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail="La partida con ese ID no existe.")
+    else:
+        raise HTTPException(status_code=404, detail="La partida con el ID ingresado no existe.")
     
     return {"message": "El juego comenzo correctamente."}
     

@@ -66,7 +66,7 @@ def moves_in_deck(id_game: int, db) -> int:
                                      MoveTable.status == "Deck").count()
     return ret
 
-#Agregar test
+#TODO agregar test ->
 def get_hand(id_game: int, user_id: int, db):
     """Devuelve los movimientos que el usuario posee en su mano."""
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,

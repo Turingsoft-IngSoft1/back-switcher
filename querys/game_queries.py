@@ -19,6 +19,13 @@ def create_game(name: str, max_players: int, min_players: int, db):
     finally:
         db.close()
 
+#TODO agregar tests ->
+def game_exists(id_game: int, db) -> bool:
+    """Verificar si el juego existe en la base de datos."""
+    game = db.query(GameTable).filter(GameTable.id == id_game).first()
+    if game is None:
+        return False
+    return True
 
 def get_game(id_game: int, db) -> game_schema.Game:
     """Encuentra y muestra el juego que esta almacenado

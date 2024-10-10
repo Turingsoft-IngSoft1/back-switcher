@@ -19,6 +19,13 @@ def create_user(name: str, id_game: int, db):
     finally:
         db.close()
 
+#TODO agregar tests ->
+def user_exists(id: int, db) -> bool:
+    """Verificar si el usuario existe en la base de datos."""
+    user = db.query(UserTable).filter(UserTable.id == id).first()
+    if user is None:
+        return False
+    return True
 
 def remove_user(user_id: int, db):
     """Elimina de la base de datos al jugador con el id correspondiente."""
@@ -43,7 +50,6 @@ def get_users(id_game: int, db) -> CurrentUsers:
             l.append(User(id=u.id,
                           name=u.name,
                           game=u.id_game,
-                          figures_deck=u.figures_deck,
                           turn=u.turn))
 
         return CurrentUsers(users_list=l)

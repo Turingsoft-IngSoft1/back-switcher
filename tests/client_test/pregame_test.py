@@ -81,6 +81,21 @@ def test_join_game(mock_server_db,test_db,client,force_teardown):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_expected == formatted_response
+    
+    #Intento erroneo de unirse a una partida inexistente.
+    url = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 2,
+        "player_name": "Usuario"
+    }
+    response = client.post(url, json=payload)
+    error_json = {
+        "detail": "La partida con el ID ingresado no existe."
+    }
+    assert response.status_code == 404
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_error = json.dumps(error_json, sort_keys=True)
+    assert formatted_response == formatted_error
 
 def test_active_players(mock_server_db,test_db,client,force_teardown):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -101,13 +116,12 @@ def test_active_players(mock_server_db,test_db,client,force_teardown):
                 "id": 1,
                 "name": "UsuarioEjemplo",
                 "game": 1,
-                "figures_deck": 13,
                 "turn": 0
             }
         ]
     }
     assert response.status_code == 200
-    formatted_expected = json.dumps(response.json(), sort_keys=True)
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
     formatted_response = json.dumps(response.json(), sort_keys=True)
     assert formatted_expected == formatted_response
 
@@ -121,7 +135,7 @@ def test_start_game(mock_server_db,test_db,client,force_teardown):
         "max_player": 2
     }
     response = client.post(url, json=payload)
-    #Inteto errorneo de iniciar partida.
+    #Inteto errorneo de iniciar partida que no cumple con la capacidad minima.
     url = "http://localhost:8000/start_game/1"
     response = client.post(url)
     error_json = {
@@ -147,4 +161,25 @@ def test_start_game(mock_server_db,test_db,client,force_teardown):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_response == formatted_expected
+    
+    #Intento erroneo de iniciar partida a una partida ya iniciada.
+    response = client.post(url)
+    expected_json = {
+        "detail": "La partida ya esta iniciada."
+    }
+    assert response.status_code == 409
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
+    assert formatted_response == formatted_expected
+    
+    #Intento erroneo de iniciar partida con una id inexistente.
+    url = "http://localhost:8000/start_game/2"
+    response = client.post(url)
+    error_json = {
+        "detail": "La partida con el ID ingresado no existe."
+    }
+    assert response.status_code == 404
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_error = json.dumps(error_json, sort_keys=True)
+    assert formatted_response == formatted_error
 
