@@ -2,7 +2,7 @@ from models.game import GameTable
 from schemas import game_schema
 
 
-def create_game(name: str, max_players: int, min_players: int, db):
+def create_game(name: str, max_players: int, min_players: int, db): #Tested
     """Crea una partida y la inserta en la base de datos."""
     try:
         new_game = GameTable(name=name,
@@ -20,7 +20,7 @@ def create_game(name: str, max_players: int, min_players: int, db):
         db.close()
 
 
-def get_game(id_game: int, db) -> game_schema.Game:
+def get_game(id_game: int, db) -> game_schema.Game: #Tested
     """Encuentra y muestra el juego que esta almacenado
     en la base de datos con el respectivo id."""
     if db.query(GameTable).filter(GameTable.id == id_game).count() != 0:
@@ -38,7 +38,7 @@ def get_game(id_game: int, db) -> game_schema.Game:
     else:
         return None
 
-def listing_games(db) -> list[game_schema.Game]:
+def listing_games(db) -> list[game_schema.Game]: #Tested
     """Devuelve la lista de las partidas en la base de datos
     con el estado Waiting."""
     games = db.query(GameTable).filter(GameTable.state == "Waiting").all()
@@ -56,55 +56,54 @@ def listing_games(db) -> list[game_schema.Game]:
     return game_list
 
 
-def set_game_state(id_game: int, state: str, db):
+def set_game_state(id_game: int, state: str, db): #Tested
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.state: state})
     db.commit()
 
 
-def set_game_turn(id_game: int, turn: int, db):
+def set_game_turn(id_game: int, turn: int, db): #Tested
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.turn: turn})
     db.commit()
 
 
-def set_game_host(id_game: int, host: int, db):
+def set_game_host(id_game: int, host: int, db): #Tested
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.host: host})
     db.commit()
 
 
-def get_players(id_game: int, db):
+def get_players(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.players
 
 
-def get_max_players(id_game: int, db):
+def get_max_players(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.max_players
 
-def get_min_players(id_game: int, db):
+def get_min_players(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.min_players
 
-def get_game_state(id_game: int, db):
+def get_game_state(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.state
 
-def get_game_turn(id_game: int, db):
+def get_game_turn(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     return tab.turn
 
-def add_player(id_game: int, db):
+def add_player(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players + 1})
     db.commit()
 
-
-def remove_player(id_game: int, db):
+def remove_player(id_game: int, db): #Tested
     tab = db.query(GameTable).filter(GameTable.id == id_game).first()
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players - 1})
     db.commit()
 
 
-def remove_game(id_game: int, db):
+def remove_game(id_game: int, db): 
     """Elimina de la base de datos la partida con el id correspondiente."""
     to_remove = db.query(GameTable).filter(GameTable.id == id_game).first()
     try:
