@@ -1,7 +1,7 @@
 import json, pytest
 from unittest.mock import patch
 
-def test_get_moves(mock_server_db,test_db,client,force_teardown):
+def test_get_moves(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
     url = "http://localhost:8000/create_game"
     payload = {
@@ -38,8 +38,8 @@ def test_get_moves(mock_server_db,test_db,client,force_teardown):
     player2_moves = response.json()
     assert len(player2_moves) > 0  #Verifica que se reparten movimientos al jugador 2.
 
-#def test_use_moves(mock_server_db,test_db,client,force_teardown):
+#def test_use_moves(client):
 
-#def test_get_figures(mock_server_db,test_db,client,force_teardown):
+#def test_get_figures(client):
 
-#def test_use_figures(mock_server_db,test_db,client,force_teardown):
+#def test_use_figures(client):

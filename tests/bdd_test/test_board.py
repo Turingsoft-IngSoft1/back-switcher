@@ -1,9 +1,10 @@
+from sqlite3 import IntegrityError
 import pytest
+
 from querys import create_board,get_board,get_color,update_board
 from models import BoardTable
-from sqlite3 import IntegrityError
 
-def test_create_board(test_db,force_teardown):
+def test_create_board(test_db):
     
     #Caso 1: Crear un tablero correctamente.
     create_board(id_game=1,db=test_db)
@@ -19,21 +20,21 @@ def test_create_board(test_db,force_teardown):
     count = test_db.query(BoardTable).count()
     assert count == 1
 
-def test_get_color(test_db,force_teardown):
+def test_get_color(test_db):
 
     #Color no se puede modificar todavia.
     create_board(id_game=1,db=test_db)
     tab = test_db.query(BoardTable).filter_by(id_game=1).first()
     assert tab.color == "NOT" == get_color(1,test_db)
 
-def test_get_board(test_db,force_teardown):
+def test_get_board(test_db):
 
     #Comprobar que los board del metodo y de la tabla son iguales.
     create_board(id_game=1,db=test_db)
     tab = test_db.query(BoardTable).filter_by(id_game=1).first()
     assert comp_boards(tab.get_board(), get_board(1,test_db))
 
-def test_update_board(test_db,force_teardown):
+def test_update_board(test_db):
     #Caso 0:
     sucess=[['R','R','R','R','R','R'],
             ['R','R','R','G','G','G'],

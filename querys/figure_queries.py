@@ -1,10 +1,25 @@
+from random import shuffle
+from sqlalchemy.exc import SQLAlchemyError
 from models.figure import FigureTable
 from querys.user_queries import uid_by_turns
-from random import sample
+
 
 easy_figures = [f"fige{i:02d}" for _ in range(2) for i in range(1, 8)]
 hard_figures = [f"fig{i:02d}" for _ in range(2) for i in range(1, 19)]
-    
+ranges_dict = {
+    2: {
+        'easy': {0: range(0, 7), 1: range(7, 14)},
+        'hard': {0: range(0, 18), 1: range(18, 36)}
+    },
+    3: {
+        'easy': {0: range(0, 4), 1: range(4, 9), 2: range(9, 14)},
+        'hard': {0: range(0, 12), 1: range(12, 24), 2: range(24, 36)}
+    },
+    4: {
+        'easy': {0: range(0, 3), 1: range(3, 7), 2: range(7, 11), 3: range(11, 14)},
+        'hard': {0: range(0, 9), 1: range(9, 18), 2: range(18, 27), 3: range(27, 36)}
+    }
+}
 
 def create_figure(name: str, user_id: int, db):
     """Crear figura y agregarla."""
@@ -46,14 +61,28 @@ def remove_figure(id: int, db):
     finally:
         db.close()
         
-def initialize_figures(id_game: int, players: int, db): 
-    parts1 = [(14//players) + 1 if i < (14%players) else (14//players) for i in range(players)]
-    parts2 = [(36//players) + 1 if i < (36%players) else (36//players) for i in range(players)]
-    
-    for p1,p2,u in zip(parts1,parts2,uid_by_turns(id_game,db)):
-        ef = sample(easy_figures,p1)
-        hf = sample(hard_figures,p2)
-        for name in ef:
-            create_figure(name,u,db)
-        for name in hf:
-            create_figure(name,u,db)
+def initialize_figures(id_game: int, players: int, db):
+    """"Crea todas las cartas de figura y se las reparte al azar a todos los jugadores."""
+    shuffle(easy_figures)
+    shuffle(hard_figures)
+
+    users = uid_by_turns(id_game, db)
+
+    try:
+        for i in range(players):
+            easy_range = ranges_dict[players]['easy'][i]
+            hard_range = ranges_dict[players]['hard'][i]
+            
+            for j in easy_range:
+                fig = FigureTable(name=easy_figures[j], id_game=id_game, user_id=users[i])
+                db.add(fig)
+            
+            for k in hard_range:
+                fig = FigureTable(name=hard_figures[k], id_game=id_game, user_id=users[i])
+                db.add(fig)
+
+        db.commit()
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error de SQLAlchemy: {str(e)}")

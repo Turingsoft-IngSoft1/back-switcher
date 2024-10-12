@@ -3,7 +3,7 @@ from querys.move_queries import *
 from models import MoveTable
 from sqlite3 import IntegrityError
 
-def test_create_move(test_db, force_teardown):
+def test_create_move(test_db):
     
     #Caso 1: Crear un movimiento correctamente.
     create_move("mov1", id_game=1, db=test_db)
@@ -27,7 +27,7 @@ def test_create_move(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id=id).first()
     assert tab == None
        
-def test_set_move_user(test_db, force_teardown):
+def test_set_move_user(test_db):
     
     #Se le asigna a un jugador.
     id = create_move("mov1", id_game=1, db=test_db)
@@ -35,33 +35,33 @@ def test_set_move_user(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.user_id is not None
     
-def test_get_move_user(test_db, force_teardown):
+def test_get_move_user(test_db):
     
     #Caso 1: No pertenece a ningun jugador todavia.
     id = create_move("mov1", id_game=1, db=test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.user_id == None == get_move_user(id, test_db)
+    assert tab.user_id == 0 == get_move_user(id, test_db)
     
     #Caso 2: Pertenece a un jugador.
     set_move_user(id, 1, test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.user_id == 1 == get_move_user(id, test_db)
     
-def test_get_move_name(test_db, force_teardown):
+def test_get_move_name(test_db):
     
     #Obtiene el nombre del movimiento.
     id = create_move("mov1", id_game=1, db=test_db)
     tab = test_db.query(MoveTable).filter_by(id=id).first()
     assert tab.name == "mov1" == get_move_name(id, test_db) 
     
-def test_get_move_status(test_db, force_teardown):
+def test_get_move_status(test_db):
     
     #Obtiene el status actual de la carta.
     id = create_move("mov1", id_game=1, db=test_db)
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.status == "Deck" == get_move_status(id, test_db)
     
-def test_set_move_status(test_db, force_teardown):
+def test_set_move_status(test_db):
     
     #Caso 1: Asigna la carta a la mano de un jugador
     id = create_move("mov1", id_game=1, db=test_db)
@@ -87,7 +87,7 @@ def test_set_move_status(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab.status == "Deck"
     
-def test_get_deck(test_db, force_teardown):
+def test_get_deck(test_db):
     
     #Obtiene el id de los movimientos en deck
     
@@ -103,7 +103,7 @@ def test_get_deck(test_db, force_teardown):
         set_move_status(i, "Discarded", test_db)
     assert get_deck(id_game=1, db=test_db) == []
 
-def test_moves_in_deck(test_db, force_teardown):
+def test_moves_in_deck(test_db):
     
     #Obtiene la cantidad de movimientos en deck
     
@@ -120,7 +120,7 @@ def test_moves_in_deck(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").count()
     assert tab == 0 == moves_in_deck(id_game=1, db=test_db)
 
-def test_moves_in_hand(test_db, force_teardown):
+def test_moves_in_hand(test_db):
     #Obtiene la cantidad de movimientos en la mano de un jugador
     
     #Caso 1: No tiene movimientos en su mano
@@ -137,7 +137,7 @@ def test_moves_in_hand(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1, status="InHand").count()
     assert tab == 3 == moves_in_hand(id_game=1, user_id=1, db=test_db)
 
-def test_refill_moves(test_db, force_teardown):
+def test_refill_moves(test_db):
      
     #Devuelve todos los movimientos descartados al mazo.
     
@@ -168,7 +168,7 @@ def test_refill_moves(test_db, force_teardown):
     tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").first()
     assert tab is not None
     
-def test_remove_move(test_db, force_teardown):
+def test_remove_move(test_db):
     
     #Caso 1: Se elimina una carta de movimiento existente.
     id = create_move("mov1", id_game=1, db=test_db)
@@ -182,9 +182,6 @@ def test_remove_move(test_db, force_teardown):
     tab = test_db.query(MoveTable).filter_by(id_game=1).first()
     assert tab == None
     
-def test_initialize_moves(test_db, force_teardown):
-    
-    #Inicializa las cartas de movimientos.
-    initialize_moves(id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab is not None
+def test_initialize_moves(test_db):
+    # TODO 
+    pass

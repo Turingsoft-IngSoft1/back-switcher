@@ -1,6 +1,7 @@
+from random import shuffle,sample
+from sqlalchemy.exc import SQLAlchemyError
 from models.move import MoveTable
 from querys.user_queries import uid_by_turns
-from random import shuffle,sample
 
 moves = [f"mov{i}" for _ in range(7) for i in range(1, 8)]
 
@@ -99,32 +100,8 @@ def remove_move(id: int, db):
         db.rollback()
         print(f"Error: {e}")
 
-def initialize_moves(id_game: int, players: int, db):    
-    shuffle(moves)
-    users = uid_by_turns(id_game,db)
-    for i in range(players):
-        m1 = MoveTable(name=moves[(3*i)],
-                  status="InHand",
-                  user_id=users[i],
-                  id_game=id_game)
-        db.add(m1)
-        m2 = MoveTable(name=moves[(3*i)+1],
-                  status="InHand",
-                  user_id=users[i],
-                  id_game=id_game)
-        db.add(m2)
-        m3 = MoveTable(name=moves[(3*i)+2],
-                  status="InHand",
-                  user_id=users[i],
-                  id_game=id_game)
-        db.add(m3)
-    for j in range(3*players, 49):
-        m = MoveTable(name=moves[j],
-                      id_game=id_game)
-        db.add(m)
-    db.commit()
-
 def refill_hand(id_game: int, user_id: int, n: int, db):
+    """Se le rellena la mano con cartas de movimiento al jugador."""
     moves_on_deck = db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                                MoveTable.status == "Deck").all()
     new_hand: list[str] = []
@@ -136,6 +113,7 @@ def refill_hand(id_game: int, user_id: int, n: int, db):
     return new_hand
 
 def get_hand(id_game: int, user_id: int, db):
+    """Devuelve los nombres de los movimientos en mano."""
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                    MoveTable.user_id == user_id,
                                    MoveTable.status == "InHand").all()
@@ -144,10 +122,26 @@ def get_hand(id_game: int, user_id: int, db):
         hand.append(move.name)
     return hand
 
-def remove_all_moves(id_game: int, db):
+def initialize_moves(id_game: int, players: int, db):
+    """"Crea todas las cartas de movimiento y se las reparte al azar a todos los jugadores."""
+    shuffle(moves)
+    users = uid_by_turns(id_game,db)
     try:
-        db.query(MoveTable).filter(MoveTable.id_game == id_game).delete(synchronize_session='fetch')
+        for i in range(players):
+            for j in range(3):
+                m = MoveTable(name=moves[(3 * i) + j],
+                            status="InHand",
+                            user_id=users[i],
+                            id_game=id_game)
+                db.add(m)
+
+        for j in range(3 * players, 49):
+            m = MoveTable(name=moves[j],
+                        id_game=id_game)
+            db.add(m)
+
         db.commit()
-    except Exception as e:
+
+    except SQLAlchemyError as e:
         db.rollback()
-        print(f"Error: {e}")
+        print(f"Error de SQLAlchemy: {str(e)}")
