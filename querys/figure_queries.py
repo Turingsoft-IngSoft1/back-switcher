@@ -1,7 +1,10 @@
 from models.figure import FigureTable
-from querys.game_queries import get_players
-import random
+from querys.user_queries import uid_by_turns
+from random import sample
 
+easy_figures = [f"fige{i:02d}" for _ in range(2) for i in range(1, 8)]
+hard_figures = [f"fig{i:02d}" for _ in range(2) for i in range(1, 19)]
+    
 
 def create_figure(name: str, user_id: int, db):
     """Crear figura y agregarla."""
@@ -43,28 +46,14 @@ def remove_figure(id: int, db):
     finally:
         db.close()
         
-def initialize_figures(id_game: int, db):
+def initialize_figures(id_game: int, players: int, db): 
+    parts1 = [(14//players) + 1 if i < (14%players) else (14//players) for i in range(players)]
+    parts2 = [(36//players) + 1 if i < (36%players) else (36//players) for i in range(players)]
     
-    easy_figures = []
-    hard_figures = []
-    
-    for _ in range(2):
-        for i in range(1, 8):
-                easy_figures.append((f"fige{i:02d}"))     
-        for i in range(1,19):     
-                hard_figures.append((f"fig{i:02d}"))
-    
-    random.shuffle(easy_figures)
-    random.shuffle(hard_figures)
-    
-    player_count = get_players(id_game, db)
-    
-    for player in range(player_count):
-        
-        for _ in range(round(14/player_count)):
-            random_easy_figure = easy_figures.pop()
-            create_figure(random_easy_figure, player, db)
-            
-        for _ in range(round(36/player_count)):
-            random_hard_figure = hard_figures.pop()
-            create_figure(random_hard_figure, player, db)
+    for p1,p2,u in zip(parts1,parts2,uid_by_turns(id_game,db)):
+        ef = sample(easy_figures,p1)
+        hf = sample(hard_figures,p2)
+        for name in ef:
+            create_figure(name,u,db)
+        for name in hf:
+            create_figure(name,u,db)

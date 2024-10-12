@@ -10,7 +10,7 @@ import random
 cards = APIRouter()
 
 @cards.post("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
-def get_moves(id_player: int, id_game: int):
+async def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
 
     # En caso de exito debe de modificar el estado del jugador dandole nuevas cartas y sacando estas de las disponibles.
@@ -18,16 +18,11 @@ def get_moves(id_player: int, id_game: int):
     in_hand = moves_in_hand(id_game, id_player, SERVER_DB)
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
-    
-    deck = random.sample(get_deck(id_game, SERVER_DB), 3-in_hand)
-    
-    moves = []
-    for i in deck:
-        set_move_user(i, id_player, SERVER_DB)
-        set_move_status(i, "InHand", SERVER_DB)
-        moves.append(get_move_name(i, SERVER_DB))
-    
-    return ResponseMoves(moves=moves)
+    if in_hand < 3:
+        current_hand = refill_hand(id_game,id_player,in_hand,SERVER_DB)    
+    else:
+        current_hand = get_hand(id_game,id_player,SERVER_DB)
+    return ResponseMoves(moves=current_hand)
 
 
 @cards.post("/use_moves")
