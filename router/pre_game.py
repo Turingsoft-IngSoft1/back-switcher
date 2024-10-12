@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from querys.game_queries import *
 from querys.user_queries import *
 from querys.board_queries import create_board
+from querys.move_queries import *
+from querys.figure_queries import *
 from schemas.response_models import *
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -52,7 +54,7 @@ def create(e: CreateEntry):
 
 
 @pre_game.post("/join_game", response_model=ResponseJoin)
-def join(e: JoinEntry):
+async def join(e: JoinEntry):
     """Unirse al juego."""
 
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
@@ -65,6 +67,8 @@ def join(e: JoinEntry):
         p_id = create_user(name=e.player_name,
                            id_game=e.id_game,
                            db=SERVER_DB)
+        await manager.broadcast(f"{p_id} JOIN",e.id_game)
+        
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 
@@ -107,9 +111,12 @@ async def start(id_game: int):
     
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
+    
+    initialize_moves(id_game, SERVER_DB)
+    initialize_figures(id_game, SERVER_DB)
 
     return {"message": "El juego comenzo correctamente."}
-
+    
 
 @pre_game.websocket("/ws/{id_game}/{user_id}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, user_id: int):

@@ -48,3 +48,12 @@ class CurrentUsers(BaseModel):
 class InGame(BaseModel):
     id_player: int = Field(ge=1, description="Unique integer that specifies this player.")
     id_game: int = Field(ge=1, description="Unique integer that specifies this game.")
+
+class BoardStatus(BaseModel):
+    board: list[list[str]] = Field(description="Game's actual board status.")
+    
+class ResponseMoves(BaseModel):
+    moves: list[str] = Field(description="List of move names.")
+    
+class ResponseFigures(BaseModel):
+    figures: list[str] = Field(description="List of figure names.")

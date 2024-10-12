@@ -2,7 +2,7 @@ import random
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
 from schemas.user_schema import User
-
+from models import GameTable
 
 def create_user(name: str, id_game: int, db):
     """Crear un usuario y agregarlo."""
@@ -18,16 +18,6 @@ def create_user(name: str, id_game: int, db):
         print(f"Error: {e}")
     finally:
         db.close()
-
-
-def get_game(user_id: int, db):
-    """Devuelve el id del juego que el jugador esta jugando."""
-    ret = db.query(UserTable).filter(UserTable.id == user_id).first()
-    ret = ret.id_game
-    try:
-        ret = ret.id_game.id
-    finally:
-        return ret
 
 
 def remove_user(user_id: int, db):
@@ -80,16 +70,31 @@ def set_users_turn(id_game: int, players: int, db) -> int :
         db.close()
         return first
 
-def get_user_from_turn(id_game: int, turn: int, db) -> int | None:
+def get_user_from_turn(id_game: int, turn: int, db) -> int:
     try:
-        users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
-        user_tuples = [(user.id, user.turn) for user in users]
-
-        for user_id, user_turn in user_tuples:
-            if turn == user_turn:
-                return user_id
-
-        return user_tuples[0][0] #
+        users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
+        return users[turn].id
 
     finally:
         db.close()
+
+def reorder_turns(id_game: int, db):
+    try:
+        users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
+        # Actualizar los turnos en la base de datos
+        for idx, usuario in enumerate(users):
+            usuario.turn = idx
+            db.add(usuario)
+        db.commit()
+    
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+    
+    finally:
+        db.close()
+
+def is_user_current_turn(id_game: int, id_user: int, db) -> bool:
+    user = db.query(UserTable).filter(UserTable.id == id_user).first()
+    game = db.query(GameTable).filter(GameTable.id == id_game).first()
+    return (game.state == "Playing" and (user.turn == (game.turn % game.players)))
