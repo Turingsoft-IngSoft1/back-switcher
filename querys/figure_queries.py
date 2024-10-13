@@ -1,4 +1,4 @@
-from random import shuffle
+from random import shuffle,sample
 from sqlalchemy.exc import SQLAlchemyError
 from models.figure import FigureTable
 from querys.user_queries import uid_by_turns
@@ -20,47 +20,7 @@ ranges_dict = {
         'hard': {0: range(0, 9), 1: range(9, 18), 2: range(18, 27), 3: range(27, 36)}
     }
 }
-
-def create_figure(name: str, user_id: int, db):
-    """Crear figura y agregarla."""
-    try:
-        new_figure = FigureTable(name=name, user_id=user_id)
-        db.add(new_figure)
-        db.commit()
-        db.refresh(new_figure)
-        return new_figure.id
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
-
-
-def get_figure_user(id: int, db):
-    """Devuelve la id del jugador al cual le pertenece la figura."""
-    ret = db.query(FigureTable).filter(FigureTable.id == id).first()
-    return ret.user_id
-
-
-def get_figure_name(id: int, db):
-    """Devuelve el nombre de la figura."""
-    ret = db.query(FigureTable).filter(FigureTable.id == id).first()
-    return ret.name
-
-
-def remove_figure(id: int, db):
-    """Elimina de la base de datos la figura con el id correspondiente."""
-    toRemove = db.query(FigureTable).filter(FigureTable.id == id).first()
-    try:
-        db.delete(toRemove)
-        db.commit()
-        print(f"Figure deleted.")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
-        
+       
 def initialize_figures(id_game: int, players: int, db):
     """"Crea todas las cartas de figura y se las reparte al azar a todos los jugadores."""
     shuffle(easy_figures)
@@ -74,15 +34,39 @@ def initialize_figures(id_game: int, players: int, db):
             hard_range = ranges_dict[players]['hard'][i]
             
             for j in easy_range:
-                fig = FigureTable(name=easy_figures[j], id_game=id_game, user_id=users[i])
+                fig = FigureTable(name=easy_figures[j],
+                                  id_game=id_game,
+                                  user_id=users[i],
+                                  status="Hidden")
                 db.add(fig)
             
             for k in hard_range:
-                fig = FigureTable(name=hard_figures[k], id_game=id_game, user_id=users[i])
+                fig = FigureTable(name=hard_figures[k],
+                                  id_game=id_game,
+                                  user_id=users[i],
+                                  status="Hidden")
                 db.add(fig)
 
         db.commit()
-
+        
+        for u in users:
+            figures = db.query(FigureTable).filter_by(id_game=id_game, user_id=u,status="Hidden").all()
+            sampled_figures = sample(figures, 3)
+            for fig in sampled_figures:
+                fig.status = "Revealed"
+        
+        db.commit()
+            
     except SQLAlchemyError as e:
         db.rollback()
         print(f"Error de SQLAlchemy: {str(e)}")
+
+def get_revealed_figures(id_game: int, db):
+    """Devuelve una lista con las figuras reveladas de un juego."""
+    figures = db.query(FigureTable).filter_by(id_game=id_game, status="Revealed").all()
+    revealed_figures = {u: [] for u in uid_by_turns(id_game, db)}
+    for fig in figures:
+        if fig.user_id in revealed_figures:
+            revealed_figures[fig.user_id].append(fig.name)
+
+    return revealed_figures

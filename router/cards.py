@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from querys.move_queries import *
 from querys.game_queries import *
 from schemas.response_models import *
+from querys import get_revealed_figures
 from utils.ws import manager
 from utils.database import SERVER_DB
 
@@ -41,8 +42,7 @@ def get_figure(id_player: int, id_game: int):
     # En caso de exito debe de modificar el estado del jugador dandole nuevas cartas y sacando estas de las disponibles.
 
     # TODO Implementacion ->
-
-    return {"Figuras Entregadas Correctamente."}
+    return get_revealed_figures(id_game, SERVER_DB)
 
 
 @cards.post("/use_figure")
