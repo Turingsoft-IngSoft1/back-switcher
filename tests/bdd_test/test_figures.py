@@ -3,16 +3,27 @@ from pytest import MonkeyPatch
 from querys.figure_queries import *
 from querys import create_game,create_user,remove_game
 from models import FigureTable,UserTable
+from models.figure import figures
+
+def check_valid(revealed):
+    """Chequea que las figuras reveladas sean validas."""
+    for r in revealed:
+        if r not in figures:
+            return False
+    return True
+
+def mock_shuffle():
+    """Mock para que la funcion shuffle no se aplique."""
 
 def test_initialize_figures(monkeypatch,test_db):
     """Testea la inicializacion de las figuras."""
-    def mock_shuffle(x):
-        pass
+
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
     newid = create_game("game1",2,2,test_db)
     id1 = create_user("user1",newid,test_db)
     id2 = create_user("user2",newid,test_db)
+    test_db.query(UserTable).filter_by(id=id2).update({"turn":1})
     initialize_figures(newid,2,test_db)
     assert test_db.query(FigureTable).filter_by(id_game=newid,status="Hidden").count() == (50-3*2)
     assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=id1).count() == 3
@@ -21,8 +32,7 @@ def test_initialize_figures(monkeypatch,test_db):
 
 def test_get_revealed_figures(monkeypatch,test_db):
     """Testea la inicializacion de las figuras."""
-    def mock_shuffle():
-        pass
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
     newid = create_game("game1",2,2,test_db)
@@ -31,6 +41,56 @@ def test_get_revealed_figures(monkeypatch,test_db):
     test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
     initialize_figures(newid,2,test_db)
     revealed = get_revealed_figures(newid,test_db)
-    print(revealed)
     assert len(revealed[u1]) == 3 and len(revealed[u2]) == 3
+    assert check_valid(revealed[u1]) and check_valid(revealed[u2])
+    remove_game(newid,test_db)
+
+def test_refill_revealed_figures(monkeypatch,test_db):
+    """Testea el repartir nuevas cartas de figuras para el jugador."""
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+
+    newid = create_game("game1",2,4,test_db)
+    u1 = create_user("user1",newid,test_db)
+    u2 = create_user("user2",newid,test_db)
+    u3 = create_user("user3",newid,test_db)
+    u4 = create_user("user4",newid,test_db)
+    test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
+    test_db.query(UserTable).filter_by(id=u3).update({"turn":2})
+    test_db.query(UserTable).filter_by(id=u4).update({"turn":3})
+    initialize_figures(newid,4,test_db)
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Hidden").count() == (50-3*4)
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u1).count() == 3
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u2).count() == 3
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).count() == 3
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u4).count() == 3
+    test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u1).first().status = "Discarded"
+    test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u2).first().status = "Discarded"
+    test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).first().status = "Discarded"
+    test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).first().status = "Discarded"
+    test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).first().status = "Discarded"
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u1).count() == 2
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u2).count() == 2
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).count() == 0
+    refill_revealed_figures(newid,u1,test_db)
+    refill_revealed_figures(newid,u2,test_db)
+    refill_revealed_figures(newid,u3,test_db)
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u1).count() == 3
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u2).count() == 3
+    assert test_db.query(FigureTable).filter_by(id_game=newid,status="Revealed",user_id=u3).count() == 3
+    revealed = get_revealed_figures(newid,test_db)
+    assert len(revealed[u1]) == 3 and len(revealed[u2]) == 3 and len(revealed[u3]) == 3
+    assert check_valid(revealed[u1]) and check_valid(revealed[u2]) and check_valid(revealed[u3])
+    remove_game(newid,test_db)
+
+def test_figures_in_hand(monkeypatch,test_db):
+    """Testea la cantidad de figuras en mano."""
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+
+    newid = create_game("game1",2,2,test_db)
+    u1 = create_user("user1",newid,test_db)
+    u2 = create_user("user2",newid,test_db)
+    test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
+    initialize_figures(newid,2,test_db)
+    assert figures_in_hand(newid,u1,test_db) == 3
+    assert figures_in_hand(newid,u2,test_db) == 3
     remove_game(newid,test_db)

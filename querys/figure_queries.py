@@ -70,3 +70,20 @@ def get_revealed_figures(id_game: int, db):
             revealed_figures[fig.user_id].append(fig.name)
 
     return revealed_figures
+
+def refill_revealed_figures(id_game: int, id_user: int, db):
+    """Revela las figuras faltantes del jugador."""
+    try:
+        c = db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Revealed").count()
+        hidden = db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Hidden").all()
+        sampled_figures = sample(hidden, 3-c)
+        for fig in sampled_figures:
+            fig.status = "Revealed"
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error de SQLAlchemy: {str(e)}")
+
+def figures_in_hand(id_game: int, id_user: int, db):
+    """Devuelve la cantidad de figuras en la mano del jugador."""
+    return db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Revealed").count()
