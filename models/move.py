@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, CheckConstraint
-from sqlalchemy.orm import validates
 
 from models.base import Base
 
@@ -13,8 +12,8 @@ class MoveTable(Base):
     name = Column(String, index=True)
     status = Column(String, default="Deck", index=True)
 
-    user_id = Column(Integer, ForeignKey('Users.id'))
-    id_game = Column(Integer, ForeignKey('Games.id'))
+    user_id = Column(Integer, ForeignKey('Users.id'),default=0)
+    id_game = Column(Integer, ForeignKey('Games.id',ondelete="CASCADE"))
     
     __table_args__ = (
         CheckConstraint(f"status IN {valid_status}", name="valid_status_check"),

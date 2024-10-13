@@ -31,12 +31,3 @@ def mock_server_db(mocker, test_db):
     assert pre_game_server_db is test_db
     assert game_server_db is test_db
     assert cards_server_db is test_db
-
-
-@pytest.fixture(scope='function',autouse=True)
-def force_teardown(test_db):
-    yield
-    test_db.rollback()
-    for table in reversed(Base.metadata.sorted_tables):
-        test_db.execute(table.delete())
-    test_db.commit()

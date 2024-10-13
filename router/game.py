@@ -1,7 +1,7 @@
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import remove_board,get_board
+from querys import get_board
 from schemas.response_models import InGame,BoardStatus
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -40,10 +40,8 @@ async def leave(e: InGame):
 
     #Cuando no queda ningun jugador se elimina partida.
     if get_players(e.id_game,SERVER_DB) == 0:
-        remove_board(e.id_game,SERVER_DB)
         remove_game(e.id_game,SERVER_DB)
 
-    
     return {"message": "Exit Successful."}
 
 

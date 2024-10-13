@@ -19,7 +19,7 @@ class BoardTable(Base):
     __tablename__ = 'Boards'
 
     id = Column(Integer, primary_key=True, index=True)
-    id_game = Column(Integer, ForeignKey('Games.id'), unique=True, nullable=False, index=True)
+    id_game = Column(Integer, ForeignKey('Games.id',ondelete="CASCADE"), unique=True, index=True)
     color = Column(String, default="NOT")
     board = Column(String, index=True)
 

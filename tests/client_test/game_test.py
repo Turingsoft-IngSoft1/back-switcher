@@ -2,7 +2,7 @@ import json,pytest
 from unittest.mock import patch
 from querys.board_queries import update_board
 
-def test_leave(mock_server_db,test_db,client,force_teardown):
+def test_leave(client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
     url_create = "http://localhost:8000/create_game"
     payload = {
@@ -50,7 +50,7 @@ def test_leave(mock_server_db,test_db,client,force_teardown):
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_response == formatted_expected
 
-def test_skip_turn(mock_server_db,test_db,client,force_teardown):
+def test_skip_turn(client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
     url_create = "http://localhost:8000/create_game"
     payload = {
@@ -69,7 +69,7 @@ def test_skip_turn(mock_server_db,test_db,client,force_teardown):
     response = client.post(url, json=payload)
     assert response.status_code == 200
 
-def test_get_board_status(mock_server_db,test_db,client,force_teardown):
+def test_get_board_status(test_db,client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
     url_create = "http://localhost:8000/create_game"
     payload = {

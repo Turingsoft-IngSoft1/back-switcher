@@ -1,190 +1,164 @@
-import pytest
+import random
+from pytest import MonkeyPatch
+from querys import create_game,create_user,remove_game
 from querys.move_queries import *
 from models import MoveTable
-from sqlite3 import IntegrityError
-
-def test_create_move(test_db, force_teardown):
     
-    #Caso 1: Crear un movimiento correctamente.
-    create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab is not None
-    
-    #Caso 2: Se crea otro movimiento con el mismo nombre.
-    create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).all()
-    assert tab is not None
-    
-    assert tab[0].name == tab[1].name
-    assert tab[0].id != tab[1].id
-    assert tab[0].id_game == tab[1].id_game
-    
-    #Caso 3: Crear movimiento con un nombre incorrecto.
-    try:
-        id = create_move("InvalidMove", id_game=1, db=test_db)
-    except IntegrityError:
+def test_initialize_moves(monkeypatch,test_db):
+    """Testea la inicializacion de los movimientos."""
+    def mock_shuffle(x):
         pass
-    tab = test_db.query(MoveTable).filter_by(id=id).first()
-    assert tab == None
-       
-def test_set_move_user(test_db, force_teardown):
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    #Se le asigna a un jugador.
-    id = create_move("mov1", id_game=1, db=test_db)
-    set_move_user(id, 1, test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.user_id is not None
+    #Caso 2 jugadores
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+
+    initialize_moves(1,2,test_db)
+
+    count = test_db.query(MoveTable).filter_by(id_game=1).count()
+    assert count == 49
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="Deck").count()
+    assert count == 49-(3*2)
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="InHand").count()
+    assert count == 3*2
+    h1 = get_hand(1,1,test_db)
+    h2 = get_hand(1,2,test_db)
+    assert len(h1) == 3 and len(h2) == 3
+    assert h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
     
-def test_get_move_user(test_db, force_teardown):
+    remove_game(1,test_db)
+
+    #Caso 3 jugadores
+    newid=create_game("game1",2,3,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    create_user("user3",newid,test_db)
+    initialize_moves(1,3,test_db)
+
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="Deck").count()
+    assert count == 49-(3*3)
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="InHand").count()
+    assert count == 3*3
+    h1 = get_hand(1,1,test_db)
+    h2 = get_hand(1,2,test_db)
+    h3 = get_hand(1,3,test_db)
+    assert len(h1) == 3 and len(h2) == 3 and len(h3) == 3
+    assert (h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
+    and h3 == ['mov7','mov1','mov2'])
     
-    #Caso 1: No pertenece a ningun jugador todavia.
-    id = create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.user_id == None == get_move_user(id, test_db)
-    
-    #Caso 2: Pertenece a un jugador.
-    set_move_user(id, 1, test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.user_id == 1 == get_move_user(id, test_db)
-    
-def test_get_move_name(test_db, force_teardown):
-    
-    #Obtiene el nombre del movimiento.
-    id = create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id=id).first()
-    assert tab.name == "mov1" == get_move_name(id, test_db) 
-    
-def test_get_move_status(test_db, force_teardown):
-    
-    #Obtiene el status actual de la carta.
-    id = create_move("mov1", id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "Deck" == get_move_status(id, test_db)
-    
-def test_set_move_status(test_db, force_teardown):
-    
-    #Caso 1: Asigna la carta a la mano de un jugador
-    id = create_move("mov1", id_game=1, db=test_db)
-    set_move_status(id, "InHand", test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "InHand"
-    
-    #Caso 2: Asigna la carta a el status de descarte
-    set_move_status(id, "Discarded", test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "Discarded"
-    
-    #Caso 3: Asigna la carta al deck
-    set_move_status(id, "Deck", test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "Deck"
-    
-    #Caso 4: Se asigna un status incorrectamente.
-    try:
-        set_move_status(id, "InvalidStatus", test_db)
-    except IntegrityError:
+    remove_game(1,test_db)
+
+    #Caso 4 jugadores
+    newid=create_game("game1",2,4,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    create_user("user3",newid,test_db)
+    create_user("user4",newid,test_db)
+    initialize_moves(1,4,test_db)
+
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="Deck").count()
+    assert count == 49-(3*4)
+    count = test_db.query(MoveTable).filter_by(id_game=1,status="InHand").count()
+    assert count == 3*4
+    h1 = get_hand(1,1,test_db)    
+    h2 = get_hand(1,2,test_db)
+    h3 = get_hand(1,3,test_db)
+    h4 = get_hand(1,4,test_db)
+    assert len(h1) == 3 and len(h2) == 3 and len(h3) == 3 and len(h4) == 3
+    assert (h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
+    and h3 == ['mov7','mov1','mov2'] and h4 == ['mov3','mov4','mov5'])
+
+def test_moves_in_deck(monkeypatch,test_db):
+    """Testea la cantidad de movimientos en el mazo."""
+    def mock_shuffle(x):
         pass
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab.status == "Deck"
-    
-def test_get_deck(test_db, force_teardown):
-    
-    #Obtiene el id de los movimientos en deck
-    
-    #Caso 1: Hay movimientos en deck
-    temp = []
-    for i in range(1, 8):
-        temp.append(create_move(f"mov{i}", id_game=1, db=test_db))
-    tab = temp
-    assert tab == get_deck(id_game=1, db=test_db)
-    
-    #Caso 2: No quedan movimientos en deck
-    for i in temp:
-        set_move_status(i, "Discarded", test_db)
-    assert get_deck(id_game=1, db=test_db) == []
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    count1 = moves_in_deck(1,test_db)
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,status="Deck").count()
+    assert count1 == count2 == 49-(3*2)
+    remove_game(1,test_db)
 
-def test_moves_in_deck(test_db, force_teardown):
-    
-    #Obtiene la cantidad de movimientos en deck
-    
-    #Caso 1: Hay movimientos en deck
-    temp = []
-    for i in range(1, 8):
-        temp.append(create_move(f"mov{i}", id_game=1, db=test_db))
-    tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").count()
-    assert tab == 7 == moves_in_deck(id_game=1, db=test_db)
-    
-    #Caso 2: No quedan movimientos en deck
-    for i in temp:
-        set_move_status(i, "Discarded", test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").count()
-    assert tab == 0 == moves_in_deck(id_game=1, db=test_db)
+def test_moves_in_hand(monkeypatch,test_db):
+    """Testea la cantidad de movimientos en la mano de un jugador."""
+    def mock_shuffle(x):
+        pass
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    count1 = moves_in_hand(1,1,test_db)
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status="InHand").count()
+    assert count1 == count2 == 3
+    count1 = moves_in_hand(1,2,test_db)
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=2,status="InHand").count()
+    assert count1 == count2 == 3
+    remove_game(1,test_db)
 
-def test_moves_in_hand(test_db, force_teardown):
-    #Obtiene la cantidad de movimientos en la mano de un jugador
-    
-    #Caso 1: No tiene movimientos en su mano
-    temp = []
-    for i in range(1, 4):
-        temp.append(create_move(f"mov{i}", id_game=1, db=test_db))
-    tab = test_db.query(MoveTable).filter_by(id_game=1, status="InHand").count()
-    assert tab == 0 == moves_in_hand(id_game=1, user_id=1, db=test_db)
-    
-    #Caso 2: Tiene movimientos en su mano
-    for i in temp:
-        set_move_status(i, "InHand", test_db)
-        set_move_user(i, user_id=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1, status="InHand").count()
-    assert tab == 3 == moves_in_hand(id_game=1, user_id=1, db=test_db)
+def test_refill_moves(monkeypatch,test_db):
+    def mock_shuffle(x):
+        pass
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    test_db.query(MoveTable).filter_by(id_game=1,status='Deck').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,status='Deck').first().status = 'Discarded'
+    test_db.commit()    
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,status='Deck').count()
+    assert count1 == 2 and count2 == 49-(3*2)-2
+    refill_moves(1,test_db)
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,status='Deck').count()
+    assert count1 == 0 and count2 == 49-(3*2)
+    remove_game(1,test_db)
 
-def test_refill_moves(test_db, force_teardown):
-     
-    #Devuelve todos los movimientos descartados al mazo.
-    
-    #Caso 1: No hay movimientos descartados
-    temp = []
-    for i in range(1, 8):
-        temp.append(create_move(name=f"mov{i}", id_game=1, db=test_db))
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Discarded").first()
-    assert tab == None
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").first()
-    assert tab is not None
-    refill_moves(id_game=1, db=test_db)
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Discarded").first()
-    assert tab == None
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").first()
-    assert tab is not None
-    
-    #Caso 2: Hay movimientos descartados.
-    for i in temp:
-        set_move_status(i, "Discarded", test_db)
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Discarded").first()
-    assert tab is not None
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").first()
-    assert tab == None
-    refill_moves(id_game=1, db=test_db)
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Discarded").first()
-    assert tab == None
-    tab = tab = test_db.query(MoveTable).filter_by(id_game=1, status="Deck").first()
-    assert tab is not None
-    
-def test_remove_move(test_db, force_teardown):
-    
-    #Caso 1: Se elimina una carta de movimiento existente.
-    id = create_move("mov1", id_game=1, db=test_db)
-    remove_move(id, test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab == None
-    
-    #Caso 2: Se elimina una carta de movimiento inexistente.
-    id = None
-    remove_move(id, test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab == None
-    
-def test_initialize_moves(test_db, force_teardown):
-    
-    #Inicializa las cartas de movimientos.
-    initialize_moves(id_game=1, db=test_db)
-    tab = test_db.query(MoveTable).filter_by(id_game=1).first()
-    assert tab is not None
+def test_refill_hand(monkeypatch,test_db):
+    def mock_shuffle(x):
+        pass
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
+    test_db.commit()
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').count()
+    assert count1 == 2 and count2 == 1
+    refill_hand(1,1,2,test_db)
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').count()
+    assert count1 == 2 and count2 == 3
+    remove_game(1,test_db)
+
+def test_get_hand(monkeypatch,test_db):
+    def mock_shuffle(x):
+        pass
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    newid=create_game("game1",2,2,test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    h1 = get_hand(1,1,test_db)
+    h2 = get_hand(1,2,test_db)
+    assert len(h1) == 3 and len(h2) == 3
+    assert h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
+    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,user_id=2,status='InHand').first().status = 'Discarded'
+    test_db.commit()
+    h1 = get_hand(1,1,test_db)
+    h2 = get_hand(1,2,test_db)
+    assert len(h1) == 1 and len(h2) == 2
+    assert h1 == ['mov3'] and h2 == ['mov5','mov6']
+

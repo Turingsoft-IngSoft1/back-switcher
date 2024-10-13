@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
 from querys.game_queries import *
 from querys.user_queries import *
-from querys.board_queries import create_board
 from querys.move_queries import *
 from querys.figure_queries import *
 from schemas.response_models import *
+from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
 
@@ -76,7 +76,7 @@ async def join(e: JoinEntry):
 
 
 @pre_game.get("/list_games", response_model=ResponseList)
-def list_games():
+async def list_games():
     """Listar los juegos creados."""
 
     # En caso de exito debe retornar un json con todos los juegos disponibles.
@@ -96,24 +96,25 @@ async def start(id_game: int):
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
     # Tiene que avisar a todos los clientes.
-
-    if get_players(id_game,SERVER_DB) >= get_min_players(id_game,SERVER_DB):
+    players = get_players(id_game,SERVER_DB)
+    if players >= get_min_players(id_game,SERVER_DB):
         
         set_game_state(id_game=id_game,
                        state="Playing",
                        db=SERVER_DB)
         
         first = set_users_turn(id_game=id_game,
-                               players=get_players(id_game, SERVER_DB),
+                               players=players,
                                db=SERVER_DB)
         
+        initialize_moves(id_game, players, SERVER_DB)
+        initialize_figures(id_game, players ,SERVER_DB)
+
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
     
-    initialize_moves(id_game, SERVER_DB)
-    initialize_figures(id_game, SERVER_DB)
 
     return {"message": "El juego comenzo correctamente."}
     
