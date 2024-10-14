@@ -43,7 +43,7 @@ async def use_moves(e: EntryMove):
     await manager.broadcast(f"MOVE {e.pos1} {e.pos2}",e.id_game)
     return {"Movimiento Realizado Correctamente."}
 
-@cards.get("/get_figure/{id_game}/{id_player}")
+@cards.post("/get_figure/{id_game}/{id_player}")
 async def get_figure(id_player: int, id_game: int):
     """Obtener cartas de figura."""
 

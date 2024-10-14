@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field
 from models.move import valid_moves
 
 
@@ -9,10 +9,10 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
     match name:
         case "mov1":
             available_moves.extend([
-                (initial_position[0] + 2, initial_position[1] + 2),
                 (initial_position[0] + 2, initial_position[1] - 2),
-                (initial_position[0] - 2, initial_position[1] + 2),
-                (initial_position[0] - 2, initial_position[1] - 2)
+                (initial_position[0] - 2, initial_position[1] - 2),
+                (initial_position[0] + 2, initial_position[1] + 2),
+                (initial_position[0] - 2, initial_position[1] + 2)
             ])
         case "mov2":
             available_moves.extend([
@@ -37,24 +37,24 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
             ])
         case "mov5":
             available_moves.extend([
-                (initial_position[0] + 1, initial_position[1] + 3),
-                (initial_position[0] - 3, initial_position[1] + 1),
-                (initial_position[0] - 1, initial_position[1] - 3),
-                (initial_position[0] - 3, initial_position[1] + 1)
+                (initial_position[0] + 1, initial_position[1] - 2),
+                (initial_position[0] + 2, initial_position[1] + 1),
+                (initial_position[0] - 1, initial_position[1] + 2),
+                (initial_position[0] - 2, initial_position[1] - 1)
             ])
         case "mov6":
             available_moves.extend([
-                (initial_position[0] - 1, initial_position[1] + 3),
-                (initial_position[0] - 3, initial_position[1] - 1),
-                (initial_position[0] + 1, initial_position[1] - 3),
-                (initial_position[0] + 1, initial_position[1] + 3)
+                (initial_position[0] + 2, initial_position[1] - 1),
+                (initial_position[0] + 1, initial_position[1] - 2),
+                (initial_position[0] - 2, initial_position[1] - 1),
+                (initial_position[0] - 1, initial_position[1] - 2)
             ])
         case "mov7":
             available_moves.extend([
-                (initial_position[0], initial_position[1] + 4),
-                (initial_position[0], initial_position[1] - 4),
-                (initial_position[0] + 4, initial_position[1]),
-                (initial_position[0] - 4, initial_position[1])
+                (initial_position[0], 5),
+                (initial_position[0], 0),
+                (5, initial_position[1]),
+                (0, initial_position[1])
             ])
 
     valid_moves_in_bounds = [
