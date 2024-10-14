@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
 
 from querys.move_queries import *
 from querys.game_queries import *
@@ -10,8 +9,7 @@ from schemas.response_models import *
 from schemas.move_schema import Move
 from utils.ws import manager
 from utils.database import SERVER_DB
-
-import random
+from utils.partial_boards import PARTIAL_BOARDS
 
 cards = APIRouter()
 
@@ -38,17 +36,11 @@ async def use_moves(e: EntryMove):
     if (e.pos2 not in move.available_moves):
         raise HTTPException(status_code=400, detail="Movimiento invalido.")
     use_move(e.id_game, e.id_player, e.name, SERVER_DB)
-    try:
-        board = get_board(e.id_game, SERVER_DB)
-        board[e.pos1[1]][e.pos1[0]], board[e.pos2[1]][e.pos2[0]] = (
-            board[e.pos2[1]][e.pos2[0]],
-            board[e.pos1[1]][e.pos1[0]],
-        )
-        update_board(e.id_game, board, SERVER_DB)
-    except BoardValidationError:
-        return JSONResponse(status_code=400, content={"detail": "Error al actualizar el tablero."})
-        
-    await manager.broadcast("REFRESH_BOARD",e.id_game)
+    PARTIAL_BOARDS.update(e.id_game,e.pos1,e.pos2)
+    update_board(id_game=e.id_game,
+                 matrix=PARTIAL_BOARDS.get(e.id_game),
+                 db=SERVER_DB)
+    await manager.broadcast(f"MOVE {e.pos1} {e.pos2}",e.id_game)
     return {"Movimiento Realizado Correctamente."}
 
 @cards.get("/get_figure/{id_game}/{id_player}")

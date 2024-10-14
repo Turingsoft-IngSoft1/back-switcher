@@ -8,6 +8,7 @@ from schemas.response_models import *
 from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
+from utils.partial_boards import PARTIAL_BOARDS
 
 pre_game = APIRouter()
 
@@ -109,6 +110,7 @@ async def start(id_game: int):
         
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players ,SERVER_DB)
+        PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     

@@ -5,6 +5,7 @@ from querys import get_board
 from schemas.response_models import InGame,BoardStatus
 from utils.ws import manager
 from utils.database import SERVER_DB
+from utils.partial_boards import PARTIAL_BOARDS
 
 game = APIRouter()
 
@@ -41,6 +42,7 @@ async def leave(e: InGame):
     #Cuando no queda ningun jugador se elimina partida.
     if get_players(e.id_game,SERVER_DB) == 0:
         remove_game(e.id_game,SERVER_DB)
+        PARTIAL_BOARDS.remove(e.id_game)
 
     return {"message": "Exit Successful."}
 
