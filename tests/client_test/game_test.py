@@ -161,7 +161,7 @@ def test_cancel_game(mock_server_db,test_db,client,force_teardown):
     }
 
     response = client.post(url, json=payload) #Deberia fallar porque no existe.
-    assert response.status_code == 403
+    assert response.status_code == 404
 
     #Caso de éxito: Elimina la partida.
     url = "http://localhost:8000/cancel_game"
