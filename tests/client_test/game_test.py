@@ -103,3 +103,71 @@ def test_get_board_status(mock_server_db,test_db,client,force_teardown):
     url_board= "http://localhost:8000/board_status/2"
     response=client.get(url_board)
     assert response.status_code == 404
+
+def test_cancel_game(mock_server_db,test_db,client,force_teardown):
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 4
+    }
+    client.post(url_create, json=payload)
+    #Unir a UsuarioParaLlenarLobby a la partida.
+    urljoin = "http://localhost:8000/join_game"
+    payload1 = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby1"
+    }
+    client.post(urljoin, json=payload1)
+    payload2 = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby2"
+    }
+    client.post(urljoin, json=payload2)
+    payload3 = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby3"
+    }
+    client.post(urljoin, json=payload3)
+
+    #Caso de error: El host no es el que llama a la funcion.
+    url = "http://localhost:8000/cancel_game"
+    payload = {
+        "id_game": 1,
+        "id_caller": 2
+    }
+    response = client.post(url, json=payload)
+    assert response.status_code == 403
+
+    #Caso de error: ID de partida inválido (está comenzada o no existe)
+
+    url_start = "http://localhost:8000/start_game/1"
+
+    client.post(url_start)
+
+    url = "http://localhost:8000/cancel_game"
+    payload = {
+        "id_game": 1,
+        "id_caller": 1
+    }
+    response = client.post(url, json=payload) #Deberia fallar porque está empezada.
+    assert response.status_code == 403
+
+    url = "http://localhost:8000/cancel_game"
+    payload = {
+        "id_game": 80,
+        "id_caller": 1
+    }
+
+    response = client.post(url, json=payload) #Deberia fallar porque no existe.
+    assert response.status_code == 403
+
+    #Caso de éxito: Elimina la partida.
+    url = "http://localhost:8000/cancel_game"
+    payload = {
+        "id_game": 1,
+        "id_caller": 1
+    }
+    response = client.post(url, json=payload)
+    assert response.status_code == 200
