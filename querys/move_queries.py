@@ -78,3 +78,11 @@ def get_hand(id_game: int, user_id: int, db):
         hand.append(move.name)
     return hand
 
+def use_move(id_game: int, user_id: int, move_name: str, db):
+    """Usa un movimiento."""
+    move = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                    MoveTable.user_id == user_id,
+                                    MoveTable.name == move_name,
+                                    MoveTable.status == "InHand").first()
+    move.status = "Discarded"
+    db.commit()

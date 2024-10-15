@@ -55,5 +55,10 @@ class BoardStatus(BaseModel):
 class ResponseMoves(BaseModel):
     moves: list[str] = Field(description="List of move names.")
     
-class ResponseFigures(BaseModel):
-    figures: list[str] = Field(description="List of figure names.")
+class EntryMove(BaseModel):
+    """Json de entrada para realizar un movimiento."""
+    id_game: int
+    id_player: int
+    name: str
+    pos1: tuple[int, int]
+    pos2: tuple[int, int]

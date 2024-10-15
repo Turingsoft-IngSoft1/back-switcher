@@ -1,10 +1,11 @@
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board
+from querys import get_board,get_revealed_figures
 from schemas.response_models import InGame,BoardStatus
 from utils.ws import manager
 from utils.database import SERVER_DB
+from utils.partial_boards import PARTIAL_BOARDS
 
 game = APIRouter()
 
@@ -16,21 +17,20 @@ async def leave(e: InGame):
     """Abandonar Partida."""
     # En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
     if is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
-        remove_player(e.id_game,SERVER_DB)
-        remove_user(e.id_player,SERVER_DB)
-        reorder_turns(e.id_game,SERVER_DB)
+        set_game_turn(e.id_game, (get_game_turn(e.id_game,SERVER_DB) + 1),SERVER_DB)     
         game_turn = (get_game_turn(e.id_game,SERVER_DB) % (get_players(e.id_game,SERVER_DB)))
         user_id = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
         await manager.broadcast(f"TURN {user_id}", e.id_game)
+
+        remove_player(e.id_game,SERVER_DB)
+        remove_user(e.id_player,SERVER_DB)
+        reorder_turns(e.id_game,SERVER_DB)
         await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
-    
     else:
         remove_player(e.id_game,SERVER_DB)
         remove_user(e.id_player,SERVER_DB)
         reorder_turns(e.id_game,SERVER_DB)
         await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
-
-    
 
     #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
@@ -41,6 +41,7 @@ async def leave(e: InGame):
     #Cuando no queda ningun jugador se elimina partida.
     if get_players(e.id_game,SERVER_DB) == 0:
         remove_game(e.id_game,SERVER_DB)
+        PARTIAL_BOARDS.remove(e.id_game)
 
     return {"message": "Exit Successful."}
 
@@ -59,13 +60,11 @@ async def skip(e: InGame):
     return {"Skip Successful."}
 
 
-@game.get("/game_status")
-def get_status(id_player: int, id_game: int):
+@game.get("/game_status/{id_game}")
+def get_status(id_game: int):
     """Consultar estado de partida/turnos."""
 
-    # TODO Implementacion ->
-
-    return {"Game Status Sucessful."}
+    return get_revealed_figures(id_game,SERVER_DB)
 
 
 @game.get("/board_status/{id_game}", response_model=BoardStatus)

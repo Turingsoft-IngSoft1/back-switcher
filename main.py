@@ -26,4 +26,3 @@ app.add_middleware(
 app.include_router(pre_game)
 app.include_router(game)
 app.include_router(cards)
-
