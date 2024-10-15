@@ -43,7 +43,6 @@ def get_users(id_game: int, db) -> CurrentUsers:
             l.append(User(id=u.id,
                           name=u.name,
                           game=u.id_game,
-                          figures_deck=u.figures_deck,
                           turn=u.turn))
 
         return CurrentUsers(users_list=l)

@@ -2,13 +2,13 @@ from fastapi import APIRouter, HTTPException
 from querys.move_queries import *
 from querys.game_queries import *
 from schemas.response_models import *
-from querys import get_revealed_figures, refill_revealed_figures, figures_in_hand
+from querys import get_revealed_figures, refill_revealed_figures, figures_in_hand, get_user_from_turn
 from utils.ws import manager
 from utils.database import SERVER_DB
 
 cards = APIRouter()
 
-@cards.post("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
+@cards.get("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
 async def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
 
@@ -32,19 +32,19 @@ def use_moves(id_player: int, id_game: int):
     return {"Movimientos Usados Correctamente."}
 
 
-@cards.post("/get_figure/{id_game}/{id_player}")
-async def get_figure(id_player: int, id_game: int):
+@cards.get("/get_figures/{id_game}/{id_player}")
+async def get_figures(id_player: int, id_game: int):
     """Obtener cartas de figura."""
 
     in_hand = figures_in_hand(id_game, id_player, SERVER_DB)
     if in_hand < 3:
-        refill_revealed_figures(id_game,id_player, SERVER_DB)
-        manager.broadcast("REFRESH_FIGURES",id_game)
-    else:
-        raise HTTPException(status_code=400, detail="No se pueden obtener mas figuras.")
+        refill_revealed_figures(id_game, id_player, SERVER_DB)
+        await manager.broadcast("REFRESH_FIGURES", id_game)
+    
+    return get_revealed_figures(id_game, SERVER_DB)[id_player]
 
-@cards.post("/use_figure")
-def use_figure(id_player: int, id_game: int):
+@cards.post("/use_figures")
+def use_figures(id_player: int, id_game: int):
     """Usar una carta de figura."""
 
     # TODO Implementacion ->
