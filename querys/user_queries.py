@@ -20,9 +20,9 @@ def create_user(name: str, id_game: int, db):
         db.close()
 
 
-def remove_user(user_id: int, db):
+def remove_user(id_user: int, db):
     """Elimina de la base de datos al jugador con el id correspondiente."""
-    to_remove = db.query(UserTable).filter(UserTable.id == user_id).first()
+    to_remove = db.query(UserTable).filter(UserTable.id == id_user).first()
     try:
         db.delete(to_remove)
         db.commit()

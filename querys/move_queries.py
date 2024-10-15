@@ -14,7 +14,7 @@ def initialize_moves(id_game: int, players: int, db):
             for j in range(3):
                 m = MoveTable(name=moves[(3 * i) + j],
                               status="InHand",
-                              user_id=users[i],
+                              id_user=users[i],
                               id_game=id_game)
                 db.add(m)
 
@@ -35,10 +35,10 @@ def moves_in_deck(id_game: int, db) -> int:
                                      MoveTable.status == "Deck").count()
     return ret
 
-def moves_in_hand(id_game: int, user_id: int, db) -> int:
+def moves_in_hand(id_game: int, id_user: int, db) -> int:
     """Devuelve la cantidad de movimientos que el usuario tiene en mano."""
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
-                                     MoveTable.user_id == user_id,
+                                     MoveTable.id_user == id_user,
                                      MoveTable.status == "InHand").count()
     return ret
 
@@ -55,14 +55,14 @@ def refill_moves(id_game: int, db):
         db.rollback()
         print(f"Error de SQLAlchemy: {str(e)}")
 
-def refill_hand(id_game: int, user_id: int, need: int, db):
+def refill_hand(id_game: int, id_user: int, need: int, db):
     """Rellena la mano del jugador con la cantidad de movimientos necesarios."""
     try:
         moves_on_deck = db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                                    MoveTable.status == "Deck").all()
         new_hand = []
         for move in sample(moves_on_deck, need):
-            move.user_id = user_id
+            move.id_user = id_user
             move.status = "InHand"
             db.add(move)
             new_hand.append(move.name)
@@ -72,10 +72,10 @@ def refill_hand(id_game: int, user_id: int, need: int, db):
         db.rollback()
         print(f"Error de SQLAlchemy: {str(e)}")
 
-def get_hand(id_game: int, user_id: int, db):
+def get_hand(id_game: int, id_user: int, db):
     """Devuelve los nombres de los movimientos en la mano del jugador."""
     ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
-                                     MoveTable.user_id == user_id,
+                                     MoveTable.id_user == id_user,
                                      MoveTable.status == "InHand").all()
     hand = []
     for move in ret:

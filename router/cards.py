@@ -32,7 +32,7 @@ def use_moves(id_player: int, id_game: int):
     return {"Movimientos Usados Correctamente."}
 
 
-@cards.get("/get_figure/{id_game}/{id_player}")
+@cards.post("/get_figure/{id_game}/{id_player}")
 async def get_figure(id_player: int, id_game: int):
     """Obtener cartas de figura."""
 

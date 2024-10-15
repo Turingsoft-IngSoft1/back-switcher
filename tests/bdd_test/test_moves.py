@@ -97,10 +97,10 @@ def test_moves_in_hand(monkeypatch,test_db):
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
     count1 = moves_in_hand(1,1,test_db)
-    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status="InHand").count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status="InHand").count()
     assert count1 == count2 == 3
     count1 = moves_in_hand(1,2,test_db)
-    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=2,status="InHand").count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=2,status="InHand").count()
     assert count1 == count2 == 3
     remove_game(1,test_db)
 
@@ -132,15 +132,15 @@ def test_refill_hand(monkeypatch,test_db):
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
-    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
-    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').first().status = 'Discarded'
     test_db.commit()
-    count1 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='Discarded').count()
-    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').count()
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').count()
     assert count1 == 2 and count2 == 1
     refill_hand(1,1,2,test_db)
-    count1 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='Discarded').count()
-    count2 = test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').count()
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').count()
     assert count1 == 2 and count2 == 3
     remove_game(1,test_db)
 
@@ -160,9 +160,9 @@ def test_get_hand(monkeypatch,test_db):
     assert h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
     
     #Caso 2: Los usuarios han descartado algunas cartas.
-    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
-    test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
-    test_db.query(MoveTable).filter_by(id_game=1,user_id=2,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').first().status = 'Discarded'
+    test_db.query(MoveTable).filter_by(id_game=1,id_user=2,status='InHand').first().status = 'Discarded'
     test_db.commit()
     h1 = get_hand(1,1,test_db)
     h2 = get_hand(1,2,test_db)

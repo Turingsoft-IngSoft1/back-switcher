@@ -39,18 +39,18 @@ def create(e: CreateEntry):
                               min_players=e.min_player,
                               db=SERVER_DB)
     
-    new_user_id = create_user(name=e.owner_name,
+    new_id_user = create_user(name=e.owner_name,
                               id_game=new_id_game,
                               db=SERVER_DB)
     
     set_game_host(id_game=new_id_game,
-                  host=new_user_id,
+                  host=new_id_user,
                   db=SERVER_DB)
     
     create_board(id_game=new_id_game,
                  db=SERVER_DB)
 
-    return ResponseCreate(id_game=new_id_game, id_player=new_user_id)
+    return ResponseCreate(id_game=new_id_game, id_player=new_id_user)
 
 
 @pre_game.post("/join_game", response_model=ResponseJoin)
@@ -119,12 +119,12 @@ async def start(id_game: int):
     return {"message": "El juego comenzo correctamente."}
     
 
-@pre_game.websocket("/ws/{id_game}/{user_id}")
-async def websocket_endpoint(ws: WebSocket, id_game: int, user_id: int):
+@pre_game.websocket("/ws/{id_game}/{id_user}")
+async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
     """Canal para que el servidor envie datos de la partida."""
-    await manager.connect(ws, id_game, user_id)
+    await manager.connect(ws, id_game, id_user)
     try:
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, user_id)
+        manager.disconnect(ws, id_game, id_user)
