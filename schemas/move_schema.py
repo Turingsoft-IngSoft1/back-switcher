@@ -40,14 +40,15 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
                 (initial_position[0] + 1, initial_position[1] - 2),
                 (initial_position[0] + 2, initial_position[1] + 1),
                 (initial_position[0] - 1, initial_position[1] + 2),
-                (initial_position[0] - 2, initial_position[1] - 1)
+                (initial_position[0] - 2, initial_position[1] - 1),
+                
             ])
         case "mov6":
             available_moves.extend([
+                (initial_position[0] - 1, initial_position[1] - 2),
                 (initial_position[0] + 2, initial_position[1] - 1),
-                (initial_position[0] + 1, initial_position[1] - 2),
-                (initial_position[0] - 2, initial_position[1] - 1),
-                (initial_position[0] - 1, initial_position[1] - 2)
+                (initial_position[0] + 1, initial_position[1] + 2),
+                (initial_position[0] - 2, initial_position[1] + 1)
             ])
         case "mov7":
             available_moves.extend([
