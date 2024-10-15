@@ -64,199 +64,56 @@ for color, group in groups:
     print(f"Color {color}: {group}")
 
     def is_shapedif(group, shape):
+        group_set = set(group)
         if shape == "fig01":
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y + 1) in group and
-                    (x - 1, y) in group) : # Tshape izquierda
-                    return True
-                elif ((x, y + 1) in group and
-                    (x + 1, y + 1) in group and
-                    (x - 1, y + 1) in group and
-                    (x, y - 1) in group): # Tshape abajo
-                    return True
-                elif ((x-1, y) in group and
-                    (x - 1, y + 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x + 1, y) in group) : # Tshape derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x, y + 1) in group) : # Tshape arriba
-                    return True
+            default_shape = [(1, 0), (1, -1), (1, 1), (-1, 0)]  # Default T-shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == "fig05":
-            # Check de linea horizontal
+            # Check for horizontal line
             for x, y in group:
                 if all((x, y + i) in group for i in range(5)):
                     return True
-            # Check de linea vertical
+            # Check for vertical line
             for x, y in group:
                 if all((x + i, y) in group for i in range(5)):
                     return True
             return False
         elif shape == 'fig02':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 3, y -1) in group): # Default
-                    return True
-                if ((x, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group and
-                    (x - 1, y - 3) in group): # 90 grados derecha
-                    return True
-                if ((x - 1, y) in group and
-                    (x - 1, y + 1) in group and
-                    (x - 2, y + 1) in group and
-                    (x - 3, y + 1) in group): # 180 grados derecha
-                    return True
-                if ((x, y + 1) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 1, y + 2) in group and
-                    (x + 1, y + 3) in group): # 270 grados derecha
-                    return True
+            default_shape = [(1, 0), (1, -1), (2, -1), (3, -1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig03':
-            for x, y in group:
-                if ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 2, y - 1) in group and
-                    (x - 3, y - 1) in group): # Default mirrored
-                    return True
-                elif ((x, y + 1) in group and
-                    (x - 1, y + 1) in group and
-                    (x - 1, y + 2) in group and
-                    (x - 1, y + 3) in group): # 90 degrees mirrored
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 2, y + 1) in group and
-                    (x + 3, y + 1) in group): # 180 degrees mirrored
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y - 2) in group and
-                    (x + 1, y - 3) in group): # 270 degrees mirrored
-                    return True
+            default_shape = [(-1, 0), (-1, -1), (-2, -1), (-3, -1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig04':
-            for x, y in group:
-                if ((x, y-1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y - 2) in group and
-                    (x + 2, y - 2) in group): # Default 
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 2, y - 1) in group and
-                    (x - 2, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 2, y - 2) in group): # 180 degrees derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group and
-                    (x - 2, y - 2) in group): # 270 degrees derecha
-                    return True
+            default_shape = [(0, -1), (1, -1), (1, -2), (2, -2)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig06':
-            for x, y in group:
-                if ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x + 1, y - 2) in group and
-                    (x + 2, y - 2) in group): # Default
-                    return True
-                elif ((x, y + 1) in group and
-                    (x, y + 2) in group and
-                    (x + 1, y + 2) in group and
-                    (x + 2, y + 2) in group): # 90 degrees
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 2, y - 2) in group): # 180 degrees
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 2, y + 1) in group and
-                    (x + 2, y + 2) in group): # 270 degrees
-                    return True
+            default_shape = [(0, -1), (0, -2), (1, -2), (2, -2)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig07':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 3, y - 1) in group): # Default
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x - 1, y - 3) in group): # 90 degrees
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 3, y - 1) in group): # 180 degrees
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group and
-                    (x - 1, y - 3) in group): # 270 degrees
-                    return True
+            default_shape = [(1, 0), (2, 0), (3, 0), (3, -1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig08':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 3, y + 1) in group): # Default mirrored
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x + 1, y - 3) in group): # 90 degrees mirrored
-                    return True
-                elif ((x, y + 1) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 2, y + 1) in group and
-                    (x + 3, y + 1) in group): # 180 degrees mirrored
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y - 2) in group and
-                    (x + 1, y - 3) in group): # 270 degrees mirrored
-                    return True
+            default_shape = [(1, 0), (2, 0), (3, 0), (3, 1)]  # Default mirrored shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig09':
-            for x, y in group:
-                if ((x, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 2, y - 1) in group and
-                    (x - 1, y - 2) in group): # Default 
-                    return True
-                elif ((x, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x + 1, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group): # 180 degrees derecha
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 1, y - 2) in group): # 270 degrees derecha
-                    return True
+            default_shape = [(0, -1), (-1, -1), (-2, -1), (-1, -2)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig10':
             for x, y in group:
@@ -272,133 +129,35 @@ for color, group in groups:
                     return True
             return False
         elif shape == 'fig11':
-            for x, y in group:
-                if ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 1, y - 2) in group): # Default 
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 2, y - 1) in group and
-                    (x - 1, y - 2) in group): # 90 degrees mirrored derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x - 1, y - 1) in group and
-                    (x + 1, y - 2) in group): # 180 degrees mirrored derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x - 1, y - 2) in group): # 270 degrees mirrored derecha
-                    return True
+            default_shape = [(0, -1), (1, -1), (2, -1), (1, -2)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
             return False
         elif shape == 'fig12':
-            for x, y in group:
-                if ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 2, y - 2) in group): # Default 
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group and
-                    (x - 2, y - 2) in group): # 90 degrees derecha
-                    return True
-                return False
+            default_shape = [(0, -1), (1, -1), (2, -1), (2, -2)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         elif shape == 'fig13':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 2, y - 1) in group): # Default 
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x - 1, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 1, y + 1) in group): # 180 degrees derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x + 1, y - 1) in group): # 270 degrees derecha
-                    return True
-                return False
+            default_shape = [(1, 0), (2, 0), (3, 0), (2, -1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         elif shape == 'fig14':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 2, y + 1) in group): # Default mirrored
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x + 1, y - 2) in group): # 90 degrees mirrored derecha
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 3, y) in group and
-                    (x + 1, y - 1) in group): # 180 degrees mirrored derecha
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x, y - 3) in group and
-                    (x - 1, y - 1) in group): # 270 degrees mirrored derecha
-                    return True
-                return False
+            default_shape = [(1, 0), (2, 0), (3, 0), (2, 1)]  # Default mirrored shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         elif shape == 'fig15':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 2, y + 1) in group): # Default 
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 2, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 2, y - 1) in group): # 180 degrees  derecha
-                    return True
-                elif ((x, y + 1) in group and
-                    (x, y + 2) in group and
-                    (x - 1, y + 1) in group and
-                    (x - 1, y + 2) in group): # 270 degrees  derecha
-                    return True
-                return False
+            default_shape = [(1, 0), (2, 0), (1, 1), (2, 1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         elif shape == 'fig16':
-            for x, y in group:
-                if ((x, y - 1) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group and
-                    (x + 2, y) in group): # Default 
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group and
-                    (x, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x, y + 1) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 2, y + 1) in group and
-                    (x + 2, y) in group): # 180 degrees  derecha
-                    return True
-                elif ((x + 1, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 1, y - 2) in group and
-                    (x, y - 2) in group): # 270 degrees  derecha
-                    return True
-                return False
+            default_shape = [(0, -1), (1, -1), (2, -1), (2, 0)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         elif shape == 'fig17':
             for x, y in group:
                 if ((x, y - 1) in group and
@@ -408,32 +167,15 @@ for color, group in groups:
                     return True
                 return False
         elif shape == 'fig18':
-            for x, y in group:
-                if ((x + 1, y) in group and
-                    (x + 2, y) in group and
-                    (x + 1, y - 1) in group and
-                    (x + 2, y - 1) in group): # Default 
-                    return True
-                elif ((x, y - 1) in group and
-                    (x, y - 2) in group and
-                    (x - 1, y - 1) in group and
-                    (x - 1, y - 2) in group): # 90 degrees derecha
-                    return True
-                elif ((x - 1, y) in group and
-                    (x - 2, y) in group and
-                    (x - 1, y + 1) in group and
-                    (x - 2, y + 1) in group): # 180 degrees  derecha
-                    return True
-                elif ((x, y + 1) in group and
-                    (x, y + 2) in group and
-                    (x + 1, y + 1) in group and
-                    (x + 1, y + 2) in group): # 270 degrees  derecha
-                    return True
-                return False
+            default_shape = [(1, 0), (2, 0), (1, -1), (2, -1)]  # Default shape
+            if check_rotations(group_set, default_shape):
+                return True
+            return False
         else:
             return False
 
     def is_shapeeasy(group, shape):
+            group_set = set(group)
             if shape == 'fige01':
                 for x, y in group:
                     if ((x + 1, y) in group and
@@ -463,68 +205,45 @@ for color, group in groups:
                         (x - 1, y - 2) in group): # 90 degrees derecha
                         return True
                     return False
+                return False
             elif shape == 'fige04':
-                for x, y in group:
-                    if ((x + 1, y) in group and
-                        (x + 1, y - 1) in group and
-                        (x + 1, y + 1) in group) : # Tshape izquierda
-                        return True
-                    elif ((x, y + 1) in group and
-                        (x + 1, y + 1) in group and
-                        (x - 1, y + 1) in group) : # Tshape abajo
-                        return True
-                    elif ((x-1, y) in group and
-                        (x - 1, y + 1) in group and
-                        (x - 1, y - 1) in group) : # Tshape derecha
-                        return True
-                    elif ((x, y - 1) in group and
-                        (x + 1, y - 1) in group and
-                        (x - 1, y - 1) in group) : # Tshape arriba
-                        return True
+                default_shape = [(1, 0), (1, -1), (1, 1)]  # Default T-shape
+                if check_rotations(group_set, default_shape):
+                    return True
                 return False
             elif shape == 'fige05':
-                for x, y in group:
-                    if ((x + 1, y) in group and
-                        (x + 2, y) in group and
-                        (x + 2, y - 1) in group): # Default
-                        return True
-                    elif ((x, y - 1) in group and
-                        (x, y - 2) in group and
-                        (x - 1, y - 2) in group): # 90 degrees
-                        return True
-                    elif ((x, y - 1) in group and
-                        (x + 1, y - 1) in group and
-                        (x + 2, y - 1) in group): # 180 degrees
-                        return True
-                    elif ((x - 1, y) in group and
-                        (x - 1, y - 1) in group and
-                        (x - 1, y - 2) in group): # 270 degrees
-                        return True
+                default_shape = [(1, 0), (2, 0), (2, -1)]  # Default shape
+                if check_rotations(group_set, default_shape):
+                    return True
                 return False
             elif shape == 'fige06':
-                for x, y in group:
-                    if all((x, y + i) in group for i in range(4)): # Horizontal line
-                        return True
-                    if all((x + i, y) in group for i in range(4)): # Vertical line
-                        return True
+                default_shape = [(0, 1), (0, 2), (0, 3)]  # Horizontal line
+                if check_rotations(group_set, default_shape):
+                    return True
                 return False
             elif shape == 'fige07':
-                for x, y in group:
-                    # Define the relative positions for the default shape
-                    default_shape = [(0, -1), (-2, -1), (-2, -1)]
-                    
-                    # Check all four rotations
-                    for rotation in range(4):
-                        rotated_shape = [(x + dx, y + dy) for dx, dy in default_shape]
-                        if all(pos in group for pos in rotated_shape):
-                            return True
-                        
-                        # Rotate the shape 90 degrees clockwise
-                        default_shape = [(dy, -dx) for dx, dy in default_shape]
-                        return True
+                default_shape = [(0, -1), (-2, -1), (-2, -1)]
+                if check_rotations(group_set, default_shape):
+                    return True
                 return False
             else:
                 return False
+
+def check_rotations(group_set, default_shape):
+    rotations = generate_rotations(default_shape)      
+    for x, y in group_set:
+        for rotation in rotations:
+            if all((x + dx, y + dy) in group_set for dx, dy in rotation):
+                return True
+    return False
+            
+def generate_rotations(shape):
+    """Generate all 90-degree rotations of the given shape."""
+    rotations = [shape]
+    for _ in range(3):
+        new_shape = [(y, -x) for x, y in rotations[-1]]
+        rotations.append(new_shape)
+    return rotations
 
 # Checkea figuras particulares
 shapes_to_check = [
