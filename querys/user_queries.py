@@ -1,4 +1,4 @@
-import random
+from random import shuffle
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
 from schemas.user_schema import User
@@ -54,35 +54,26 @@ def get_users(id_game: int, db) -> CurrentUsers:
 
 def set_users_turn(id_game: int, players: int, db) -> int :
     """Le asigna turnos al azar a los jugadores."""
-    first = 0
     try:
         users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
-        ramdom_turns = random.sample(range(players), players)
-        for u, t in zip(users, ramdom_turns):
-            u.turn = t
-            if t==0:
-                first = u.id
-        db.commit()
+        shuffle(users)
+        for index, user in enumerate(users, start=0):
+            user.turn = index
+        db.commit() 
+        return users[0].id
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
-    finally:
-        db.close()
-        return first
 
 def get_user_from_turn(id_game: int, turn: int, db) -> int:
-    try:
-        users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
-        return users[turn].id
-
-    finally:
-        db.close()
+    users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
+    return users[turn].id
 
 def reorder_turns(id_game: int, db):
     try:
         users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
         # Actualizar los turnos en la base de datos
-        for idx, usuario in enumerate(users):
+        for idx, usuario in enumerate(users, start=0):
             usuario.turn = idx
             db.add(usuario)
         db.commit()
@@ -90,11 +81,14 @@ def reorder_turns(id_game: int, db):
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
-    
-    finally:
-        db.close()
 
 def is_user_current_turn(id_game: int, id_user: int, db) -> bool:
     user = db.query(UserTable).filter(UserTable.id == id_user).first()
     game = db.query(GameTable).filter(GameTable.id == id_game).first()
     return (game.state == "Playing" and (user.turn == (game.turn % game.players)))
+
+def uid_by_turns(id_game: int, db) -> list[int]:
+    users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
+    return [u.id for u in users]
+
+    

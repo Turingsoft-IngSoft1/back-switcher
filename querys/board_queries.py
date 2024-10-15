@@ -1,3 +1,5 @@
+from sqlalchemy.exc import SQLAlchemyError
+
 from models.board import BoardTable,BoardValidationError
 
 def create_board(id_game: int, db):  # Chequear si va id
@@ -9,11 +11,9 @@ def create_board(id_game: int, db):  # Chequear si va id
         db.refresh(new_board)
         print(f"Board {new_board.id} created")
         return new_board.id
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.rollback()
-        print(f"Error creating board: {e}")
-    finally:
-        db.close()
+        print(f"Error de SQLAlchemy: {str(e)}")
 
 def get_board(id_game: int, db) :
     """Encuentra y muestra el tablero que esta almacenado
@@ -28,6 +28,7 @@ def get_color(id_game: int, db) -> str:
     return color_ret.color
 
 def update_board(id_game: int, matrix: list[list[str]], db):
+    """Actualiza el tablero con la matriz dada."""
     try:
         b_table = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
         b_table.board_json = matrix
@@ -36,17 +37,3 @@ def update_board(id_game: int, matrix: list[list[str]], db):
     except BoardValidationError as e:
         db.rollback()
         print(f"Error: {e}")
-    finally:
-        db.close()
-
-def remove_board(id_game: int, db):
-    to_remove = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
-    try:
-        db.delete(to_remove)
-        db.commit()
-        print(f"Board deleted.")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()

@@ -1,7 +1,7 @@
 import json,pytest
 from unittest.mock import patch
 
-def test_create_game(mock_server_db,test_db,client,force_teardown):
+def test_create_game(client):
     #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
@@ -22,7 +22,7 @@ def test_create_game(mock_server_db,test_db,client,force_teardown):
     response = client.post(url, json=payload)
     assert response.status_code == 422
 
-def test_list_game(mock_server_db,test_db,client,force_teardown):
+def test_list_game(client):
     #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
@@ -55,7 +55,7 @@ def test_list_game(mock_server_db,test_db,client,force_teardown):
     assert response.status_code == 200
     assert formatted_expected, formatted_response
 
-def test_join_game(mock_server_db,test_db,client,force_teardown):
+def test_join_game(client):
     #Crear PartidaEjemplo y UsuarioEjemplo. 
     url = "http://localhost:8000/create_game"
     payload = {
@@ -82,7 +82,7 @@ def test_join_game(mock_server_db,test_db,client,force_teardown):
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_expected == formatted_response
 
-def test_active_players(mock_server_db,test_db,client,force_teardown):
+def test_active_players(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
     url = "http://localhost:8000/create_game"
     payload = {
@@ -111,7 +111,7 @@ def test_active_players(mock_server_db,test_db,client,force_teardown):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     assert formatted_expected == formatted_response
 
-def test_start_game(mock_server_db,test_db,client,force_teardown):
+def test_start_game(client):
     #Crear partida y jugador 1.    
     url = "http://localhost:8000/create_game"
     payload = {

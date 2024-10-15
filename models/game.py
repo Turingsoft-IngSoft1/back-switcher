@@ -16,5 +16,8 @@ class GameTable(Base):
     min_players = Column(Integer, default=2)
     max_players = Column(Integer, default=4)
     password = Column(String, default="password")
-    Users = relationship("UserTable", backref="GameTable")
-    Boards = relationship("BoardTable", backref="GameTable")
+
+    Users = relationship("UserTable", backref="GameTable",cascade="all, delete")
+    Boards = relationship("BoardTable", backref="GameTable",cascade="all, delete")
+    Moves = relationship("MoveTable", backref="GameTable",cascade="all, delete")
+    Figures = relationship("FigureTable", backref="GameTable",cascade="all, delete")
