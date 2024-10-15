@@ -140,14 +140,6 @@ async def cancel_game(id_game: int, id_caller: int):
     elif id_caller != game.host:
         raise HTTPException(status_code=403, detail="El usuario no es el host de la partida.")
     
-    await manager.broadcast("La partida fue cancelada por el host, abandonando partida...",id_game)
-    
-    current_users = get_users(id_game, SERVER_DB)
-   
-    users_list = current_users.users_list
-    user_ids = [user.id for user in users_list]
-    for user_id in user_ids:
-        print(f"Removing user {user_id}")
-        remove_user(user_id, SERVER_DB)
+    await manager.broadcast("CANCELLED",id_game)
     remove_game(id_game, SERVER_DB)
     return {"Partida cancelada exitosamente"}
