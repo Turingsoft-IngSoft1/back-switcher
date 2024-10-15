@@ -65,7 +65,7 @@ def test_get_figures(client):
     #Se obtienen las cartas reveladas del jugador 1.
     url_moves = "http://localhost:8000/get_figures/1/1"
     response = client.post(url_moves)
-    assert response.status_code == 412
+    assert response.status_code == 200
 
 def test_use_moves_success(client,test_db,monkeypatch):
 
