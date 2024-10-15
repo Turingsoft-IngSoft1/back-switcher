@@ -65,6 +65,6 @@ class EntryMove(BaseModel):
     pos2: tuple[int, int]
 
 class UserData(BaseModel):
-    id: int
+    id_user: int
     name: str
     figures: list[str]
