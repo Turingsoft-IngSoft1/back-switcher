@@ -8,6 +8,7 @@ from schemas.response_models import *
 from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
+from utils.partial_boards import PARTIAL_BOARDS
 
 pre_game = APIRouter()
 
@@ -17,14 +18,13 @@ pre_game = APIRouter()
 @pre_game.get("/")
 def default():
     """Mensaje predeterminado."""
-    return f"El Switcher."
+    return "El Switcher."
 
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
 def get_active_players(id_game: int):
     """Devuelve los jugadors conectados a una partida."""
-    return get_users(id_game=id_game,
-                     db=SERVER_DB)
+    return CurrentUsers(users_list=get_users(id_game=id_game,db=SERVER_DB))
 
 
 @pre_game.post("/create_game", response_model=ResponseCreate)
@@ -109,6 +109,7 @@ async def start(id_game: int):
         
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
+        PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     
@@ -117,7 +118,21 @@ async def start(id_game: int):
     
 
     return {"message": "El juego comenzo correctamente."}
-    
+
+
+@pre_game.post("/cancel_game/{id_game}/{id_caller}")
+async def cancel_game(id_game: int, id_caller: int):
+    """Eliminar la partida si el host la abandona antes de comenzar."""
+    game = get_game(id_game, SERVER_DB)
+    if game is None or game.state == "Playing":
+        raise HTTPException(status_code=404, detail="La partida especificada no existe o ya comenzó.")
+    elif id_caller != game.host:
+        raise HTTPException(status_code=403, detail="El usuario no es el host de la partida.")
+
+    await manager.broadcast("CANCELLED", id_game)
+    remove_game(id_game, SERVER_DB)
+    return {"Partida cancelada exitosamente"}
+
 
 @pre_game.websocket("/ws/{id_game}/{id_user}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
@@ -128,3 +143,4 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
             await ws.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(ws, id_game, id_user)
+

@@ -1,4 +1,4 @@
-import random
+from random import shuffle
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
 from schemas.user_schema import User
@@ -34,35 +34,26 @@ def remove_user(id_user: int, db):
         db.close()
 
 
-def get_users(id_game: int, db) -> CurrentUsers:
+def get_users(id_game: int, db) :
     """Lista los jugadores activos en una partida."""
-    try:
-        users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
-        l = []
-        for u in users:
-            l.append(User(id=u.id,
-                          name=u.name,
-                          game=u.id_game,
-                          turn=u.turn))
-
-        return CurrentUsers(users_list=l)
-    except Exception as e:
-        print(f"Error: {e}")
-        return CurrentUsers(users_list=[])
-
+    users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
+    l = []
+    for u in users:
+        l.append(User(id=u.id,
+                      name=u.name,
+                      game=u.id_game,
+                      turn=u.turn))
+    return l
 
 def set_users_turn(id_game: int, players: int, db) -> int :
     """Le asigna turnos al azar a los jugadores."""
     try:
         users = db.query(UserTable).filter(UserTable.id_game == id_game).all()
-        ramdom_turns = random.sample(range(players), players)
-        for u, t in zip(users, ramdom_turns):
-            u.turn = t
-            if t==0:
-                first = u.id
-                db.commit()
-                return first
-
+        shuffle(users)
+        for index, user in enumerate(users, start=0):
+            user.turn = index
+        db.commit() 
+        return users[0].id
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
@@ -78,7 +69,7 @@ def reorder_turns(id_game: int, db):
     try:
         users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
         # Actualizar los turnos en la base de datos
-        for idx, usuario in enumerate(users):
+        for idx, usuario in enumerate(users, start=0):
             usuario.turn = idx
             db.add(usuario)
         db.commit()
