@@ -26,14 +26,14 @@ def test_get_moves(client):
     
     #Se le reparten movimientos correctamente al usuario 1.
     urlmoves = "http://localhost:8000/get_moves/1/1"
-    response = client.get(urlmoves)
+    response = client.post(urlmoves)
     assert response.status_code == 200
     player1_moves = response.json()
     assert len(player1_moves["moves"]) == 3  #Verifica que se reparten movimientos al jugador 1.
     
     #Se le reparten movimientos correctamente al usuario 2.
     urlmoves = "http://localhost:8000/get_moves/1/2"
-    response = client.get(urlmoves)
+    response = client.post(urlmoves)
     assert response.status_code == 200
     player2_moves = response.json()
     assert len(player2_moves["moves"]) == 3  #Verifica que se reparten movimientos al jugador 2.

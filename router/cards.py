@@ -8,7 +8,7 @@ from utils.database import SERVER_DB
 
 cards = APIRouter()
 
-@cards.get("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
+@cards.post("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
 async def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
 
