@@ -7,9 +7,9 @@ class Board(BaseModel):
     matrix: list[list[str]] = Field(description="List of cells in the board.")
 
     def aplly_move(self, p1:tuple[int,int], p2:tuple[int,int]):
-        self.matrix[p1[1]][p1[0]], self.matrix[p2[1]][p2[0]] = (
-            self.matrix[p2[1]][p2[0]],
-            self.matrix[p1[1]][p1[0]],
+        self.matrix[p1[0]][p1[1]], self.matrix[p2[0]][p2[1]] = (
+            self.matrix[p2[0]][p2[1]],
+            self.matrix[p1[0]][p1[1]],
         )
 
     @classmethod

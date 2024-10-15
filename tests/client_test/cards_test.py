@@ -71,7 +71,7 @@ def test_use_moves_success(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
         print("Funcion mockeada.")
-        pass
+        x.sort()
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -115,7 +115,7 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
         print("Funcion mockeada.")
-        pass
+        x.sort()
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -148,9 +148,9 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     payload = {
         'id_game': 1,
         'id_player': users[1],
-        'name': 'mov4',
+        'name': 'mov1',
         'pos1': [0,0],
-        'pos2': [1,1]
+        'pos2': [2,2]
     }
     response = client.post(url, json=payload)
     assert response.status_code == 412
@@ -159,7 +159,7 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
         print("Funcion mockeada.")
-        pass
+        x.sort()
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -203,7 +203,7 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
         print("Funcion mockeada.")
-        pass
+        x.sort()
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -236,7 +236,7 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     payload = {
         'id_game': 1,
         'id_player': users[0],
-        'name': 'mov2',
+        'name': 'mov1',
         'pos1': [0,0],
         'pos2': [2,3]
     }
