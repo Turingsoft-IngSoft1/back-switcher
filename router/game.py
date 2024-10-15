@@ -17,15 +17,16 @@ async def leave(e: InGame):
     """Abandonar Partida."""
     # En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
     if is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
-        set_game_turn(e.id_game, (get_game_turn(e.id_game,SERVER_DB) + 1),SERVER_DB)     
+        set_game_turn(e.id_game, (get_game_turn(e.id_game,SERVER_DB) + 1),SERVER_DB)
         game_turn = (get_game_turn(e.id_game,SERVER_DB) % (get_players(e.id_game,SERVER_DB)))
-        user_id = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
-        await manager.broadcast(f"TURN {user_id}", e.id_game)
+        id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
+        await manager.broadcast(f"TURN {id_user}", e.id_game)
 
         remove_player(e.id_game,SERVER_DB)
         remove_user(e.id_player,SERVER_DB)
         reorder_turns(e.id_game,SERVER_DB)
         await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
+    
     else:
         remove_player(e.id_game,SERVER_DB)
         remove_user(e.id_player,SERVER_DB)
@@ -35,7 +36,7 @@ async def leave(e: InGame):
     #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished",SERVER_DB)
-        winner = get_users(e.id_game,SERVER_DB).users_list
+        winner = get_users(e.id_game,SERVER_DB)
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
     #Cuando no queda ningun jugador se elimina partida.
@@ -54,8 +55,8 @@ async def skip(e: InGame):
     actual_players = get_players(e.id_game,SERVER_DB)
     set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
     game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
-    user_id = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
-    await manager.broadcast(f"TURN {user_id}", e.id_game)
+    id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
+    await manager.broadcast(f"TURN {id_user}", e.id_game)
 
     return {"Skip Successful."}
 

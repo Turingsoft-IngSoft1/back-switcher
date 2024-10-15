@@ -36,21 +36,19 @@ def initialize_figures(id_game: int, players: int, db):
             for j in easy_range:
                 fig = FigureTable(name=easy_figures[j],
                                   id_game=id_game,
-                                  user_id=users[i],
-                                  status="Hidden")
+                                  id_user=users[i])
                 db.add(fig)
             
             for k in hard_range:
                 fig = FigureTable(name=hard_figures[k],
                                   id_game=id_game,
-                                  user_id=users[i],
-                                  status="Hidden")
+                                  id_user=users[i])
                 db.add(fig)
 
         db.commit()
         
         for u in users:
-            figures = db.query(FigureTable).filter_by(id_game=id_game, user_id=u,status="Hidden").all()
+            figures = db.query(FigureTable).filter_by(id_game=id_game, id_user=u,status="Hidden").all()
             sampled_figures = sample(figures, 3)
             for fig in sampled_figures:
                 fig.status = "Revealed"
@@ -66,16 +64,16 @@ def get_revealed_figures(id_game: int, db):
     figures = db.query(FigureTable).filter_by(id_game=id_game, status="Revealed").all()
     revealed_figures = {u: [] for u in uid_by_turns(id_game, db)}
     for fig in figures:
-        if fig.user_id in revealed_figures:
-            revealed_figures[fig.user_id].append(fig.name)
+        if fig.id_user in revealed_figures:
+            revealed_figures[fig.id_user].append(fig.name)
 
     return revealed_figures
 
 def refill_revealed_figures(id_game: int, id_user: int, db):
     """Revela las figuras faltantes del jugador."""
     try:
-        c = db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Revealed").count()
-        hidden = db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Hidden").all()
+        c = db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Revealed").count()
+        hidden = db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Hidden").all()
         sampled_figures = sample(hidden, 3-c)
         for fig in sampled_figures:
             fig.status = "Revealed"
@@ -86,4 +84,4 @@ def refill_revealed_figures(id_game: int, id_user: int, db):
 
 def figures_in_hand(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en la mano del jugador."""
-    return db.query(FigureTable).filter_by(id_game=id_game, user_id=id_user, status="Revealed").count()
+    return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Revealed").count()

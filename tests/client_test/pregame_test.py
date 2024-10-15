@@ -100,15 +100,14 @@ def test_active_players(client):
             {
                 "id": 1,
                 "name": "UsuarioEjemplo",
-                "game": 1,
-                "figures_deck": 13,
+                "id_game": 1,
                 "turn": 0
             }
         ]
     }
     assert response.status_code == 200
-    formatted_expected = json.dumps(response.json(), sort_keys=True)
     formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_expected == formatted_response
 
 def test_start_game(client):

@@ -41,7 +41,7 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
                 (initial_position[0] + 2, initial_position[1] + 1),
                 (initial_position[0] - 1, initial_position[1] + 2),
                 (initial_position[0] - 2, initial_position[1] - 1),
-                
+
             ])
         case "mov6":
             available_moves.extend([
@@ -61,7 +61,7 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
     valid_moves_in_bounds = [
         (x, y) for x, y in available_moves if 0 <= x < 6 and 0 <= y < 6
     ]
-    
+
     return valid_moves_in_bounds
 
 
