@@ -3,11 +3,13 @@ from pytest import MonkeyPatch
 from querys import create_game,create_user,remove_game
 from querys.move_queries import *
 from models import MoveTable
+
+def mock_shuffle(x):
+    """Mock para que la funcion shuffle no se aplique."""
     
 def test_initialize_moves(monkeypatch,test_db):
     """Testea la inicializacion de los movimientos."""
-    def mock_shuffle(x):
-        pass
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Caso 1: 2 jugadores
@@ -75,8 +77,7 @@ def test_initialize_moves(monkeypatch,test_db):
 
 def test_moves_in_deck(monkeypatch,test_db):
     """Testea la cantidad de movimientos en el mazo."""
-    def mock_shuffle(x):
-        pass
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
@@ -89,9 +90,9 @@ def test_moves_in_deck(monkeypatch,test_db):
 
 def test_moves_in_hand(monkeypatch,test_db):
     """Testea la cantidad de movimientos en la mano de un jugador."""
-    def mock_shuffle(x):
-        pass
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -105,9 +106,10 @@ def test_moves_in_hand(monkeypatch,test_db):
     remove_game(1,test_db)
 
 def test_refill_moves(monkeypatch,test_db):
-    def mock_shuffle(x):
-        pass
+    """Testea devolver los movimientos descartados al mazo."""
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -125,9 +127,10 @@ def test_refill_moves(monkeypatch,test_db):
     remove_game(1,test_db)
 
 def test_refill_hand(monkeypatch,test_db):
-    def mock_shuffle(x):
-        pass
+    """Testea rellenar la mano del jugador."""
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -145,8 +148,8 @@ def test_refill_hand(monkeypatch,test_db):
     remove_game(1,test_db)
 
 def test_get_hand(monkeypatch,test_db):
-    def mock_shuffle(x):
-        pass
+    """Testea que se devuelvan los nombres de los movimientos en la mano del jugador."""
+    
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Caso 1: Los usuarios no han descartado cartas.
