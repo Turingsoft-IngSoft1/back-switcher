@@ -1,3 +1,4 @@
+from typing import Dict
 from pydantic import BaseModel, Field
 
 from .game_schema import Game
@@ -62,3 +63,8 @@ class EntryMove(BaseModel):
     name: str
     pos1: tuple[int, int]
     pos2: tuple[int, int]
+
+class UserData(BaseModel):
+    id_user: int
+    name: str
+    figures: list[str]
