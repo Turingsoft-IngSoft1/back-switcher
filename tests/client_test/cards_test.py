@@ -4,26 +4,26 @@ from querys import uid_by_turns
 
 def test_get_moves(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
     
     #Se le reparten movimientos correctamente al usuario 1.
     urlmoves = "http://localhost:8000/get_moves/1/1"
@@ -41,26 +41,26 @@ def test_get_moves(client):
 
 def test_get_figures(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
 
     #Se le reparten movimientos correctamente al usuario 1.
     urlmoves = "http://localhost:8000/get_figure/1/1"
@@ -75,26 +75,26 @@ def test_use_moves_success(client,test_db,monkeypatch):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
     
     #Pruebas de usar movimientos.
     users = uid_by_turns(1,test_db)
@@ -119,26 +119,26 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
     
     #Pruebas de usar movimientos.
     users = uid_by_turns(1,test_db)
@@ -163,26 +163,26 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
     
     #Pruebas de usar movimientos.
     users = uid_by_turns(1,test_db)
@@ -207,26 +207,26 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Crear PartidaEjemplo y UsuarioEjemplo.    
-    url = "http://localhost:8000/create_game"
+    url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2
     }
-    client.post(url, json=payload)
+    client.post(url_create, json=payload)
     
     #Unir a jugador2 para poder iniciar partida.
-    urljoin = "http://localhost:8000/join_game"
+    url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby"
     }
-    client.post(urljoin, json=payload)
+    client.post(url_join, json=payload)
     
     #Se inicia la partida.
-    url = "http://localhost:8000/start_game/1"
-    client.post(url)
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
     
     #Pruebas de usar movimientos.
     users = uid_by_turns(1,test_db)
