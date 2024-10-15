@@ -85,5 +85,4 @@ def use_move(id_game: int, user_id: int, move_name: str, db):
                                     MoveTable.name == move_name,
                                     MoveTable.status == "InHand").first()
     move.status = "Discarded"
-    db.add(move)
     db.commit()
