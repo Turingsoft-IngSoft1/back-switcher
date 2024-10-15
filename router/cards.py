@@ -60,7 +60,7 @@ async def get_figures(id_player: int, id_game: int):
         manager.broadcast("REFRESH_FIGURES",id_game)
         return {"Se entregaron las figuras correctamente."}
     else:
-        raise HTTPException(status_code=412, detail="No se pueden obtener mas figuras.")
+        return {"El jugador no puede obtener mas cartas."}
 
 @cards.post("/use_figures")
 def use_figures(id_player: int, id_game: int):
