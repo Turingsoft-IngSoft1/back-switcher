@@ -70,6 +70,7 @@ def test_get_figures(client):
 def test_use_moves_success(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
+        print("Funcion mockeada.")
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
@@ -113,6 +114,7 @@ def test_use_moves_success(client,test_db,monkeypatch):
 def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
+        print("Funcion mockeada.")
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
@@ -156,6 +158,7 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
 def test_use_moves_invalid_move(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
+        print("Funcion mockeada.")
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
@@ -199,6 +202,7 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
 def test_use_moves_invalid_position(client,test_db,monkeypatch):
     
     def mock_shuffle(x):
+        print("Funcion mockeada.")
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     

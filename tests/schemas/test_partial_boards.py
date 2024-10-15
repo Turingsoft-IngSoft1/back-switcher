@@ -24,6 +24,7 @@ def test_update_partial_boards(test_db):
             if board2[i][j] != board2[0][0]:
                 dif = (i,j)
     partials_boards.update(id,(0,0),dif)
+    board2 = partials_boards.get(id)
     assert board1 != board2
 
     aux = board1[0][0] 
