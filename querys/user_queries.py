@@ -41,7 +41,7 @@ def get_users(id_game: int, db) :
     for u in users:
         l.append(User(id=u.id,
                       name=u.name,
-                      game=u.id_game,
+                      id_game=u.id_game,
                       turn=u.turn))
     return l
 

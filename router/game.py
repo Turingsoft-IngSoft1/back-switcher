@@ -36,7 +36,7 @@ async def leave(e: InGame):
     #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished",SERVER_DB)
-        winner = get_users(e.id_game,SERVER_DB).users_list
+        winner = get_users(e.id_game,SERVER_DB)
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
     #Cuando no queda ningun jugador se elimina partida.

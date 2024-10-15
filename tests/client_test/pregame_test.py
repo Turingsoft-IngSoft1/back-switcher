@@ -100,7 +100,7 @@ def test_active_players(client):
             {
                 "id": 1,
                 "name": "UsuarioEjemplo",
-                "game": 1,
+                "id_game": 1,
                 "turn": 0
             }
         ]
