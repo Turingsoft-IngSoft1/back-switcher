@@ -29,14 +29,14 @@ def test_get_moves(client):
     response = client.post(urlmoves, json=payload)
     assert response.status_code == 200
     player1_moves = response.json()
-    assert len(player1_moves) > 0  #Verifica que se reparten movimientos al jugador 1.
+    assert len(player1_moves["moves"]) == 3  #Verifica que se reparten movimientos al jugador 1.
     
     #Se le reparten movimientos correctamente al usuario 2.
     urlmoves = "http://localhost:8000/get_moves/1/2"
     response = client.post(urlmoves, json=payload)
     assert response.status_code == 200
     player2_moves = response.json()
-    assert len(player2_moves) > 0  #Verifica que se reparten movimientos al jugador 2.
+    assert len(player2_moves["moves"]) == 3  #Verifica que se reparten movimientos al jugador 2.
 
 #def test_use_moves(client):
 

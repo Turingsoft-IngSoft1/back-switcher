@@ -69,10 +69,13 @@ def set_users_turn(id_game: int, players: int, db) -> int :
         print(f"Error: {e}")
 
 def get_user_from_turn(id_game: int, turn: int, db) -> int:
-    users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
-    return users[turn].id
+    """Devuelve el ID del usuario correspondiente al turno especificado."""
+    users = db.query(UserTable).filter(UserTable.id_game == id_game,
+                                       UserTable.turn == turn).first()
+    return users.id
 
 def reorder_turns(id_game: int, db):
+    """Actualiza el orden de los usuarios."""
     try:
         users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
         # Actualizar los turnos en la base de datos
@@ -86,11 +89,13 @@ def reorder_turns(id_game: int, db):
         print(f"Error: {e}")
 
 def is_user_current_turn(id_game: int, id_user: int, db) -> bool:
+    """Verifica si el usuario tiene el turno actual."""
     user = db.query(UserTable).filter(UserTable.id == id_user).first()
     game = db.query(GameTable).filter(GameTable.id == id_game).first()
     return (game.state == "Playing" and (user.turn == (game.turn % game.players)))
 
 def uid_by_turns(id_game: int, db) -> list[int]:
+    """Lista los jugadores segun su turno."""
     users = db.query(UserTable).filter(UserTable.id_game == id_game).order_by(UserTable.turn).all()
     return [u.id for u in users]
 

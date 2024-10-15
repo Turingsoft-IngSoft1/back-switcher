@@ -108,7 +108,7 @@ async def start(id_game: int):
                                db=SERVER_DB)
         
         initialize_moves(id_game, players, SERVER_DB)
-        initialize_figures(id_game, players ,SERVER_DB)
+        initialize_figures(id_game, players, SERVER_DB)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     

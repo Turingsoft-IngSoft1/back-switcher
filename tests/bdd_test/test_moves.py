@@ -10,7 +10,7 @@ def test_initialize_moves(monkeypatch,test_db):
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    #Caso 2 jugadores
+    #Caso 1: 2 jugadores
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -30,7 +30,7 @@ def test_initialize_moves(monkeypatch,test_db):
     
     remove_game(1,test_db)
 
-    #Caso 3 jugadores
+    #Caso 2: 3 jugadores
     newid=create_game("game1",2,3,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -45,12 +45,13 @@ def test_initialize_moves(monkeypatch,test_db):
     h2 = get_hand(1,2,test_db)
     h3 = get_hand(1,3,test_db)
     assert len(h1) == 3 and len(h2) == 3 and len(h3) == 3
-    assert (h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
-    and h3 == ['mov7','mov1','mov2'])
+    assert (h1 == ['mov1','mov2','mov3'] and
+            h2 == ['mov4','mov5','mov6'] and
+            h3 == ['mov7','mov1','mov2'])
     
     remove_game(1,test_db)
 
-    #Caso 4 jugadores
+    #Caso 3: 4 jugadores
     newid=create_game("game1",2,4,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -67,8 +68,10 @@ def test_initialize_moves(monkeypatch,test_db):
     h3 = get_hand(1,3,test_db)
     h4 = get_hand(1,4,test_db)
     assert len(h1) == 3 and len(h2) == 3 and len(h3) == 3 and len(h4) == 3
-    assert (h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
-    and h3 == ['mov7','mov1','mov2'] and h4 == ['mov3','mov4','mov5'])
+    assert (h1 == ['mov1','mov2','mov3'] and
+            h2 == ['mov4','mov5','mov6'] and
+            h3 == ['mov7','mov1','mov2'] and
+            h4 == ['mov3','mov4','mov5'])
 
 def test_moves_in_deck(monkeypatch,test_db):
     """Testea la cantidad de movimientos en el mazo."""
@@ -145,6 +148,8 @@ def test_get_hand(monkeypatch,test_db):
     def mock_shuffle(x):
         pass
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
+    #Caso 1: Los usuarios no han descartado cartas.
     newid=create_game("game1",2,2,test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
@@ -153,6 +158,8 @@ def test_get_hand(monkeypatch,test_db):
     h2 = get_hand(1,2,test_db)
     assert len(h1) == 3 and len(h2) == 3
     assert h1 == ['mov1','mov2','mov3'] and h2 == ['mov4','mov5','mov6']
+    
+    #Caso 2: Los usuarios han descartado algunas cartas.
     test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
     test_db.query(MoveTable).filter_by(id_game=1,user_id=1,status='InHand').first().status = 'Discarded'
     test_db.query(MoveTable).filter_by(id_game=1,user_id=2,status='InHand').first().status = 'Discarded'
