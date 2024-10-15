@@ -17,7 +17,7 @@ pre_game = APIRouter()
 @pre_game.get("/")
 def default():
     """Mensaje predeterminado."""
-    return f"El Switcher."
+    return "El Switcher."
 
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
@@ -127,3 +127,24 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, user_id: int):
             await ws.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(ws, id_game, user_id)
+
+@pre_game.post("/cancel_game/{id_game}/{id_caller}")
+async def cancel_game(id_game: int, id_caller: int):
+    """Eliminar la partida si el host la abandona antes de comenzar."""
+    game = get_game(id_game, SERVER_DB)
+    if game is None or game.state == "Playing":
+        raise HTTPException(status_code=404, detail="La partida especificada no existe o ya comenzó.")
+    elif id_caller != game.host:
+        raise HTTPException(status_code=403, detail="El usuario no es el host de la partida.")
+    
+    await manager.broadcast("La partida fue cancelada por el host, abandonando partida...",id_game)
+    
+    current_users = get_users(id_game, SERVER_DB)
+   
+    users_list = current_users.users_list
+    user_ids = [user.id for user in users_list]
+    for user_id in user_ids:
+        print(f"Removing user {user_id}")
+        remove_user(user_id, SERVER_DB)
+    remove_game(id_game, SERVER_DB)
+    return {"Partida cancelada exitosamente"}
