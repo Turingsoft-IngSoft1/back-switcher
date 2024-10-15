@@ -2,7 +2,7 @@ from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
 from querys import get_board,get_revealed_figures
-from schemas.response_models import InGame,BoardStatus
+from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
@@ -60,11 +60,15 @@ async def skip(e: InGame):
     return {"Skip Successful."}
 
 
-@game.get("/game_status/{id_game}")
+@game.get("/game_status/{id_game}",response_model=list[UserData])
 def get_status(id_game: int):
     """Consultar estado de partida/turnos."""
-
-    return get_revealed_figures(id_game,SERVER_DB)
+    rf = get_revealed_figures(id_game,SERVER_DB)
+    users = get_users(id_game,SERVER_DB)
+    response = []
+    for u in users:
+        response.append(UserData(id=u.id,name=u.name,figures=rf[u.id]))
+    return response
 
 
 @game.get("/board_status/{id_game}", response_model=BoardStatus)
