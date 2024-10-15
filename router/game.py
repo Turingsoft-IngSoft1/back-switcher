@@ -65,7 +65,7 @@ async def skip(e: InGame):
 def get_status(id_game: int):
     """Consultar estado de partida/turnos."""
     rf = get_revealed_figures(id_game,SERVER_DB)
-    users = get_users(id_game,SERVER_DB).users_list
+    users = get_users(id_game,SERVER_DB)
     response = []
     for u in users:
         response.append(UserData(id_user=u.id,name=u.name,figures=rf[u.id]))
