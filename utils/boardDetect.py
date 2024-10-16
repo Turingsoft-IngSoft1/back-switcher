@@ -1,26 +1,3 @@
-#from partial_boards import PARTIAL_BOARDS
-# Crea una lista de 9*4 colores
-#color_list = ['y'] * 9 + ['b'] * 9 + ['g'] * 9 + ['r'] * 9
-
-# Randomiza los colores
-#random.shuffle(color_list)
-
-# Crea una matrix de 6x6 random
-#board = [color_list[i*6:(i+1)*6] for i in range(6)]
- 
-#board = \
-#[['y', 'g', 'b', 'g', 'g', 'g'],
-# ['y', 'r', 'b', 'b', 'g', 'g'],
-# ['y', 'g', 'b', 'g', 'g', 'g'],
-# ['b', 'r', 'y', 'r', 'r', 'r'],
-# ['b', 'b', 'r', 'g', 'g', 'g'],
-# ['b', 'b', 'y', 'r', 'g', 'r']]
-# Print the board
-
-#print("Board:")
-#for row in board:
-#    print(row)
-
 # Direcciones, arriba, abajo y los costados
 
 # board = lo que sea que se le pase por la base de datos

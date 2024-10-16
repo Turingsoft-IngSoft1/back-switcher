@@ -1,4 +1,3 @@
-import unittest
 import pytest
 
 from utils.boardDetect import *
