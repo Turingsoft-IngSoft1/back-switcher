@@ -85,8 +85,26 @@ def get_hand(id_game: int, id_user: int, db):
 def use_move(id_game: int, id_user: int, move_name: str, db):
     """Usa un movimiento."""
     move = db.query(MoveTable).filter(MoveTable.id_game == id_game,
-                                    MoveTable.id_user == id_user,
-                                    MoveTable.name == move_name,
-                                    MoveTable.status == "InHand").first()
-    move.status = "Discarded"
+                                      MoveTable.id_user == id_user,
+                                      MoveTable.name == move_name,
+                                      MoveTable.status == "InHand").first()
+    move.status = "Played"
     db.commit()
+
+def unplay_moves(id_game: int, db):
+    """Devuelve los movimientos jugados a la mano."""
+    try:
+        moves_played = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                                  MoveTable.status == "Played").all()
+        for move in moves_played:
+            move.status = "InHand"
+            db.add(move)
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error de SQLAlchemy: {str(e)}")
+        
+def get_played(id_game: int, db):
+    """Obtiene la cantidad de movimientos jugados."""
+    return db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                      MoveTable.status == "Played").count()

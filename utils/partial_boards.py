@@ -11,11 +11,11 @@ class BoardsManager:
         if id_game not in self._active_boards:
             self._active_boards[id_game] = Board.create(id_game,db)
 
-    def update(self, id_game, p1, p2):
+    def update(self, id_game: int, p1: tuple[int,int], p2: tuple[int,int]):
         if id_game in self._active_boards:
             self._active_boards[id_game].aplly_move(p1,p2)
     
-    def remove(self, id_game):
+    def remove(self, id_game: int):
         if id_game in self._active_boards:
             del self._active_boards[id_game]
     
