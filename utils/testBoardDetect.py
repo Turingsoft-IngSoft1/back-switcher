@@ -1,5 +1,5 @@
 import unittest
-from boardDetect import is_shapedif, is_shapeeasy
+from boardDetect import is_shapedif, is_shapeeasy, detect_figures
 
 class TestBoardDetect(unittest.TestCase):
     def print_shape(self, group):
@@ -386,6 +386,18 @@ class TestBoardDetect(unittest.TestCase):
         self.print_shape(group)
         self.assertTrue(is_shapeeasy(group, "fige07")) # 270
 
+    def test_detect_figures(self):
+        board = [["Y", "G", "R", "Y", "R", "G"], 
+             ["R", "B", "G", "B", "Y", "B"], 
+             ["R", "Y", "B", "B", "G", "B"], 
+             ["R", "G", "B", "B", "G", "B"], 
+             ["R", "G", "G", "G", "Y", "B"], 
+             ["G", "R", "R", "Y", "Y", "B"]]
+        shapes = ["fig05","fige06"]
+        result = detect_figures(board, shapes)
+        print('result:', result)
+        expected_result = [('R', 'fige06', [(1, 0), (2, 0), (3, 0), (4, 0)]), ('B', 'fig05', [(1, 5), (2, 5), (3, 5), (4, 5), (5, 5)])]
+        self.assertEqual(result, expected_result)
 
 if __name__ == '__main__':
     unittest.main()
