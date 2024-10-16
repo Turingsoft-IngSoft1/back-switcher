@@ -218,21 +218,4 @@ def detect_figures(board, shapes):
                 figures.append((color, shape, group))
                 break
     return figures
-
-def main():
-    board = [["Y", "G", "R", "Y", "R", "G"], 
-             ["R", "B", "G", "B", "Y", "B"], 
-             ["R", "Y", "B", "B", "G", "B"], 
-             ["R", "G", "B", "B", "G", "B"], 
-             ["R", "G", "G", "G", "Y", "B"], 
-             ["G", "R", "R", "Y", "Y", "B"]]
-    
-    shapes = [
-        "fig01", "fig05", "fig02", "fig03", "fig04", "fig06", "fig07", "fig08", "fig09", "fig10", 
-        "fig11", "fig12", "fig13", "fig14", "fig15", "fig16", "fig17", "fig18", "fige01", "fige02", 
-        "fige03", "fige04", "fige05", "fige06", "fige07"
-    ]
-    figures = detect_figures(board, shapes)
-    print(figures)
 # Usar la funcion detect_figures para detectar las figuras en el tablero, retorna todas las figuras encontradas, no usar el main
-__name__ == "__main__" and main()
