@@ -399,5 +399,79 @@ class TestBoardDetect(unittest.TestCase):
         expected_result = [('R', 'fige06', [(1, 0), (2, 0), (3, 0), (4, 0)]), ('B', 'fig05', [(1, 5), (2, 5), (3, 5), (4, 5), (5, 5)])]
         self.assertEqual(result, expected_result)
 
+    def test_detect_figures_fullboard(self):
+        board = [
+            ["Y", "Y", "Y", "Y", "Y", "Y"], 
+            ["Y", "Y", "Y", "Y", "Y", "Y"], 
+            ["Y", "Y", "Y", "Y", "Y", "Y"], 
+            ["Y", "Y", "Y", "Y", "Y", "Y"], 
+            ["Y", "Y", "Y", "Y", "Y", "Y"], 
+            ["Y", "Y", "Y", "Y", "Y", "Y"]
+        ]
+        shapes = ["fig05", "fige06"]
+        result = detect_figures(board, shapes)
+        print('result:', result)
+        expected_result = []
+        self.assertEqual(result, expected_result)
+
+    def test_detect_figures_mixed_shapes(self):
+        board = [
+            ["R", "G", "B", "Y", "R", "G"], 
+            ["G", "R", "Y", "B", "G", "R"], 
+            ["B", "Y", "R", "G", "B", "Y"], 
+            ["Y", "B", "G", "R", "Y", "B"], 
+            ["R", "G", "B", "Y", "R", "G"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        shapes = ["fig05", "fige06"]
+        result = detect_figures(board, shapes)
+        print('result:', result)
+        expected_result = []
+        self.assertEqual(result, expected_result)
+
+    def test_detect_figures_single_shape(self):
+        board = [
+            ["R", "R", "R", "R", "R", "R"], 
+            ["R", "R", "R", "R", "R", "R"], 
+            ["R", "R", "R", "R", "R", "R"], 
+            ["R", "R", "R", "R", "R", "R"], 
+            ["R", "R", "R", "G", "G", "R"], 
+            ["R", "R", "R", "G", "G", "R"]
+        ]
+        shapes = ["fige02"]
+        result = detect_figures(board, shapes)
+        print('result single shape:', result)
+        expected_result = [('G', 'fige02', [(4, 3), (4, 4), (5, 4), (5, 3)])]  # Adjust this based on the actual expected result
+        self.assertEqual(result, expected_result)
+
+    def test_detect_figures_no_shapes(self):
+        board = [
+            ["R", "G", "B", "Y", "R", "G"], 
+            ["G", "R", "Y", "B", "G", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "R", "G"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        shapes = []
+        result = detect_figures(board, shapes)
+        print('result:', result)
+        expected_result = []
+        self.assertEqual(result, expected_result)
+    def test_detect_figures_no_passthrough(self):
+        board = [
+            ["G", "G", "B", "Y", "G", "G"], 
+            ["R", "R", "Y", "B", "R", "R"], 
+            ["B", "Y", "Y", "R", "B", "Y"], 
+            ["Y", "B", "R", "R", "Y", "B"], 
+            ["R", "G", "B", "Y", "R", "G"], 
+            ["R", "R", "Y", "B", "R", "R"]
+        ]
+        shapes = ['fige06', 'fige02']
+        result = detect_figures(board, shapes)
+        print('result:', result)
+        expected_result = []
+        self.assertEqual(result, expected_result)
+
 if __name__ == '__main__':
     unittest.main()
