@@ -22,7 +22,7 @@ async def get_moves(id_player: int, id_game: int):
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
     if in_hand < 3:
-        current_hand = refill_hand(id_game, id_player, in_hand, SERVER_DB)
+        current_hand = refill_hand(id_game, id_player, (3-in_hand), SERVER_DB)
     else:
         current_hand = get_hand(id_game, id_player, SERVER_DB)
 
@@ -36,11 +36,11 @@ async def use_moves(e: EntryMove):
     if  not is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
         raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
 
-    if (e.name not in get_hand(e.id_game, e.id_player, SERVER_DB)):
+    if e.name not in get_hand(e.id_game, e.id_player, SERVER_DB):
         raise HTTPException(status_code=404, detail="El usuario no tiene ese movimiento.")
 
     move = Move(name=e.name, initial_position=e.pos1)
-    if (e.pos2 not in move.available_moves):
+    if e.pos2 not in move.available_moves:
         raise HTTPException(status_code=409, detail="Movimiento invalido.")
 
     use_move(e.id_game, e.id_player, e.name, SERVER_DB)
