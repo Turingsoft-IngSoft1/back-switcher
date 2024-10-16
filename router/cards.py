@@ -32,6 +32,7 @@ async def get_moves(id_player: int, id_game: int):
 @cards.post("/use_moves")
 async def use_moves(e: EntryMove):
     """Usar una carta de movimiento."""
+    
     if  not is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
         raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
 
@@ -44,9 +45,6 @@ async def use_moves(e: EntryMove):
 
     use_move(e.id_game, e.id_player, e.name, SERVER_DB)
     PARTIAL_BOARDS.update(e.id_game,e.pos1,e.pos2)
-    update_board(id_game=e.id_game,
-                 matrix=PARTIAL_BOARDS.get(e.id_game),
-                 db=SERVER_DB)
     await manager.broadcast(f"MOVE {e.pos1} {e.pos2}",e.id_game)
     return {"Movimiento Realizado Correctamente."}
 
@@ -67,5 +65,21 @@ def use_figures(id_player: int, id_game: int):
     """Usar una carta de figura."""
 
     # TODO Implementacion ->
-
+    """update_board(id_game=e.id_game,
+                 matrix=PARTIAL_BOARDS.get(e.id_game),
+                 db=SERVER_DB)"""
     return {"Figuras Usadas Correctamente."}
+
+@cards.post("/cancel_moves/{id_game}")
+async def cancel_moves(id_game: int):
+    """Cancelar movimientos parciales."""
+    
+    if get_played(id_game, SERVER_DB) > 0:
+        unplay_moves(id_game, SERVER_DB)
+        PARTIAL_BOARDS.remove(id_game)
+        PARTIAL_BOARDS.initialize(id_game, SERVER_DB)
+        await manager.broadcast("REFRESH_BOARD", id_game)
+    
+        return {"message": "Movimientos cancelados correctamente."}
+    else:
+        return {"message": "No hay movimientos para cancelar."}

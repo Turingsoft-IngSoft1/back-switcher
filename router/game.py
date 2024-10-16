@@ -62,7 +62,7 @@ async def skip(e: InGame):
 
 
 @game.get("/game_status/{id_game}",response_model=list[UserData])
-def get_status(id_game: int):
+async def get_status(id_game: int):
     """Consultar estado de partida/turnos."""
     rf = get_revealed_figures(id_game,SERVER_DB)
     users = get_users(id_game,SERVER_DB)
@@ -73,7 +73,7 @@ def get_status(id_game: int):
 
 
 @game.get("/board_status/{id_game}", response_model=BoardStatus)
-def get_board_status(id_game: int):
+async def get_board_status(id_game: int):
     """Consultar estado del tablero."""
     if get_game(id_game=id_game,db=SERVER_DB) is not None:
         return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB))

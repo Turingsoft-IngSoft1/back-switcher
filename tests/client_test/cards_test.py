@@ -244,3 +244,72 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     assert response.status_code == 409
 
 #def test_use_figures(client):
+
+def test_cancel_moves(client, monkeypatch, test_db):
+    
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+
+    #Crear PartidaEjemplo y UsuarioEjemplo.
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    client.post(url_create, json=payload)
+
+    #Unir a jugador2 para poder iniciar partida.
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby"
+    }
+    client.post(url_join, json=payload)
+
+    #Se inicia la partida.
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    #Pruebas de usar movimientos.
+    users = uid_by_turns(1,test_db)
+    url_use= "http://localhost:8000/use_moves"
+
+    #Jugar movimiento correctamente.
+    payload = {
+        'id_game': 1,
+        'id_player': users[0],
+        'name': 'mov1',
+        'pos1': [0,0],
+        'pos2': [2,2]
+    }
+    client.post(url_use, json=payload)
+    
+    #Cancelar movimientos correctamente.
+    url = "http://localhost:8000/cancel_moves/1"
+    response = client.post(url)
+    assert response.status_code == 200
+    
+    expected_json = {
+        "message": "Movimientos cancelados correctamente."
+    }
+    
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
+    assert formatted_response == formatted_expected
+    
+    #No hay movimientos que cancelar.
+    response = client.post(url)
+    assert response.status_code == 200
+    
+    expected_json = {
+        "message": "No hay movimientos para cancelar."
+    }
+    
+    formatted_response = json.dumps(response.json(), sort_keys=True)
+    formatted_expected = json.dumps(expected_json, sort_keys=True)
+    assert formatted_response == formatted_expected
+    

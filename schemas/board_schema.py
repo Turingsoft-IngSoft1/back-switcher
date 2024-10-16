@@ -6,7 +6,7 @@ class Board(BaseModel):
     color: str = Field(min_length=1, max_length=3, description="Blocked color.")
     matrix: list[list[str]] = Field(description="List of cells in the board.")
 
-    def aplly_move(self, p1:tuple[int,int], p2:tuple[int,int]):
+    def aplly_move(self, p1: tuple[int,int], p2: tuple[int,int]):
         self.matrix[p1[0]][p1[1]], self.matrix[p2[0]][p2[1]] = (
             self.matrix[p2[0]][p2[1]],
             self.matrix[p1[0]][p1[1]],
