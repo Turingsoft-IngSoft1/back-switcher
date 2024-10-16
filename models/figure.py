@@ -11,9 +11,10 @@ class FigureTable(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    id_game = Column(Integer, ForeignKey('Games.id',ondelete="CASCADE"))
-    user_id = Column(Integer, ForeignKey('Users.id'))
+    id_game = Column(Integer, ForeignKey('Games.id', ondelete="CASCADE"))
+    id_user = Column(Integer, ForeignKey('Users.id'))
     status = Column(String, default="Hidden")
+    
     __table_args__ = (
         CheckConstraint(f"name IN {figures}", name="valid_name_check"),
         CheckConstraint(f"status IN {valid_status}", name="valid_status_check")

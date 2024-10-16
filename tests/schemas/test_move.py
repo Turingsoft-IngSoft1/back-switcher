@@ -39,11 +39,11 @@ def test_move_available_moves_center():
     assert set(move4.available_moves) == set(expected_moves)
     
     move5 = Move(name="mov5", initial_position=[2, 2])
-    expected_moves = [(3, 0), (4, 3), (1, 4), (0, 1)]
+    expected_moves = [(0, 3), (3, 4), (4, 1), (1, 0)]
     assert set(move5.available_moves) == set(expected_moves)
 
     move6 = Move(name="mov6", initial_position=[2, 2])
-    expected_moves = [(1, 0), (4, 1), (3, 4), (0, 3)]
+    expected_moves = [(0, 1), (1, 4), (4, 3), (3, 0)]
     assert set(move6.available_moves) == set(expected_moves)
 
     move7 = Move(name="mov7", initial_position=[2, 2])
@@ -69,11 +69,11 @@ def test_move_available_moves_corner():
     assert set(move4.available_moves) == set(expected_moves)
     
     move5 = Move(name="mov5", initial_position=[0,0])
-    expected_moves = [(2, 1)]
+    expected_moves = [(1, 2)]
     assert set(move5.available_moves) == set(expected_moves)
 
     move6 = Move(name="mov6", initial_position=[0,0])
-    expected_moves = [(1, 2)]
+    expected_moves = [(2, 1)]
     assert set(move6.available_moves) == set(expected_moves)
     
     move7 = Move(name="mov7", initial_position=[0, 0])
