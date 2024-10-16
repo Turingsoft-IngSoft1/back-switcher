@@ -188,10 +188,10 @@ def detect_figures(board, shapes):
     figures = []
     for color, group in groups:
         for shape in shapes_to_check:
-            if (len(group) == 4 and is_shapeeasy(group, shape)):
+            if len(group) == 4 and is_shapeeasy(group, shape):
                 figures.append((color, shape, group))
                 break
-            elif (len(group) == 5 and is_shapedif(group, shape)):
+            elif len(group) == 5 and is_shapedif(group, shape):
                 figures.append((color, shape, group))
                 break
     return figures
