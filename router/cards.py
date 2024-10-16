@@ -76,6 +76,7 @@ async def cancel_moves(id_game: int):
     
     if get_played(id_game, SERVER_DB) > 0:
         unplay_moves(id_game, SERVER_DB)
+        PARTIAL_BOARDS.remove(id_game, SERVER_DB)
         PARTIAL_BOARDS.initialize(id_game, SERVER_DB)
         await manager.broadcast("REFRESH_BOARD", id_game)
     
