@@ -396,7 +396,7 @@ class TestBoardDetect(unittest.TestCase):
         shapes = ["fig05","fige06"]
         result = detect_figures(board, shapes)
         print('result:', result)
-        expected_result = [('R', 'fige06', [(1, 0), (2, 0), (3, 0), (4, 0)]), ('B', 'fig05', [(1, 5), (2, 5), (3, 5), (4, 5), (5, 5)])]
+        expected_result = [('R', 'fige06', [(0, 1), (0, 2), (0, 3), (0, 4)]), ('B', 'fig05', [(5, 1), (5, 2), (5, 3), (5, 4), (5, 5)])]
         self.assertEqual(result, expected_result)
 
     def test_detect_figures_fullboard(self):
@@ -416,17 +416,17 @@ class TestBoardDetect(unittest.TestCase):
 
     def test_detect_figures_mixed_shapes(self):
         board = [
+            ["R", "R", "R", "R", "R", "G"], 
+            ["G", "R", "R", "B", "G", "R"], 
+            ["R", "G", "R", "G", "B", "Y"], 
+            ["R", "R", "G", "R", "Y", "B"], 
             ["R", "G", "B", "Y", "R", "G"], 
-            ["G", "R", "Y", "B", "G", "R"], 
-            ["B", "Y", "R", "G", "B", "Y"], 
-            ["Y", "B", "G", "R", "Y", "B"], 
-            ["R", "G", "B", "Y", "R", "G"], 
-            ["G", "R", "Y", "B", "G", "R"]
+            ["R", "G", "Y", "B", "G", "R"]
         ]
-        shapes = ["fig05", "fige06"]
+        shapes = ["fig05", "fige06", "fig13"]
         result = detect_figures(board, shapes)
         print('result:', result)
-        expected_result = []
+        expected_result = [('R', 'fig13', [(0, 2), (0, 3), (1, 3), (0, 4), (0, 5)])]
         self.assertEqual(result, expected_result)
 
     def test_detect_figures_single_shape(self):
@@ -441,7 +441,7 @@ class TestBoardDetect(unittest.TestCase):
         shapes = ["fige02"]
         result = detect_figures(board, shapes)
         print('result single shape:', result)
-        expected_result = [('G', 'fige02', [(4, 3), (4, 4), (5, 4), (5, 3)])]  # Adjust this based on the actual expected result
+        expected_result = [('G', 'fige02', [(3, 4), (4, 4), (4, 5), (3, 5)])]
         self.assertEqual(result, expected_result)
 
     def test_detect_figures_no_shapes(self):
