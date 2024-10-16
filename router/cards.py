@@ -45,9 +45,6 @@ async def use_moves(e: EntryMove):
 
     use_move(e.id_game, e.id_player, e.name, SERVER_DB)
     PARTIAL_BOARDS.update(e.id_game,e.pos1,e.pos2)
-    update_board(id_game=e.id_game,
-                 matrix=PARTIAL_BOARDS.get(e.id_game),
-                 db=SERVER_DB)
     await manager.broadcast(f"MOVE {e.pos1} {e.pos2}",e.id_game)
     return {"Movimiento Realizado Correctamente."}
 
@@ -68,7 +65,9 @@ def use_figures(id_player: int, id_game: int):
     """Usar una carta de figura."""
 
     # TODO Implementacion ->
-
+    """update_board(id_game=e.id_game,
+                 matrix=PARTIAL_BOARDS.get(e.id_game),
+                 db=SERVER_DB)"""
     return {"Figuras Usadas Correctamente."}
 
 @cards.post("/cancel_moves/{id_game}")
