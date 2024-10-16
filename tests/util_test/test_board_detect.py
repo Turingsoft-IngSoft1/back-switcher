@@ -476,6 +476,3 @@ def test_detect_figures_no_passthrough():
     print('result:', result)
     expected_result = []
     assert result == expected_result
-
-if __name__ == '__main__':
-    pytest.main()
