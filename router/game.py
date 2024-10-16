@@ -83,14 +83,17 @@ async def get_board_status(id_game: int):
 
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
-    rf = get_revealed_figures(id_game,SERVER_DB)
-    figures = set(rf[id_user])
-    detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
-    response: Dict[str, Dict[str, list]] = {}
-    for detected_fig in detected_figures:
-        if detected_fig[1] not in response:
-            response[detected_fig[1]] = {}
-        if detected_fig[0] not in response[detected_fig[1]]:
-            response[detected_fig[1]][detected_fig[0]] = []
-        response[detected_fig[1]][detected_fig[0]].append(detected_fig[2])
-    return response
+    if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
+        rf = get_revealed_figures(id_game,SERVER_DB)
+        figures = set(rf[id_user])
+        detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
+        response: Dict[str, Dict[str, list]] = {}
+        for detected_fig in detected_figures:
+            if detected_fig[1] not in response:
+                response[detected_fig[1]] = {}
+            if detected_fig[0] not in response[detected_fig[1]]:
+                response[detected_fig[1]][detected_fig[0]] = []
+            response[detected_fig[1]][detected_fig[0]].append(detected_fig[2])
+        return response
+    else:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
