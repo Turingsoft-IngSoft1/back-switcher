@@ -1,3 +1,4 @@
+from typing import  Dict
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
@@ -6,7 +7,7 @@ from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
-
+from utils.boardDetect import detect_figures
 game = APIRouter()
 
 
@@ -79,3 +80,28 @@ async def get_board_status(id_game: int):
         return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB))
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
+
+@game.get("/detect_figures_on_board/{id_game}/{id_user}")
+async def detect_figures_on_board(id_game: int, id_user: int):
+    if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
+
+        if id_user in uid_by_turns(id_game,SERVER_DB):
+
+            rf = get_revealed_figures(id_game,SERVER_DB)
+            figures = set(rf[id_user])
+            detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
+            response: Dict[str, Dict[str, list]] = {}
+            for detected_fig in detected_figures:
+                if detected_fig[1] not in response:
+                    response[detected_fig[1]] = {}
+                if detected_fig[0] not in response[detected_fig[1]]:
+                    response[detected_fig[1]][detected_fig[0]] = []
+                response[detected_fig[1]][detected_fig[0]].append(detected_fig[2])
+            return response
+
+        else:
+            raise HTTPException(status_code=404,
+                                detail=f"El usuario con id_user={id_user} no existe en la partida.")
+    else:
+        raise HTTPException(status_code=404,
+                            detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
