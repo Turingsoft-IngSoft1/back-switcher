@@ -41,3 +41,23 @@ python3 -m uvicorn main:app --reload
 ```
 deactivate
 ```
+
+***Correr test y coverage:***
+
+```
+coverage run -m pytest
+```
+
+```
+coverage report
+```
+
+***Coverage como html:***
+
+```
+covarage html
+```
+
+```
+firefox htmlcov/index.html
+```
