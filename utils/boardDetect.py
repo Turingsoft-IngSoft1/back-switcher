@@ -184,7 +184,7 @@ def detect_figures(board, shapes):
 
 
     # Checkea figuras particulares
-    shapes_to_check = shapes
+    shapes_to_check = set(shapes)
     figures = []
     for color, group in groups:
         for shape in shapes_to_check:

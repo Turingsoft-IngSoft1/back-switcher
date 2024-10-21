@@ -85,3 +85,20 @@ def refill_revealed_figures(id_game: int, id_user: int, db):
 def figures_in_hand(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en la mano del jugador."""
     return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Revealed").count()
+
+def use_figure(id_game: int, id_user: int, figure_name: str, db):
+    """Usa una figura."""
+    try:
+        figure = db.query(FigureTable).filter(FigureTable.id_game == id_game,
+                                              FigureTable.id_user == id_user,
+                                              FigureTable.name == figure_name,
+                                              FigureTable.status == "Revealed").first()
+        figure.status = "Discarded"
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error de SQLAlchemy: {str(e)}")
+        
+def figures_in_deck(id_game: int, id_user: int, db):
+    """Devuelve la cantidad de figuras en el mazo del jugador."""
+    return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Hidden").count()

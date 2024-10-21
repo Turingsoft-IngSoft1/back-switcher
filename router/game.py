@@ -2,7 +2,7 @@ from typing import  Dict
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures
+from querys import get_board,get_revealed_figures,unplay_moves, get_played
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -36,7 +36,7 @@ async def leave(e: InGame):
 
     #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
-        set_game_state(e.id_game, "Finished",SERVER_DB)
+        set_game_state(e.id_game, "Finished", SERVER_DB)
         winner = get_users(e.id_game,SERVER_DB)
         await manager.broadcast(f"{winner[0].id} WIN", e.id_game)
 
@@ -51,6 +51,7 @@ async def leave(e: InGame):
 @game.post("/skip_turn")
 async def skip(e: InGame):
     """Pasar el turno."""
+    
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
     actual_turn = get_game_turn(e.id_game,SERVER_DB)
     actual_players = get_players(e.id_game,SERVER_DB)
@@ -58,6 +59,10 @@ async def skip(e: InGame):
     game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
     id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
     await manager.broadcast(f"TURN {id_user}", e.id_game)
+    unplay_moves(e.id_game,SERVER_DB)
+    PARTIAL_BOARDS.remove(e.id_game)
+    PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
+    await manager.broadcast("REFRESH_BOARD", e.id_game)
 
     return {"Skip Successful."}
 
@@ -90,6 +95,7 @@ async def detect_figures_on_board(id_game: int, id_user: int):
             rf = get_revealed_figures(id_game,SERVER_DB)
             figures = set(rf[id_user])
             detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
+            # [0]: color, [1]: figura, [2]: lista de coordenadas
             response: Dict[str, Dict[str, list]] = {}
             for detected_fig in detected_figures:
                 if detected_fig[1] not in response:
