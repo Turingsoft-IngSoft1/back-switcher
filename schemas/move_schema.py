@@ -3,8 +3,8 @@ from models.move import valid_moves
 
 
 def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[int, int]]:
-    """Genera movimientos disponibles en función del nombre y la posición inicial."""\
-    """Sanitiza movimientos fuera de límites establecidos por el tablero."""
+    """Genera movimientos disponibles en función del nombre y la posición inicial. 
+    Sanitiza movimientos fuera de límites establecidos por el tablero."""
     available_moves = []
     match name:
         case "mov1":

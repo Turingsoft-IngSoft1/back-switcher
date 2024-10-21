@@ -63,6 +63,13 @@ class EntryMove(BaseModel):
     name: str
     pos1: tuple[int, int]
     pos2: tuple[int, int]
+    
+class EntryFigure(BaseModel):
+    """Json de entrada para utilizar una figura."""
+    id_game: int
+    id_player: int
+    name: str
+    figure_pos: list[tuple[int, int]]
 
 class UserData(BaseModel):
     id_user: int

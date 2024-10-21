@@ -8,9 +8,11 @@ from querys import is_user_current_turn
 
 from schemas.response_models import *
 from schemas.move_schema import Move
+from schemas.figure_schema import Figure
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
+from utils.boardDetect import detect_figures
 
 cards = APIRouter()
 
@@ -61,13 +63,41 @@ async def get_figures(id_player: int, id_game: int):
         return {"El jugador no puede obtener mas cartas."}
 
 @cards.post("/use_figures")
-def use_figures(id_player: int, id_game: int):
+def use_figures(e: EntryFigure):
     """Usar una carta de figura."""
 
-    # TODO Implementacion ->
-    """update_board(id_game=e.id_game,
+    if  not is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
+        raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
+
+    if e.name not in get_revealed_figures(e.id_game, SERVER_DB):
+        raise HTTPException(status_code=404, detail="El usuario no tiene ese esa figura en su mano.")
+    
+    Figure(e.name)
+    
+    detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), e.name)
+    found = False
+    #color = "NOT" // Color bloqueado
+    
+    for color_detected, shape_detected, group_detected in detected_figures:
+        if e.figure_pos in group_detected:
+            found = True
+            #color = color_detected // Color bloqueado
+            break
+    
+    if not found:
+        raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
+        
+    use_figure(e.id_game, e.id_player, e.name, SERVER_DB)
+    update_board(id_game=e.id_game,
                  matrix=PARTIAL_BOARDS.get(e.id_game),
-                 db=SERVER_DB)"""
+                 db=SERVER_DB)
+    
+    in_deck = figures_in_deck(e.id_game, e.id_player, SERVER_DB)
+    in_hand = figures_in_hand(e.id_game, e.id_player, SERVER_DB)
+    if in_deck + in_hand == 0:
+        set_game_state(e.id_game, "Finished", SERVER_DB)
+        manager.broadcast(f"{e.id_player} WIN", e.id_game)
+    
     return {"Figuras Usadas Correctamente."}
 
 @cards.post("/cancel_moves/{id_game}")
