@@ -2,7 +2,7 @@ from typing import  Dict
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures,unplay_moves
+from querys import get_board,get_revealed_figures,unplay_moves, get_played
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -51,14 +51,18 @@ async def leave(e: InGame):
 @game.post("/skip_turn")
 async def skip(e: InGame):
     """Pasar el turno."""
+    
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
-    unplay_moves(e.id_game,SERVER_DB)
     actual_turn = get_game_turn(e.id_game,SERVER_DB)
     actual_players = get_players(e.id_game,SERVER_DB)
     set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
     game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
     id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
     await manager.broadcast(f"TURN {id_user}", e.id_game)
+    unplay_moves(e.id_game,SERVER_DB)
+    PARTIAL_BOARDS.remove(e.id_game)
+    PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
+    await manager.broadcast("REFRESH_BOARD", e.id_game)
 
     return {"Skip Successful."}
 
