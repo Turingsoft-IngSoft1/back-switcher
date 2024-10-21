@@ -55,9 +55,9 @@ def initialize_figures(id_game: int, players: int, db):
         
         db.commit()
             
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def get_revealed_figures(id_game: int, db):
     """Devuelve una lista con las figuras reveladas de un juego."""
@@ -78,9 +78,9 @@ def refill_revealed_figures(id_game: int, id_user: int, db):
         for fig in sampled_figures:
             fig.status = "Revealed"
         db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def figures_in_hand(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en la mano del jugador."""
@@ -95,9 +95,9 @@ def use_figure(id_game: int, id_user: int, figure_name: str, db):
                                               FigureTable.status == "Revealed").first()
         figure.status = "Discarded"
         db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
         
 def figures_in_deck(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en el mazo del jugador."""

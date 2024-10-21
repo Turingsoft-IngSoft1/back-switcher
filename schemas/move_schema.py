@@ -51,12 +51,20 @@ def generate_moves(name: str, initial_position: tuple[int, int]) -> list[tuple[i
                 (initial_position[0] + 1, initial_position[1] - 2)
             ])
         case "mov7":
-            available_moves.extend([
-                (5, initial_position[1]),
-                (0, initial_position[1]),
-                (initial_position[0], 5),
-                (initial_position[0], 0)
-            ])
+            available_moves.append((initial_position[0], 0))
+            available_moves.append((initial_position[0], 5))
+            available_moves.append((0, initial_position[1]))
+            available_moves.append((5, initial_position[1]))
+
+            if initial_position[0]==0 or initial_position[0]==5:
+                for row in range(0, 6):  
+                    if row != initial_position[0]:
+                        available_moves.append((row, initial_position[1]))
+            
+            if initial_position[1]==0 or initial_position[1]==5:
+                for col in range(0, 6):
+                    if col != initial_position[1]:
+                        available_moves.append((initial_position[0], col))
 
     valid_moves_in_bounds = [
         (x, y) for x, y in available_moves if 0 <= x < 6 and 0 <= y < 6

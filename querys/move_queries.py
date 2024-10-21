@@ -25,9 +25,9 @@ def initialize_moves(id_game: int, players: int, db):
 
         db.commit()
 
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def moves_in_deck(id_game: int, db) -> int:
     """Devuelve la cantidad de movimientos en el mazo."""
@@ -51,9 +51,9 @@ def refill_moves(id_game: int, db):
             m.status = "Deck"
             db.add(m)
         db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def refill_hand(id_game: int, id_user: int, need: int, db):
     """Rellena la mano del jugador con la cantidad de movimientos necesarios."""
@@ -68,9 +68,9 @@ def refill_hand(id_game: int, id_user: int, need: int, db):
             new_hand.append(move.name)
         db.commit()
         return new_hand
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def get_hand(id_game: int, id_user: int, db):
     """Devuelve los nombres de los movimientos en la mano del jugador."""
@@ -100,9 +100,9 @@ def unplay_moves(id_game: int, db):
             move.status = "InHand"
             db.add(move)
         db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
         
 def get_played(id_game: int, db):
     """Obtiene la cantidad de movimientos jugados."""

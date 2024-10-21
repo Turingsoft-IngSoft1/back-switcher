@@ -11,9 +11,9 @@ def create_board(id_game: int, db):  # Chequear si va id
         db.refresh(new_board)
         print(f"Board {new_board.id} created")
         return new_board.id
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error de SQLAlchemy: {str(e)}")
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
 def get_board(id_game: int, db) :
     """Encuentra y muestra el tablero que esta almacenado

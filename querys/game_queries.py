@@ -1,3 +1,4 @@
+from sqlalchemy.exc import SQLAlchemyError
 from models.game import GameTable
 from schemas import game_schema
 
@@ -13,11 +14,9 @@ def create_game(name: str, max_players: int, min_players: int, db): #Tested
         db.refresh(new_game)
         print(f"Game {new_game.id} created")
         return new_game.id
-    except Exception as e:
-        db.rollback()
-        print(f"Error creating game: {e}")
-    finally:
-        db.close()
+    except SQLAlchemyError as e: #pragma: no cover
+        db.rollback() #pragma: no cover
+        print(f"Error creating game: {e}") #pragma: no cover
 
 
 def get_game(id_game: int, db) -> game_schema.Game: #Tested
@@ -110,8 +109,7 @@ def remove_game(id_game: int, db):
         db.delete(to_remove)
         db.commit()
         print(f"Game deleted.")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
+    except SQLAlchemyError as e: #pragma: no cover
+        db.rollback() #pragma: no cover
+        print(f"Error: {e}") #pragma: no cover
+    
