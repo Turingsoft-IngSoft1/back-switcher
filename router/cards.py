@@ -24,9 +24,9 @@ async def get_moves(id_player: int, id_game: int):
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
     if in_hand < 3:
-        current_hand = refill_hand(id_game, id_player, (3-in_hand), SERVER_DB)
-    else:
-        current_hand = get_hand(id_game, id_player, SERVER_DB)
+        refill_hand(id_game, id_player, (3-in_hand), SERVER_DB)
+    
+    current_hand = get_hand(id_game, id_player, SERVER_DB)
 
     return ResponseMoves(moves=current_hand)
 
@@ -63,23 +63,21 @@ async def get_figures(id_player: int, id_game: int):
         return {"El jugador no puede obtener mas cartas."}
 
 @cards.post("/use_figures")
-def use_figures(e: EntryFigure):
+async def use_figures(e: EntryFigure):
     """Usar una carta de figura."""
-
     if  not is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
         raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
 
-    if e.name not in get_revealed_figures(e.id_game, SERVER_DB):
+    if not e.name in get_revealed_figures(e.id_game, SERVER_DB)[e.id_player]:
         raise HTTPException(status_code=404, detail="El usuario no tiene ese esa figura en su mano.")
     
-    Figure(e.name)
-    
-    detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), e.name)
+    detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.name])
     found = False
     #color = "NOT" // Color bloqueado
-    
-    for color_detected, shape_detected, group_detected in detected_figures:
-        if e.figure_pos in group_detected:
+    print(detected_figures)
+    print(e.figure_pos)
+    for _ , _ , group_detected in detected_figures:
+        if set(e.figure_pos) == set(group_detected):
             found = True
             #color = color_detected // Color bloqueado
             break
@@ -91,12 +89,14 @@ def use_figures(e: EntryFigure):
     update_board(id_game=e.id_game,
                  matrix=PARTIAL_BOARDS.get(e.id_game),
                  db=SERVER_DB)
-    
+    await manager.broadcast("REFRESH_BOARD", e.id_game)
+    await manager.broadcast("REFRESH_FIGURES", e.id_game)
+
     in_deck = figures_in_deck(e.id_game, e.id_player, SERVER_DB)
     in_hand = figures_in_hand(e.id_game, e.id_player, SERVER_DB)
     if in_deck + in_hand == 0:
         set_game_state(e.id_game, "Finished", SERVER_DB)
-        manager.broadcast(f"{e.id_player} WIN", e.id_game)
+        await manager.broadcast(f"{e.id_player} WIN", e.id_game)
     
     return {"Figuras Usadas Correctamente."}
 

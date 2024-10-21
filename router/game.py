@@ -2,7 +2,7 @@ from typing import  Dict
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures
+from querys import get_board,get_revealed_figures,unplay_moves
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -52,6 +52,7 @@ async def leave(e: InGame):
 async def skip(e: InGame):
     """Pasar el turno."""
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
+    unplay_moves(e.id_game,SERVER_DB)
     actual_turn = get_game_turn(e.id_game,SERVER_DB)
     actual_players = get_players(e.id_game,SERVER_DB)
     set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
