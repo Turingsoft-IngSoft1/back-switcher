@@ -57,7 +57,7 @@ async def get_figures(id_player: int, id_game: int):
     in_hand = figures_in_hand(id_game, id_player, SERVER_DB)
     if in_hand < 3:
         refill_revealed_figures(id_game,id_player, SERVER_DB)
-        manager.broadcast("REFRESH_FIGURES",id_game)
+        await manager.broadcast("REFRESH_FIGURES",id_game)
         return {"Se entregaron las figuras correctamente."}
     else:
         return {"El jugador no puede obtener mas cartas."}
@@ -82,6 +82,9 @@ async def use_figures(e: EntryFigure):
     
     if not found:
         raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
+    
+    if get_played(e.id_game, SERVER_DB) > 0:
+        discard_move(e.id_game, e.id_player, SERVER_DB)
         
     use_figure(e.id_game, e.id_player, e.name, SERVER_DB)
     update_board(id_game=e.id_game,

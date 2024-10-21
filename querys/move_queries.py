@@ -108,3 +108,12 @@ def get_played(id_game: int, db):
     """Obtiene la cantidad de movimientos jugados."""
     return db.query(MoveTable).filter(MoveTable.id_game == id_game,
                                       MoveTable.status == "Played").count()
+    
+def discard_move(id_game: int, id_user: int, db):
+    """Descarta un movimiento."""
+    move = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                      MoveTable.id_user == id_user,
+                                      MoveTable.status == "Played").all()
+    for m in move:
+        m.status = "Discarded"
+    db.commit()
