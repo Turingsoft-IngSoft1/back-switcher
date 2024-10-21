@@ -1,6 +1,6 @@
 from pytest import MonkeyPatch
 import json
-from querys import uid_by_turns, get_revealed_figures
+from querys import uid_by_turns, get_revealed_figures, get_board
 
 def test_get_moves(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -244,7 +244,7 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     assert response.status_code == 409
 
 #Hay que toquetear
-"""def test_use_figures_success(client,test_db,monkeypatch):
+def test_use_figures_success(client,test_db,monkeypatch):
 
     def mock_shuffle(x):
         print("Funcion mockeada.")
@@ -258,6 +258,19 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
             ret.append(x[i])
         return ret
     monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+        ["R", "R", "B", "Y", "G", "Y"], 
+        ["R", "R", "Y", "B", "R", "R"], 
+        ["B", "Y", "G", "G", "B", "Y"], 
+        ["Y", "B", "G", "G", "Y", "B"], 
+        ["R", "G", "B", "Y", "G", "B"], 
+        ["G", "R", "Y", "B", "G", "R"]
+        ]
+
+        return board
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
 
     #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
@@ -283,25 +296,37 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
 
     #Pruebas de usar figuras.
     users = uid_by_turns(1,test_db)
-    figures = get_revealed_figures(1, test_db)
     url = "http://localhost:8000/use_figures"
 
     #Jugar una figura correctamente.
     payload = {
         'id_game': 1,
         'id_player': users[0],
-        'name': figures[users[0]][0],
-        'figure_pos': [(0,0),(0,1),(1,0),(1,1)]
+        'name': 'fige02',
+        'figure_pos': [(0, 0), (0, 1), (1, 1), (1, 0)]
     }
     response = client.post(url, json=payload)
-    assert response.status_code == 200"""
+    assert response.status_code == 200
 
-"""def test_use_figures_invalid_turn(client,test_db,monkeypatch):
+def test_use_figures_invalid_turn(client,test_db,monkeypatch):
 
     def mock_shuffle(x):
         print("Funcion mockeada.")
         x.sort()
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+    def mock_get(self, game_id):
+        board = [
+        ["R", "R", "B", "Y", "G", "Y"], 
+        ["R", "R", "Y", "B", "R", "R"], 
+        ["B", "Y", "G", "G", "B", "Y"], 
+        ["Y", "B", "G", "G", "Y", "B"], 
+        ["R", "G", "B", "Y", "G", "B"], 
+        ["G", "R", "Y", "B", "G", "R"]
+        ]
+
+        return board
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
 
     #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
@@ -333,18 +358,31 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     payload = {
         'id_game': 1,
         'id_player': users[1],
-        'name': '',
-        'figure_pos': [(),(),(),()]
+        'name': 'fige02',
+        'figure_pos': [(0, 0), (0, 1), (1, 1), (1, 0)]
     }
     response = client.post(url, json=payload)
-    assert response.status_code == 412"""
+    assert response.status_code == 412
 
-"""def test_use_figures_invalid_figure(client,test_db,monkeypatch):
+def test_use_figures_invalid_figure(client,test_db,monkeypatch):
 
     def mock_shuffle(x):
         print("Funcion mockeada.")
         x.sort()
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+    def mock_get(self, game_id):
+        board = [
+        ["R", "R", "B", "Y", "G", "Y"], 
+        ["R", "R", "Y", "B", "R", "R"], 
+        ["B", "Y", "G", "G", "B", "Y"], 
+        ["Y", "B", "G", "G", "Y", "B"], 
+        ["R", "G", "B", "Y", "G", "B"], 
+        ["G", "R", "Y", "B", "G", "R"]
+        ]
+
+        return board
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
 
     #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
@@ -376,18 +414,31 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     payload = {
         'id_game': 1,
         'id_player': users[0],
-        'name': '',
-        'figure_pos': [(),(),(),()]
+        'name': 'fige03',
+        'figure_pos': [(0, 0), (0, 1), (1, 1), (1, 0)]
     }
     response = client.post(url, json=payload)
-    assert response.status_code == 404"""
+    assert response.status_code == 404
 
-"""def test_use_figures_invalid_position(client,test_db,monkeypatch):
+def test_use_figures_invalid_position(client,test_db,monkeypatch):
 
     def mock_shuffle(x):
         print("Funcion mockeada.")
         x.sort()
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+    def mock_get(self, game_id):
+        board = [
+        ["R", "R", "B", "Y", "G", "Y"], 
+        ["R", "R", "Y", "B", "R", "R"], 
+        ["B", "Y", "G", "G", "B", "Y"], 
+        ["Y", "B", "G", "G", "Y", "B"], 
+        ["R", "G", "B", "Y", "G", "B"], 
+        ["G", "R", "Y", "B", "G", "R"]
+        ]
+
+        return board
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
 
     #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
@@ -419,11 +470,11 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     payload = {
         'id_game': 1,
         'id_player': users[0],
-        'name': '',
-        'figure_pos': [(),(),(),()]
+        'name': 'fige02',
+        'figure_pos': [(1, 1), (1, 1), (1, 1), (1, 1)]
     }
     response = client.post(url, json=payload)
-    assert response.status_code == 404"""
+    assert response.status_code == 404
 
 def test_cancel_moves(client, monkeypatch, test_db):
     

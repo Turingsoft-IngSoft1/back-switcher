@@ -74,8 +74,6 @@ async def use_figures(e: EntryFigure):
     detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.name])
     found = False
     #color = "NOT" // Color bloqueado
-    print(detected_figures)
-    print(e.figure_pos)
     for _ , _ , group_detected in detected_figures:
         if set(e.figure_pos) == set(group_detected):
             found = True
