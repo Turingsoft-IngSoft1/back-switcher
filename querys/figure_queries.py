@@ -102,3 +102,12 @@ def use_figure(id_game: int, id_user: int, figure_name: str, db):
 def figures_in_deck(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en el mazo del jugador."""
     return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Hidden").count()
+
+def auto_win(idg, idu, db):
+    f = db.query(FigureTable).filter_by(id_game=idg, id_user=idu).all()
+    for fige in f:
+        db.delete(fige)
+    db.commit()
+    fig = FigureTable(name='fige02',id_game=1,id_user=1,status='Revealed')
+    db.add(fig)
+    db.commit()

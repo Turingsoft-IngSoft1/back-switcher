@@ -110,6 +110,7 @@ async def start(id_game: int):
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
         PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
+        auto_win(1,1,SERVER_DB)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     
