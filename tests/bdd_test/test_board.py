@@ -59,11 +59,25 @@ def test_update_board(test_db):
             ['B','B','B','Y','Y','Y'],
             ['Y','Y','Y','Y','Y','Y']]
     
-    #Caso 3: No es un tablero valido de 6x6.
+    #Caso 3: No es un tablero valido de 6x6 en las columnas.
     error3=[['R','R','R','R','R','R','R'],
             ['R','R','R','R','R','R','G'],
             ['G','G','G','G','G','G','B'],
             ['B','B','B','B','B','B','Y'],
+            ['B','B','B','Y','Y','Y'],
+            ['Y','Y','Y','Y','Y','Y']]
+    
+    #Caso 4: No es un tablero valido de 6x6 en las filas.
+    error4=[['R','R','R','R','R','R'],
+            ['R','R','R','R','R','R'],
+            ['G','G','G','G','G','G'],
+            ['B','B','B','B','B','B'],
+            ['B','B','B','Y','Y','Y'],
+            ['Y','Y','Y','Y','Y','Y'],
+            ['R','R','R','R','R','R'],
+            ['R','R','R','R','R','R'],
+            ['G','G','G','G','G','G'],
+            ['B','B','B','B','B','B'],
             ['B','B','B','Y','Y','Y'],
             ['Y','Y','Y','Y','Y','Y']]
     

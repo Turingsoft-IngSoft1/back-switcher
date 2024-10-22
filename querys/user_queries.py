@@ -1,3 +1,4 @@
+from sqlalchemy.exc import SQLAlchemyError
 from random import shuffle
 from models.user import UserTable
 from schemas.response_models import CurrentUsers
@@ -13,12 +14,10 @@ def create_user(name: str, id_game: int, db):
         db.refresh(new_user)
         print(f"User {new_user.name} created")
         return new_user.id
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.rollback()
         print(f"Error: {e}")
-    finally:
-        db.close()
-
+    
 
 def remove_user(id_user: int, db):
     """Elimina de la base de datos al jugador con el id correspondiente."""
@@ -27,11 +26,10 @@ def remove_user(id_user: int, db):
         db.delete(to_remove)
         db.commit()
         print(f"User deleted.")
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.rollback()
         print(f"Error: {e}")
-    finally:
-        db.close()
+    
 
 
 def get_users(id_game: int, db) :
@@ -54,7 +52,7 @@ def set_users_turn(id_game: int, players: int, db) -> int :
             user.turn = index
         db.commit() 
         return users[0].id
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.rollback()
         print(f"Error: {e}")
 
@@ -74,7 +72,7 @@ def reorder_turns(id_game: int, db):
             db.add(usuario)
         db.commit()
     
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.rollback()
         print(f"Error: {e}")
 

@@ -77,5 +77,6 @@ def test_move_available_moves_corner():
     assert set(move6.available_moves) == set(expected_moves)
     
     move7 = Move(name="mov7", initial_position=[0, 0])
-    expected_moves = [(5, 0), (0, 0), (0, 5)]
+    expected_moves = [(5, 0), (4, 0), (3, 0), (2, 0), (1, 0),
+    (0, 0), (0, 5), (0, 4), (0, 3), (0, 2), (0, 1)]
     assert set(move7.available_moves) == set(expected_moves)

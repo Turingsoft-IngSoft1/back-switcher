@@ -13,13 +13,16 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
+from querys import get_game
 
 cards = APIRouter()
 
 @cards.post("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
 async def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
-
+    if get_game(id_game=id_game,db=SERVER_DB) is None:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
+   
     in_hand = moves_in_hand(id_game, id_player, SERVER_DB)
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
@@ -57,7 +60,7 @@ async def get_figures(id_player: int, id_game: int):
     in_hand = figures_in_hand(id_game, id_player, SERVER_DB)
     if in_hand < 3:
         refill_revealed_figures(id_game,id_player, SERVER_DB)
-        manager.broadcast("REFRESH_FIGURES",id_game)
+        await manager.broadcast("REFRESH_FIGURES",id_game)
         return {"Se entregaron las figuras correctamente."}
     else:
         return {"El jugador no puede obtener mas cartas."}
@@ -82,6 +85,9 @@ async def use_figures(e: EntryFigure):
     
     if not found:
         raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
+    
+    if get_played(e.id_game, SERVER_DB) > 0:
+        discard_move(e.id_game, e.id_player, SERVER_DB)
         
     use_figure(e.id_game, e.id_player, e.name, SERVER_DB)
     update_board(id_game=e.id_game,
