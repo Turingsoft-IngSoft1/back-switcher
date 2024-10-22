@@ -55,7 +55,7 @@ coverage report
 ***Coverage como html:***
 
 ```
-covarage html
+coverage html
 ```
 
 ```

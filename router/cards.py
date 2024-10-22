@@ -13,13 +13,16 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
+from querys import get_game
 
 cards = APIRouter()
 
 @cards.post("/get_moves/{id_game}/{id_player}", response_model=ResponseMoves)
 async def get_moves(id_player: int, id_game: int):
     """Obtener cartas de movimiento."""
-
+    if get_game(id_game=id_game,db=SERVER_DB) is None:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
+   
     in_hand = moves_in_hand(id_game, id_player, SERVER_DB)
     if moves_in_deck(id_game, SERVER_DB) < (3-in_hand):
         refill_moves(id_game, SERVER_DB)
