@@ -1,3 +1,4 @@
+from typing import Dict
 from pydantic import BaseModel, Field
 
 from .game_schema import Game
@@ -48,3 +49,29 @@ class CurrentUsers(BaseModel):
 class InGame(BaseModel):
     id_player: int = Field(ge=1, description="Unique integer that specifies this player.")
     id_game: int = Field(ge=1, description="Unique integer that specifies this game.")
+
+class BoardStatus(BaseModel):
+    board: list[list[str]] = Field(description="Game's actual board status.")
+    
+class ResponseMoves(BaseModel):
+    moves: list[str] = Field(description="List of move names.")
+    
+class EntryMove(BaseModel):
+    """Json de entrada para realizar un movimiento."""
+    id_game: int
+    id_player: int
+    name: str
+    pos1: tuple[int, int]
+    pos2: tuple[int, int]
+    
+class EntryFigure(BaseModel):
+    """Json de entrada para utilizar una figura."""
+    id_game: int
+    id_player: int
+    name: str
+    figure_pos: list[tuple[int, int]]
+
+class UserData(BaseModel):
+    id_user: int
+    name: str
+    figures: list[str]

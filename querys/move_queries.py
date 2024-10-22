@@ -1,83 +1,119 @@
-from models import base
+from random import shuffle,sample
+from sqlalchemy.exc import SQLAlchemyError
 from models.move import MoveTable
+from querys.user_queries import uid_by_turns
 
+moves = [f"mov{i}" for _ in range(7) for i in range(1, 8)]
 
-def create_move(name: str):
-    """Crear movimiento y agregarlo."""
-    db = base.SessionLocal()
+def initialize_moves(id_game: int, players: int, db):
+    """Crea todas las cartas de movimiento y se las reparte al azar a todos los jugadores."""
+    shuffle(moves)
+    users = uid_by_turns(id_game,db)
     try:
-        new_move = MoveTable(name=name)
-        db.add(new_move)
+        for i in range(players):
+            for j in range(3):
+                m = MoveTable(name=moves[(3 * i) + j],
+                              status="InHand",
+                              id_user=users[i],
+                              id_game=id_game)
+                db.add(m)
+
+        for k in range(3 * players, 49):
+            m = MoveTable(name=moves[k],
+                          id_game=id_game)
+            db.add(m)
+
         db.commit()
-        db.refresh(new_move)
-        print(f"Move {new_move.name} created")
-        return new_move.id
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
 
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
-def get_users(id: int):
-    """Devuelve la id del jugador al cual le pertenece el movimiento."""
-    db = base.SessionLocal()
-    ret = db.query(MoveTable).filter(MoveTable.id == id).first()
-    return ret.user_id
+def moves_in_deck(id_game: int, db) -> int:
+    """Devuelve la cantidad de movimientos en el mazo."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.status == "Deck").count()
+    return ret
 
+def moves_in_hand(id_game: int, id_user: int, db) -> int:
+    """Devuelve la cantidad de movimientos que el usuario tiene en mano."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.id_user == id_user,
+                                     MoveTable.status == "InHand").count()
+    return ret
 
-def set_users(id: int, user_id: int):
-    """Cambia el jugador al que pertenece el movimiento."""
-    db = base.SessionLocal()
+def refill_moves(id_game: int, db):
+    """Devuelve todos los movimientos descartados al mazo."""
     try:
-        db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.user_id: user_id})
+        ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                         MoveTable.status == "Discarded").all()
+        for m in ret:
+            m.status = "Deck"
+            db.add(m)
         db.commit()
-        print("Set to new user")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
-
-def get_move_name(id: int):
-    """Devuelve el nombre del movimiento."""
-    db = base.SessionLocal()
-    ret = db.query(MoveTable).filter(MoveTable.id == id).first()
-    return ret.name
-
-
-def get_move_pile(id: int):
-    """Devuelve la pila a la que pertenece el movimiento."""
-    db = base.SessionLocal()
-    ret = db.query(MoveTable).filter(MoveTable.id == id).first()
-    return ret.pile
-
-
-def set_move_pile(id: int, pile: str):
-    """Cambia la pila a la que pertence el movimiento."""
-    db = base.SessionLocal()
+def refill_hand(id_game: int, id_user: int, need: int, db):
+    """Rellena la mano del jugador con la cantidad de movimientos necesarios."""
     try:
-        db.query(MoveTable).filter(MoveTable.id == id).update({MoveTable.pile: pile})
+        moves_on_deck = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                                   MoveTable.status == "Deck").all()
+        new_hand = []
+        for move in sample(moves_on_deck, need):
+            move.id_user = id_user
+            move.status = "InHand"
+            db.add(move)
+            new_hand.append(move.name)
         db.commit()
-        print(f"Set to different pile.")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
+        return new_hand
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
 
+def get_hand(id_game: int, id_user: int, db):
+    """Devuelve los nombres de los movimientos en la mano del jugador."""
+    ret = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                     MoveTable.id_user == id_user,
+                                     MoveTable.status == "InHand").all()
+    hand = []
+    for move in ret:
+        hand.append(move.name)
+    return hand
 
-def remove_move(id: int):
-    """Elimina de la base de datos el movimiento con el id correspondiente."""
-    db = base.SessionLocal()
-    toRemove = db.query(MoveTable).filter(MoveTable.id == id).first()
+def use_move(id_game: int, id_user: int, move_name: str, db):
+    """Usa un movimiento."""
+    move = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                      MoveTable.id_user == id_user,
+                                      MoveTable.name == move_name,
+                                      MoveTable.status == "InHand").first()
+    move.status = "Played"
+    db.commit()
+
+def unplay_moves(id_game: int, db):
+    """Devuelve los movimientos jugados a la mano."""
     try:
-        db.delete(toRemove)
+        moves_played = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                                  MoveTable.status == "Played").all()
+        for move in moves_played:
+            move.status = "InHand"
+            db.add(move)
         db.commit()
-        print(f"Move deleted.")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
+        
+def get_played(id_game: int, db):
+    """Obtiene la cantidad de movimientos jugados."""
+    return db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                      MoveTable.status == "Played").count()
+    
+def discard_move(id_game: int, id_user: int, db):
+    """Descarta un movimiento."""
+    move = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                      MoveTable.id_user == id_user,
+                                      MoveTable.status == "Played").all()
+    for m in move:
+        m.status = "Discarded"
+    db.commit()
