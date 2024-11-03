@@ -1,7 +1,7 @@
 from sqlite3 import IntegrityError
 import pytest
 
-from querys import create_board,get_board,get_color,update_board
+from querys import create_board,get_board,get_color,update_board,update_color
 from models import BoardTable
 
 def test_create_board(test_db):
@@ -102,6 +102,20 @@ def test_update_board(test_db):
     update_board(4,error3,test_db)
     assert not comp_boards(error1, get_board(4,test_db))
 
+def test_color_change(test_db):
+    
+    create_board(id_game=1,db=test_db)
+    update_color(1,"R",test_db)
+    assert get_color(1,test_db) == "R"
+
+    update_color(1,"G",test_db)
+    assert get_color(1,test_db) == "G"
+
+    update_color(1,"B",test_db)
+    assert get_color(1,test_db) == "B"
+
+    update_color(1,"Y",test_db)
+    assert get_color(1,test_db) == "Y"
 
 @staticmethod
 def comp_boards(b1: list[list[str]], b2: list[list[str]]):
