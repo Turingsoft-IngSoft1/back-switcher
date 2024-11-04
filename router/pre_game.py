@@ -9,6 +9,7 @@ from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
+from utils.profiles import PROFILES
 
 pre_game = APIRouter()
 
@@ -20,6 +21,18 @@ def default():
     """Mensaje predeterminado."""
     return "El Switcher."
 
+@pre_game.get("/new_profile/")
+def new_profile():
+    profile_id: str = PROFILES.get_new_profile()
+    return profile_id
+
+@pre_game.get("/load_profile/{profile_id}")
+def load_games(profile_id: str):
+    prof = PROFILES.get_games(profile_id)
+    if prof is None:
+        raise HTTPException(status_code=404, detail="No se encontro un perfil valido.")
+    else:
+        return prof
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
 def get_active_players(id_game: int):
@@ -28,7 +41,7 @@ def get_active_players(id_game: int):
 
 
 @pre_game.post("/create_game", response_model=ResponseCreate)
-def create(e: CreateEntry):
+def create(e: CreateEntry, profile_id: str = ""):
     """Crear el juego."""
     # En caso de exito se debe retornar {id_player,id_game}.
     # Se debe crear un game_schema.Game.
@@ -49,12 +62,14 @@ def create(e: CreateEntry):
     
     create_board(id_game=new_id_game,
                  db=SERVER_DB)
+    
+    PROFILES.add_game(profile_id, new_id_game, new_id_user)
 
     return ResponseCreate(id_game=new_id_game, id_player=new_id_user)
 
 
 @pre_game.post("/join_game", response_model=ResponseJoin)
-async def join(e: JoinEntry):
+async def join(e: JoinEntry, profile_id: str = ""):
     """Unirse al juego."""
 
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
@@ -64,15 +79,16 @@ async def join(e: JoinEntry):
         
         add_player(id_game=e.id_game,
                    db=SERVER_DB)
-        p_id = create_user(name=e.player_name,
+        id_user = create_user(name=e.player_name,
                            id_game=e.id_game,
                            db=SERVER_DB)
-        await manager.broadcast(f"{p_id} JOIN",e.id_game)
+        PROFILES.add_game(profile_id, e.id_game, id_user)
+        await manager.broadcast(f"{id_user} JOIN",e.id_game)
         
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 
-    return ResponseJoin(new_player_id=p_id)
+    return ResponseJoin(new_player_id=id_user)
 
 
 @pre_game.get("/list_games", response_model=ResponseList)
@@ -143,4 +159,3 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
             await ws.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(ws, id_game, id_user)
-
