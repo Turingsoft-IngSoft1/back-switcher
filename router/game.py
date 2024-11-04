@@ -2,7 +2,7 @@ from typing import  Dict
 from fastapi import APIRouter,HTTPException
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures,unplay_moves, get_played
+from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -68,15 +68,19 @@ async def skip(e: InGame):
 
     return {"Skip Successful."}
 
-
+#TODO test
 @game.get("/game_status/{id_game}",response_model=list[UserData])
 async def get_status(id_game: int):
     """Consultar estado de partida/turnos."""
-    rf = get_revealed_figures(id_game,SERVER_DB)
-    users = get_users(id_game,SERVER_DB)
+    fa = get_revealed_figures(id_game, SERVER_DB)
+    fb = get_blocked_figures(id_game, SERVER_DB)
+    users = get_users(id_game, SERVER_DB)
     response = []
     for u in users:
-        response.append(UserData(id_user=u.id,name=u.name,figures=rf[u.id]))
+        response.append(UserData(id_user=u.id,
+                                 name=u.name,
+                                 figures_available=fa[u.id],
+                                 figures_blocked=fb[u.id]))
     return response
 
 
@@ -88,6 +92,7 @@ async def get_board_status(id_game: int):
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
 
+#TODO test
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
     if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
