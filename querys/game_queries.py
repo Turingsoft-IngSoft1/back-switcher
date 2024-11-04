@@ -1,14 +1,19 @@
 from sqlalchemy.exc import SQLAlchemyError
 from models.game import GameTable
 from schemas import game_schema
+from bcrypt import hashpw, gensalt, checkpw
 
 
-def create_game(name: str, max_players: int, min_players: int, db): #Tested
+def create_game(name: str, max_players: int, min_players: int, password: str, db): #Tested
     """Crea una partida y la inserta en la base de datos."""
     try:
+        hashed_pw = password
+        if password != "password":
+            hashed_pw = hashpw(password.encode(), gensalt())
         new_game = GameTable(name=name,
                              max_players=max_players,
-                             min_players=min_players)
+                             min_players=min_players,
+                             password=hashed_pw)
         db.add(new_game)
         db.commit()
         db.refresh(new_game)
@@ -113,3 +118,9 @@ def remove_game(id_game: int, db):
         db.rollback() #pragma: no cover
         print(f"Error: {e}") #pragma: no cover
     
+def verify_password(id_game: int, entered_pw: str, db):
+    """Compara la contraseña ingresada con la guardad en la base de datos."""
+    game = db.query(GameTable).filter(GameTable.id == id_game).first()
+    if game.password == "password":
+        return entered_pw == game.password
+    return checkpw(entered_pw.encode(), game.password.encode())

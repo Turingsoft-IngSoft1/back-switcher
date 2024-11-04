@@ -9,14 +9,16 @@ def test_leave(client):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 4
+        "max_player": 4,
+        "password": "password"
     }
     client.post(url_create, json=payload)
     #Unir a UsuarioParaLlenarLobby a la partida.
     urljoin = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": "password"
     }
     client.post(urljoin, json=payload)
     #Abandona UsuarioEjemplo
@@ -57,7 +59,8 @@ def test_skip_turn(client):
         "game_name": "PartidaTurnos",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": "password"
     }
     client.post(url_create, json=payload)
     #Saltear turno actuala de la PartidaEjemplo.
@@ -76,7 +79,8 @@ def test_get_board_status(test_db,client):
         "game_name": "PartidaTurnos",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": "password"
     }
     client.post(url_create, json=payload)
     

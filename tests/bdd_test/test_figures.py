@@ -21,7 +21,7 @@ def test_initialize_figures(monkeypatch,test_db):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
     #Caso 1: 2 jugadores
-    newid = create_game("game1",2,2,test_db)
+    newid = create_game("game1",2,2,"password",test_db)
     id1 = create_user("user1",newid,test_db)
     id2 = create_user("user2",newid,test_db)
     test_db.query(UserTable).filter_by(id=id2).update({"turn":1})
@@ -32,7 +32,7 @@ def test_initialize_figures(monkeypatch,test_db):
     remove_game(newid,test_db)
     
     #Caso 2: 3 jugadores
-    newid = create_game("game1",2,3,test_db)
+    newid = create_game("game1",2,3,"password",test_db)
     id1 = create_user("user1",newid,test_db)
     id2 = create_user("user2",newid,test_db)
     id3 = create_user("user3",newid,test_db)
@@ -45,7 +45,7 @@ def test_initialize_figures(monkeypatch,test_db):
     remove_game(newid,test_db)
     
     #Caso 3: 4 jugadores
-    newid = create_game("game1",2,4,test_db)
+    newid = create_game("game1",2,4,"password",test_db)
     id1 = create_user("user1",newid,test_db)
     id2 = create_user("user2",newid,test_db)
     id3 = create_user("user3",newid,test_db)
@@ -64,7 +64,7 @@ def test_get_revealed_figures(monkeypatch,test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
-    newid = create_game("game1",2,2,test_db)
+    newid = create_game("game1",2,2,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
@@ -78,7 +78,7 @@ def test_refill_revealed_figures(monkeypatch,test_db):
     """Testea el repartir nuevas cartas de figuras para el jugador."""
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
-    newid = create_game("game1",2,4,test_db)
+    newid = create_game("game1",2,4,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     u3 = create_user("user3",newid,test_db)
@@ -115,7 +115,7 @@ def test_figures_in_hand(monkeypatch,test_db):
     """Testea la cantidad de figuras en mano."""
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
-    newid = create_game("game1",2,2,test_db)
+    newid = create_game("game1",2,2,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
@@ -129,7 +129,7 @@ def test_figures_in_hand(monkeypatch,test_db):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
     #Caso 1: 2 jugadores.
-    newid = create_game("game1",2,2,test_db)
+    newid = create_game("game1",2,2,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
@@ -139,7 +139,7 @@ def test_figures_in_hand(monkeypatch,test_db):
     remove_game(newid,test_db)
     
     #Caso 2: 3 jugadores.
-    newid = create_game("game1",2,3,test_db)
+    newid = create_game("game1",2,3,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     u3 = create_user("user3",newid,test_db)
@@ -151,7 +151,7 @@ def test_figures_in_hand(monkeypatch,test_db):
     remove_game(newid,test_db)
     
     #Caso 3: 4 jugadores.
-    newid = create_game("game1",2,4,test_db)
+    newid = create_game("game1",2,4,"password",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     u3 = create_user("user3",newid,test_db)
@@ -169,7 +169,7 @@ def test_use_move(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"password",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_figures(1,2,test_db)
