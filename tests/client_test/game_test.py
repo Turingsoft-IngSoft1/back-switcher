@@ -1,6 +1,7 @@
 import json,pytest
 from unittest.mock import patch
 from querys.board_queries import update_board
+from utils.timer import game_timers
 
 def test_leave(client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
@@ -60,6 +61,28 @@ def test_skip_turn(client):
         "max_player": 2
     }
     client.post(url_create, json=payload)
+    #Crear PartidaEjemplo y UsuarioEjemplo.    
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    client.post(url_create, json=payload)
+    
+    #Unir a jugador2 para poder iniciar partida.
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby"
+    }
+    client.post(url_join, json=payload)
+    
+    #Se inicia la partida.
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+    
     #Saltear turno actuala de la PartidaEjemplo.
     url = "http://localhost:8000/skip_turn"
     payload = {
@@ -103,3 +126,32 @@ def test_get_board_status(test_db,client):
     url_board= "http://localhost:8000/board_status/2"
     response=client.get(url_board)
     assert response.status_code == 404
+
+def test_start_timer(test_db, client):
+    #Crear PartidaEjemplo y UsuarioEjemplo.    
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    client.post(url_create, json=payload)
+    
+    #Unir a jugador2 para poder iniciar partida.
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby"
+    }
+    client.post(url_join, json=payload)
+    
+    #Se inicia la partida.
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+    
+    #Se inicia el timer.
+    response = client.post("/start_timer/1")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Timer started."}
+    assert 1 in game_timers

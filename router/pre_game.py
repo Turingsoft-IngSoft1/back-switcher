@@ -9,6 +9,7 @@ from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
+from utils.timer import initialize_timer
 
 pre_game = APIRouter()
 
@@ -95,6 +96,7 @@ async def start(id_game: int):
     # Tiene que repartir las cartas a todos los jugadores.
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
+    # Tiene que inicializar el timer.
     # Tiene que avisar a todos los clientes.
     players = get_players(id_game,SERVER_DB)
     if players >= get_min_players(id_game,SERVER_DB):
@@ -109,7 +111,8 @@ async def start(id_game: int):
         
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
-        PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
+        PARTIAL_BOARDS.initialize(id_game, SERVER_DB) 
+        initialize_timer(id_game) #TODO agregar test
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     

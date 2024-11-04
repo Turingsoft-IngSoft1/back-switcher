@@ -8,6 +8,8 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
+from utils.timer import game_timers, timer_loop
+from asyncio import sleep, create_task
 game = APIRouter()
 
 
@@ -46,6 +48,7 @@ async def leave(e: InGame):
     if get_players(e.id_game,SERVER_DB) == 0:
         remove_game(e.id_game,SERVER_DB)
         PARTIAL_BOARDS.remove(e.id_game)
+        del game_timers[e.id_game]
 
     return {"message": "Exit Successful."}
 
@@ -65,7 +68,9 @@ async def skip(e: InGame):
     PARTIAL_BOARDS.remove(e.id_game)
     PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
     await manager.broadcast("REFRESH_BOARD", e.id_game)
-
+    game_timers[e.id_game].start() #TODO agregar test
+    create_task(timer_loop(e.id_game)) 
+    
     return {"Skip Successful."}
 
 
@@ -90,6 +95,7 @@ async def get_board_status(id_game: int):
 
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
+    """Detectar figuras en el tablero."""
     if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
 
         if id_user in uid_by_turns(id_game,SERVER_DB):
@@ -113,3 +119,15 @@ async def detect_figures_on_board(id_game: int, id_user: int):
     else:
         raise HTTPException(status_code=404,
                             detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
+
+@game.post("/start_timer/{id_game}")
+async def start_timer(id_game: int):
+    """Iniciar timer."""
+    if id_game not in game_timers:
+        raise HTTPException(status_code=404,
+                            detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
+        
+    game_timers[id_game].start()
+    create_task(timer_loop(id_game))
+
+    return {"message": "Timer started."}
