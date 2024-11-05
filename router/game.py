@@ -8,8 +8,7 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
-from utils.timer import game_timers, timer_loop
-from asyncio import sleep, create_task
+from utils.timer import game_timers, initialize_timer, stop_timer
 game = APIRouter()
 
 
@@ -68,8 +67,8 @@ async def skip(e: InGame):
     PARTIAL_BOARDS.remove(e.id_game)
     PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
     await manager.broadcast("REFRESH_BOARD", e.id_game)
-    game_timers[e.id_game].start() #TODO agregar test
-    create_task(timer_loop(e.id_game)) 
+    await stop_timer(e.id_game)
+    await initialize_timer(e.id_game)
     
     return {"Skip Successful."}
 
@@ -119,15 +118,3 @@ async def detect_figures_on_board(id_game: int, id_user: int):
     else:
         raise HTTPException(status_code=404,
                             detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
-
-@game.post("/start_timer/{id_game}")
-async def start_timer(id_game: int):
-    """Iniciar timer."""
-    if id_game not in game_timers:
-        raise HTTPException(status_code=404,
-                            detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
-        
-    game_timers[id_game].start()
-    create_task(timer_loop(id_game))
-
-    return {"message": "Timer started."}

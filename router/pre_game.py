@@ -112,7 +112,7 @@ async def start(id_game: int):
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
         PARTIAL_BOARDS.initialize(id_game, SERVER_DB) 
-        initialize_timer(id_game) #TODO agregar test
+        await initialize_timer(id_game)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     

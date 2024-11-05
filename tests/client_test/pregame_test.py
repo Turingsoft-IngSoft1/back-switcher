@@ -1,5 +1,6 @@
 import json,pytest
 from unittest.mock import patch
+from utils.timer import game_timers
 
 def test_create_game(client):
     #Crear PartidaEjemplo y UsuarioEjemplo. 
@@ -143,6 +144,7 @@ def test_start_game(client):
         "message": "El juego comenzo correctamente."
     }
     assert response.status_code == 200
+    assert 1 in game_timers
     formatted_response = json.dumps(response.json(), sort_keys=True)
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_response == formatted_expected
