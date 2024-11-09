@@ -120,16 +120,6 @@ async def detect_figures_on_board(id_game: int, id_user: int):
                             detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
     
 
-@game.websocket("/ws/{id_game}/{id_user}")
-async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
-    """Canal para que el servidor envie datos de la partida."""
-    await manager.connect(ws, id_game, id_user) #pragma: no cover
-    try:
-        while True:
-            await ws.receive_text() #pragma: no cover
-    except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user) #pragma: no cover
-
 @game.websocket("/chat/{id_game}/{id_user}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
     """Canal para que el servidor envie datos de la partida."""
@@ -138,7 +128,7 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
         while True:
             await ws.receive_text() #pragma: no cover
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user) #pragma: no cover
+        await manager.disconnect(id_game, id_user, 'chat') #pragma: no cover
 
 @game.post("/chat/{id_game}/{id_user}")
 async def send_message_chat(id_game: int, id_user: int, message: str):

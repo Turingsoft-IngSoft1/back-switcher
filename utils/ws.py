@@ -5,33 +5,38 @@ class ConnectionManager:
     """Clase Manejadora de conexiones."""
 
     def __init__(self):
-        self.active_connections: Dict[int, Dict[str, list[tuple[int, WebSocket]]]] = {} #pragma: no cover
+        self.active_connections: Dict[int, Dict[str, Dict[int, WebSocket]]] = {} #pragma: no cover
 
     async def connect(self, websocket: WebSocket, id_game: int, id_user: int, route: str = 'ws'):
         await websocket.accept() #pragma: no cover
-        if id_game not in self.active_connections: #pragma: no cover
+        if id_game not in self.active_connections:
             self.active_connections[id_game] = {} #pragma: no cover
-        if route not in self.active_connections[id_game]: #pragma: no cover
-            self.active_connections[id_game][route] = [] #pragma: no cover
-        self.active_connections[id_game][route].append((id_user, websocket)) #pragma: no cover
+        if route not in self.active_connections[id_game]:
+            self.active_connections[id_game][route] = {} #pragma: no cover
+        self.active_connections[id_game][route][id_user] = websocket #pragma: no cover
 
-    def disconnect(self, websocket: WebSocket, id_game: int, id_user: int, route: str = 'ws'):
-        self.active_connections[id_game][route].remove((id_user, websocket)) #pragma: no cover
-        if not self.active_connections[id_game][route]: #pragma: no cover
+    async def disconnect(self, id_game: int, id_user: int, route: str = 'ws'):
+        try:
+            await self.active_connections[id_game][route][id_user].close() #pragma: no cover
+        except RuntimeError:
+            pass
+        if not self.active_connections[id_game][route][id_user]:
+            del self.active_connections[id_game][route][id_user] #pragma: no cover
+        if not self.active_connections[id_game][route]:
             del self.active_connections[id_game][route] #pragma: no cover
-        if not self.active_connections[id_game]: #pragma: no cover
+        if not self.active_connections[id_game]:
             del self.active_connections[id_game] #pragma: no cover
 
     async def send_personal_message(self, message: str, id_game: int, id_user: int, route: str = 'ws'):
-        if id_game in self.active_connections and route in self.active_connections[id_game]: #pragma: no cover
-            for uid, ws in self.active_connections[id_game][route]: #pragma: no cover
-                if uid == id_user: #pragma: no cover
-                    await ws.send_text(message) #pragma: no cover
+        if id_game in self.active_connections and route in self.active_connections[id_game]:
+            for u in self.active_connections[id_game][route]: #pragma: no cover
+                if u == id_user:
+                    await self.active_connections[id_game][route][u].send_text(message) #pragma: no cover
                     break
 
     async def broadcast(self, message: str, id_game: int, route: str = 'ws'):
-        if id_game in self.active_connections and route in self.active_connections[id_game]: #pragma: no cover
-            for _, ws in self.active_connections[id_game][route]: #pragma: no cover
-                await ws.send_text(message) #pragma: no cover
+        if id_game in self.active_connections and route in self.active_connections[id_game]:
+            for u in self.active_connections[id_game][route]:
+                await self.active_connections[id_game][route][u].send_text(message) #pragma: no cover
 
 manager = ConnectionManager()

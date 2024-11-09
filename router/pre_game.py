@@ -140,7 +140,7 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
     await manager.connect(ws, id_game, id_user)
     try:
         while True:
-            await ws.receive_text()
+            await ws.receive_text() #pragma: no cover
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user)
+        await manager.disconnect(ws, id_game, id_user) #pragma: no cover
 
