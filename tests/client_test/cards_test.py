@@ -317,9 +317,9 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
     
         def mock_get(self, game_id):
             board = [
-            ["B", "B", "R", "Y", "G", "Y"], 
-            ["B", "B", "Y", "B", "R", "R"], 
-            ["Y", "Y", "G", "G", "B", "Y"], 
+            ["B", "R", "R", "Y", "G", "Y"], 
+            ["B", "B", "B", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
             ["Y", "B", "G", "G", "Y", "B"], 
             ["R", "G", "B", "Y", "G", "B"], 
             ["G", "R", "Y", "B", "G", "R"]
@@ -360,8 +360,8 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
         payload = {
             'id_game': 1,
             'id_player': users[0],
-            'name': 'fige02',
-            'figure_pos': [(0, 0), (0, 1), (1, 1), (1, 0)]
+            'name': 'fig01',
+            'figure_pos': [(0, 0), (0, 1), (0, 2), (1, 1), (2,1)]
         }
         response = client.post(url, json=payload)
         assert response.status_code == 409
