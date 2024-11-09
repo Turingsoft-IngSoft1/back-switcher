@@ -26,13 +26,17 @@ def new_profile():
     profile_id: str = PROFILES.get_new_profile()
     return profile_id
 
-@pre_game.get("/load_profile/{profile_id}")
+@pre_game.get("/load_profile/{profile_id}", response_model=list[GamesData])
 def load_games(profile_id: str):
-    prof = PROFILES.get_games(profile_id)
-    if prof is None:
+    profile = PROFILES.get_games(profile_id)
+    
+    if profile is None:
         raise HTTPException(status_code=404, detail="No se encontro un perfil valido.")
     else:
-        return prof
+        for id_game,id_user in profile:
+            g = get_game(id_game, SERVER_DB)
+            response = [GamesData(id_game=id_game, game_name=g.name, players=g.players, id_user=id_user, user_name='username')]
+        return response
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
 def get_active_players(id_game: int):

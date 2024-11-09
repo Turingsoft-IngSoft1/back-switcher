@@ -76,3 +76,10 @@ class UserData(BaseModel):
     name: str
     figures_available: list[str]
     figures_blocked: list[str]
+
+class GamesData(BaseModel):
+    id_game: int
+    game_name: str
+    players: int
+    id_user: int
+    user_name: str
