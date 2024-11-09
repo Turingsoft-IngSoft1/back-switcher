@@ -119,24 +119,24 @@ async def cancel_moves(id_game: int):
     else:
         return {"message": "No hay movimientos para cancelar."}
 
-@cards.post("/block_figure/{id_game}/{id_player}")
-async def block_figure_action(id_game: int, id_player: int, e: EntryFigure):
+@cards.post("/block_figure/{id_game}/{id_caller}/{id_target}")
+async def block_figure_action(fig:FigureBlock):
     """Bloquea una figura."""
     
     #Chequear que la figura de la carta bloqueada esté formada en el tablero.
-    detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.name])
+    detected_figures = detect_figures(PARTIAL_BOARDS.get(fig.id_game), [fig.figure_name])
     found = False
     for _ , _ , group_detected in detected_figures:
-        if set(e.figure_pos) == set(group_detected):
+        if set(fig.pos) == set(group_detected):
             found = True
             break
     if not found:
         raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
     
     #Chequear que el jugador no tenga figuras bloqueadas.
-    if SERVER_DB.query(FigureTable).filter_by(id_game=id_game, id_user=id_player, status="Blocked").count() > 0:
+    if SERVER_DB.query(FigureTable).filter_by(id_game=fig.id_game, id_user=fig.id_target, status="Blocked").count() > 0:
         raise HTTPException(status_code=409, detail="El jugador ya tiene una figura bloqueada.")
 
-    figure_queries.block_figure(id_game, id_player, e.name, SERVER_DB)
-    await manager.broadcast("REFRESH_FIGURES", id_game)
+    figure_queries.block_figure(fig.id_game, fig.id_target, fig.figure_name, SERVER_DB)
+    await manager.broadcast("REFRESH_FIGURES", fig.id_game)
     return {"message": "Figura bloqueada correctamente."}
