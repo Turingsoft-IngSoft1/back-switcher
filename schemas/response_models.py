@@ -74,4 +74,5 @@ class EntryFigure(BaseModel):
 class UserData(BaseModel):
     id_user: int
     name: str
-    figures: list[str]
+    figures_available: list[str]
+    figures_blocked: list[str]
