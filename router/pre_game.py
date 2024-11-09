@@ -137,10 +137,10 @@ async def cancel_game(id_game: int, id_caller: int):
 @pre_game.websocket("/ws/{id_game}/{id_user}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
     """Canal para que el servidor envie datos de la partida."""
-    await manager.connect(ws, id_game, id_user)
+    await manager.connect(ws, id_game, id_user, 'ws')
     try:
         while True:
             await ws.receive_text() #pragma: no cover
     except WebSocketDisconnect:
-        await manager.disconnect(ws, id_game, id_user) #pragma: no cover
+        manager.disconnect(id_game, id_user, 'ws') #pragma: no cover
 

@@ -128,7 +128,7 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
         while True:
             await ws.receive_text() #pragma: no cover
     except WebSocketDisconnect:
-        await manager.disconnect(id_game, id_user, 'chat') #pragma: no cover
+        manager.disconnect(id_game, id_user, 'chat') #pragma: no cover
 
 @game.post("/chat/{id_game}/{id_user}")
 async def send_message_chat(id_game: int, id_user: int, message: str):

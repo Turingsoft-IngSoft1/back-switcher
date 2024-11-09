@@ -15,16 +15,14 @@ class ConnectionManager:
             self.active_connections[id_game][route] = {} #pragma: no cover
         self.active_connections[id_game][route][id_user] = websocket #pragma: no cover
 
-    async def disconnect(self, id_game: int, id_user: int, route: str = 'ws'):
-        try:
-            await self.active_connections[id_game][route][id_user].close() #pragma: no cover
-        except RuntimeError:
-            pass
-        if not self.active_connections[id_game][route][id_user]:
-            del self.active_connections[id_game][route][id_user] #pragma: no cover
-        if not self.active_connections[id_game][route]:
-            del self.active_connections[id_game][route] #pragma: no cover
-        if not self.active_connections[id_game]:
+    def disconnect(self, id_game: int, id_user: int, route: str = 'ws'):
+        if self.active_connections[id_game]: 
+            if self.active_connections[id_game][route]:
+                if self.active_connections[id_game][route][id_user]:
+                    del self.active_connections[id_game][route][id_user] #pragma: no cover
+            else:
+                del self.active_connections[id_game][route] #pragma: no cover
+        else:
             del self.active_connections[id_game] #pragma: no cover
 
     async def send_personal_message(self, message: str, id_game: int, id_user: int, route: str = 'ws'):
