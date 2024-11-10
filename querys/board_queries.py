@@ -37,3 +37,14 @@ def update_board(id_game: int, matrix: list[list[str]], db):
     except BoardValidationError as e:
         db.rollback()
         print(f"Error: {e}")
+
+def update_color(id_game: int, color: str, db):
+    """Actualiza el color bloqueado del tablero."""
+    try:
+        b_table = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
+        b_table.color = color
+        db.commit()
+        print(f"Board {b_table.id} updated")
+    except BoardValidationError as e:
+        db.rollback()
+        print(f"Error: {e}")

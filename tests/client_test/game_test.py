@@ -133,7 +133,7 @@ def test_get_board_status(test_db, client):
             ['B','B','B','Y','Y','Y'],
             ['Y','Y','Y','Y','Y','Y']]
     
-    expected_json = {"board":sucess}
+    expected_json = {"board":sucess, "blocked_color": "NOT"}
     update_board(1,sucess,test_db)
 
     url_board= "http://localhost:8000/board_status/1"

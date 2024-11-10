@@ -2,7 +2,7 @@ from typing import  Dict
 from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures
+from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures, get_color
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -91,7 +91,8 @@ async def get_status(id_game: int):
 async def get_board_status(id_game: int):
     """Consultar estado del tablero."""
     if get_game(id_game=id_game,db=SERVER_DB) is not None:
-        return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB))
+        return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB),
+                           blocked_color=get_color(id_game=id_game, db=SERVER_DB))
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
 
