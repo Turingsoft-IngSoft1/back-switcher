@@ -314,12 +314,20 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
             print("Funcion mockeada.")
             x.sort()
         monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+        def mock_sample(x, y):
+            print("Funcion mockeada.")
+            ret = []
+            for i in range(y):
+                ret.append(x[i])
+            return ret
+        monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
     
         def mock_get(self, game_id):
             board = [
-            ["B", "R", "R", "Y", "G", "Y"], 
-            ["B", "B", "B", "B", "R", "R"], 
-            ["B", "Y", "G", "G", "B", "Y"], 
+            ["B", "B", "R", "Y", "G", "Y"], 
+            ["B", "B", "Y", "B", "R", "R"], 
+            ["G", "Y", "G", "G", "B", "Y"], 
             ["Y", "B", "G", "G", "Y", "B"], 
             ["R", "G", "B", "Y", "G", "B"], 
             ["G", "R", "Y", "B", "G", "R"]
@@ -360,8 +368,8 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
         payload = {
             'id_game': 1,
             'id_player': users[0],
-            'name': 'fig01',
-            'figure_pos': [(0, 0), (0, 1), (0, 2), (1, 1), (2,1)]
+            'name': 'fige02',
+            'figure_pos': [(0, 0), (0, 1), (1,0), (1, 1)]
         }
         response = client.post(url, json=payload)
         assert response.status_code == 409
