@@ -127,7 +127,7 @@ def verify_password(id_game: int, entered_pw: str, db):
     game = db.query(GameTable).filter(GameTable.id == id_game).first()
     if game.password == "":
         return entered_pw == game.password
-    return checkpw(entered_pw.encode(), game.password.encode())
+    return checkpw(entered_pw.encode(), game.password)
 
 #TODO test ->
 def check_length_password(entered_pw: str):
