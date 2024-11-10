@@ -97,11 +97,9 @@ async def get_board_status(id_game: int):
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
     if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
-
         if id_user in uid_by_turns(id_game,SERVER_DB):
-
             rf = get_revealed_figures(id_game,SERVER_DB)
-            figures = set(rf[id_user])
+            figures =  set(item for sublist in rf.values() for item in sublist)
             detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
             # [0]: color, [1]: figura, [2]: lista de coordenadas
             response: Dict[str, Dict[str, list]] = {}
