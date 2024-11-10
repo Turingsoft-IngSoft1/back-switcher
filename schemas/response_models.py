@@ -84,3 +84,10 @@ class GamesData(BaseModel):
     players: int
     id_user: int
     user_name: str
+
+class ActualGameData(BaseModel):
+    actual_board: list[list[str]]
+    blocked_color: str
+    actual_turn_player: int
+    available_moves: list[str]
+    partial_moves: list[str]

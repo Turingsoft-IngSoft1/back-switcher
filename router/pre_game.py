@@ -5,7 +5,7 @@ from querys.user_queries import *
 from querys.move_queries import *
 from querys.figure_queries import *
 from schemas.response_models import *
-from querys import create_board
+from querys import create_board, get_color
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
@@ -40,6 +40,25 @@ def load_games(profile_id: str):
                                           players=g.players,id_user=id_user,
                                           user_name=get_username(id_user, SERVER_DB)))
         return response
+
+@pre_game.get("/recover_game_data/{id_game}/{id_user}", response_model=ActualGameData)
+def get_game_actual_data(id_game: int, id_user: int):
+    
+    game = get_game(id_game, SERVER_DB)
+    if game is None or game.state != "Playing":
+        raise HTTPException(status_code=404, detail="La partida especificada no existe o todavia no comenzó.")
+    
+    users = uid_by_turns(id_game, SERVER_DB)
+    current_turn = get_game_turn(id_game, SERVER_DB) % get_players(id_game, SERVER_DB)
+
+    if id_user not in users:
+        raise HTTPException(status_code=404, detail="El usuario no existe en la partida.")
+
+    return ActualGameData(actual_board=PARTIAL_BOARDS.get(id_game),
+                          blocked_color=get_color(id_game, SERVER_DB),
+                          actual_turn_player=users[current_turn],
+                          available_moves=get_hand(id_game, id_user, SERVER_DB),
+                          partial_moves=get_partial_moves(id_game, id_user, SERVER_DB))
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
 def get_active_players(id_game: int):
