@@ -80,7 +80,8 @@ def test_get_status(test_db, client):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
     
@@ -88,7 +89,8 @@ def test_get_status(test_db, client):
     urljoin = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(urljoin, json=payload)
     

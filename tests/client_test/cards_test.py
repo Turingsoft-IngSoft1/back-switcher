@@ -356,7 +356,8 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
             "game_name": "PartidaEjemplo",
             "owner_name": "UsuarioEjemplo",
             "min_player": 2,
-            "max_player": 2
+            "max_player": 2,
+            "password": ""
         }
         client.post(url_create, json=payload)
     
@@ -364,7 +365,8 @@ def test_use_figures_invalid_color(client,test_db,monkeypatch):
         url_join = "http://localhost:8000/join_game"
         payload = {
             "id_game": 1,
-            "player_name": "UsuarioParaLlenarLobby"
+            "player_name": "UsuarioParaLlenarLobby",
+            "password": ""
         }
         client.post(url_join, json=payload)
     

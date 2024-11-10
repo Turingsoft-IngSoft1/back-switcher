@@ -79,7 +79,7 @@ def test_get_blocked_figures(monkeypatch,test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
-    newid = create_game("game1",2,2,test_db)
+    newid = create_game("game1",2,2,"",test_db)
     u1 = create_user("user1",newid,test_db)
     u2 = create_user("user2",newid,test_db)
     test_db.query(UserTable).filter_by(id=u2).update({"turn":1})
@@ -146,7 +146,7 @@ def test_use_figure(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_figures(1,2,test_db)
@@ -165,7 +165,7 @@ def test_block_figure(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_figures(1,2,test_db)
