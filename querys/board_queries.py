@@ -40,7 +40,6 @@ def update_board(id_game: int, matrix: list[list[str]], db):
 
 def update_color(id_game: int, color: str, db):
     """Actualiza el color bloqueado del tablero."""
-    assert(color == "B" or color == "Y" or color == "R" or color == "G")
     try:
         b_table = db.query(BoardTable).filter(BoardTable.id_game == id_game).first()
         b_table.color = color

@@ -2,7 +2,7 @@ from sqlite3 import IntegrityError
 import pytest
 
 from querys import create_board,get_board,get_color,update_board,update_color
-from models import BoardTable
+from models.board import BoardTable, BoardValidationError
 
 def test_create_board(test_db):
     
@@ -35,8 +35,9 @@ def test_get_board(test_db):
     assert comp_boards(tab.get_board(), get_board(1,test_db))
 
 def test_update_board(test_db):
+    BoardValidationError()
     #Caso 0:
-    sucess=[['R','R','R','R','R','R'],
+    success=[['R','R','R','R','R','R'],
             ['R','R','R','G','G','G'],
             ['G','G','G','G','G','G'],
             ['B','B','B','B','B','B'],
@@ -83,24 +84,45 @@ def test_update_board(test_db):
     
     #C0
     create_board(id_game=1,db=test_db)
-    update_board(1,sucess,test_db)
-    assert comp_boards(sucess, get_board(1,test_db))
+    update_board(1,success,test_db)
+    assert comp_boards(success, get_board(1,test_db))
     
 
     #C1: Deberia hacer rollback cuando intenta updatear.
     create_board(id_game=2,db=test_db)
-    update_board(2,error1,test_db)
-    assert not comp_boards(error1, get_board(2,test_db))
+    try:
+        update_board(2,error1,test_db)
+    except BoardValidationError as e:
+        pass
+    finally:
+        assert not comp_boards(error1, get_board(2,test_db))
 
     #C2: Deberia hacer rollback cuando intenta updatear.
     create_board(id_game=3,db=test_db)
-    update_board(3,error2,test_db)
-    assert not comp_boards(error1, get_board(3,test_db))
+    try:
+        update_board(3,error2,test_db)
+    except BoardValidationError as e:
+        pass
+    finally:
+        assert not comp_boards(error2, get_board(3,test_db))
 
     #C3: Deberia hacer rollback cuando intenta updatear.
     create_board(id_game=4,db=test_db)
-    update_board(4,error3,test_db)
-    assert not comp_boards(error1, get_board(4,test_db))
+    try:
+        update_board(4,error3,test_db)
+    except BoardValidationError as e:
+        pass
+    finally:
+        assert not comp_boards(error3, get_board(4,test_db))
+
+    #C4
+    create_board(id_game=5,db=test_db)
+    try:
+        update_board(5,error4,test_db)
+    except BoardValidationError as e:
+        pass
+    finally:
+        assert not comp_boards(error4, get_board(5,test_db))
 
 def test_color_change(test_db):
     
@@ -116,6 +138,14 @@ def test_color_change(test_db):
 
     update_color(1,"Y",test_db)
     assert get_color(1,test_db) == "Y"
+
+    try:
+        update_color(1,'P',test_db)
+    except BoardValidationError as e:
+        pass
+    finally:
+        assert get_color(1,test_db) != "P"
+        assert get_color(1,test_db) == "Y"
 
 @staticmethod
 def comp_boards(b1: list[list[str]], b2: list[list[str]]):
