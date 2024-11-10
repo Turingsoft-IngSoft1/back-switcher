@@ -76,7 +76,7 @@ async def join(e: JoinEntry):
                                db=SERVER_DB)
             await manager.broadcast(f"{p_id} JOIN",e.id_game)
         else:
-            HTTPException(status_code=403, detail="Contraseña incorrecta.")
+            raise HTTPException(status_code=403, detail="Contraseña incorrecta.")
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 
@@ -145,10 +145,10 @@ async def cancel_game(id_game: int, id_caller: int):
 @pre_game.websocket("/ws/{id_game}/{id_user}")
 async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
     """Canal para que el servidor envie datos de la partida."""
-    await manager.connect(ws, id_game, id_user, 'ws')
+    await manager.connect(ws, id_game, id_user)
     try:
         while True:
-            await ws.receive_text() #pragma: no cover
+            await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(id_game, id_user, 'ws') #pragma: no cover
+        manager.disconnect(ws, id_game, id_user)
 
