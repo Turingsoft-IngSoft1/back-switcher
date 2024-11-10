@@ -77,16 +77,18 @@ async def use_figures(e: EntryFigure):
     
     detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.name])
     found = False
-    #color = "NOT" // Color bloqueado
-    for _ , _ , group_detected in detected_figures:
+    color = "NOT"
+    for color_detected , _ , group_detected in detected_figures:
         if set(e.figure_pos) == set(group_detected):
             found = True
-            #color = color_detected // Color bloqueado
+            color = color_detected
             break
     
     if not found:
         raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
-    
+    elif color == get_color(e.id_game, SERVER_DB):
+        raise HTTPException(status_code=409, detail="El color de la figura está bloqueado.")
+
     if get_played(e.id_game, SERVER_DB) > 0:
         discard_move(e.id_game, e.id_player, SERVER_DB)
         
@@ -94,6 +96,7 @@ async def use_figures(e: EntryFigure):
     update_board(id_game=e.id_game,
                  matrix=PARTIAL_BOARDS.get(e.id_game),
                  db=SERVER_DB)
+    update_color(e.id_game, color, SERVER_DB)
     await manager.broadcast("REFRESH_BOARD", e.id_game)
     await manager.broadcast("REFRESH_FIGURES", e.id_game)
 

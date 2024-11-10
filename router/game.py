@@ -1,8 +1,8 @@
 from typing import  Dict
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from querys.game_queries import *
 from querys.user_queries import *
-from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures
+from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures, get_color
 from schemas.response_models import InGame,BoardStatus,UserData
 from utils.ws import manager
 from utils.database import SERVER_DB
@@ -86,7 +86,8 @@ async def get_status(id_game: int):
 async def get_board_status(id_game: int):
     """Consultar estado del tablero."""
     if get_game(id_game=id_game,db=SERVER_DB) is not None:
-        return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB))
+        return BoardStatus(board=get_board(id_game=id_game, db=SERVER_DB),
+                           blocked_color=get_color(id_game=id_game, db=SERVER_DB))
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
 
@@ -94,11 +95,9 @@ async def get_board_status(id_game: int):
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
     if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
-
         if id_user in uid_by_turns(id_game,SERVER_DB):
-
             rf = get_revealed_figures(id_game,SERVER_DB)
-            figures = set(rf[id_user])
+            figures =  set(item for sublist in rf.values() for item in sublist)
             detected_figures = detect_figures(PARTIAL_BOARDS.get(id_game),figures)
             # [0]: color, [1]: figura, [2]: lista de coordenadas
             response: Dict[str, Dict[str, list]] = {}
@@ -116,3 +115,33 @@ async def detect_figures_on_board(id_game: int, id_user: int):
     else:
         raise HTTPException(status_code=404,
                             detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
+    
+
+@game.websocket("/chat/{id_game}/{id_user}")
+async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
+    """Canal para que el servidor envie datos de la partida."""
+    await manager.connect(ws, id_game, id_user, 'chat') #pragma: no cover
+    try:
+        while True:
+            await ws.receive_text() #pragma: no cover
+    except WebSocketDisconnect:
+        manager.disconnect(id_game, id_user, 'chat') #pragma: no cover
+
+@game.post("/chat/{id_game}/{id_user}")
+async def send_message_chat(id_game: int, id_user: int, message: str):
+    """Enviar mensaje de chat."""
+    game = get_game(id_game=id_game, db=SERVER_DB)
+    if not game:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
+
+    users = uid_by_turns(id_game, SERVER_DB)
+    if id_user not in users:
+        raise HTTPException(status_code=404, detail=f"El usuario con id_user={id_user} no existe en la partida.")
+
+    recipient_users = [user for user in users if user != id_user]
+    sender_name = get_username(id_user, SERVER_DB)
+
+    for user in recipient_users:
+        await manager.send_personal_message(f"{sender_name}: {message}", id_game, user, 'chat')
+
+    return {"message": "Message sent."}
