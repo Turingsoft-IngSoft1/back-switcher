@@ -114,7 +114,7 @@ async def start(id_game: int):
         PARTIAL_BOARDS.initialize(id_game, SERVER_DB)
         
         #timer
-        await initialize_timer(id_game)
+        initialize_timer(id_game)
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
     

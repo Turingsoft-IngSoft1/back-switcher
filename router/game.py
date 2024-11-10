@@ -73,7 +73,7 @@ async def skip(e: InGame):
     
     #timer
     await stop_timer(e.id_game)
-    await start_timer(e.id_game)
+    start_timer(e.id_game)
     
     return {"Skip Successful."}
 
