@@ -33,29 +33,42 @@ class GameTimer:
 # Diccionario para almacenar los timers por ID de partida.
 game_timers: Dict[int, GameTimer] = {}
 
-async def initialize_timer(id_game: int):
+def initialize_timer(id_game: int):
     """Función para inicializar el temporizador para un juego específico."""
     if id_game not in game_timers:
         game_timers[id_game] = GameTimer()
         
-    game_timers[id_game].start()
+        
+def start_timer(id_game: int):
+    if id_game in game_timers:
+        game_timers[id_game].start()
+        
+        # Inicia el loop del temporizador si no está en ejecución
+        if not getattr(game_timers[id_game], "timer_task", None):
+            game_timers[id_game].timer_task = create_task(timer_loop(id_game))
     
-    # Inicia el loop del temporizador si no está en ejecución
-    if not getattr(game_timers[id_game], "timer_task", None):
-        game_timers[id_game].timer_task = create_task(timer_loop(id_game))
+    
 
     
 async def stop_timer(id_game: int):
     """Función para detener el timer."""
     if id_game in game_timers:
         game_timers[id_game].stop()
+        if getattr(game_timers[id_game], "timer_task", None):
+            task = game_timers[id_game].timer_task
+            task.cancel()  # Cancelamos la tarea
+
+            # Comprobar si la tarea no ha sido cancelada y esperar su finalización
+            if not task.done():
+                await task
+
 
 async def timer_loop(id_game: int):
     """Función asincrónica para enviar el tiempo restante en un bucle."""
     while id_game in game_timers:
         remaining_time = game_timers[id_game].time_remaining()
         await manager.broadcast(f"{remaining_time} seconds.", id_game)
-        await sleep(10)
+        await sleep(120)
         if not game_timers[id_game].is_running:
             break
         if remaining_time <= 0:
