@@ -33,7 +33,10 @@ def create(e: CreateEntry):
     # En caso de exito se debe retornar {id_player,id_game}.
     # Se debe crear un game_schema.Game.
     # TODO Agregar TESTs ->
-
+    
+    if check_length_password(e.password):
+        raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
+    
     new_id_game = create_game(name=e.game_name,
                               max_players=e.max_player,
                               min_players=e.min_player,
@@ -62,6 +65,9 @@ async def join(e: JoinEntry):
     # Se deben aplicar todos los cambios a la estructura interna de la paritda.
     # TODO Testing ->
     if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
+        if check_length_password(e.password):
+            raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
+        
         if verify_password(e.id_game, e.password, SERVER_DB):
             add_player(id_game=e.id_game,
                        db=SERVER_DB)

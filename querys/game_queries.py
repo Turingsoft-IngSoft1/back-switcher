@@ -8,12 +8,15 @@ def create_game(name: str, max_players: int, min_players: int, password: str, db
     """Crea una partida y la inserta en la base de datos."""
     try:
         hashed_pw = password
-        if password != "password":
+        is_private= False
+        if password != "":
             hashed_pw = hashpw(password.encode(), gensalt())
+            is_private = True
         new_game = GameTable(name=name,
                              max_players=max_players,
                              min_players=min_players,
-                             password=hashed_pw)
+                             password=hashed_pw,
+                             private=is_private)
         db.add(new_game)
         db.commit()
         db.refresh(new_game)
@@ -38,7 +41,8 @@ def get_game(id_game: int, db) -> game_schema.Game: #Tested
                                 players=game_ret.players,
                                 max_players=game_ret.max_players,
                                 min_players=game_ret.min_players,
-                                password=game_ret.password)
+                                password=game_ret.password,
+                                private=game_ret.private)
     else:
         return None
 
@@ -56,7 +60,8 @@ def listing_games(db) -> list[game_schema.Game]: #Tested
                                           players=game.players,
                                           max_players=game.max_players,
                                           min_players=game.min_players,
-                                          password=game.password))
+                                          password=f"{game.private}",
+                                          private=game.private))
     return game_list
 
 
@@ -119,8 +124,13 @@ def remove_game(id_game: int, db):
         print(f"Error: {e}") #pragma: no cover
     
 def verify_password(id_game: int, entered_pw: str, db):
-    """Compara la contraseña ingresada con la guardad en la base de datos."""
+    """Compara la contraseña ingresada con la guardada en la base de datos."""
     game = db.query(GameTable).filter(GameTable.id == id_game).first()
-    if game.password == "password":
+    if game.password == "":
         return entered_pw == game.password
     return checkpw(entered_pw.encode(), game.password.encode())
+
+#TODO test ->
+def check_length_password(entered_pw: str):
+    """Valida el largo de la contraseña ingresada."""
+    return entered_pw != "" and len(entered_pw)<6

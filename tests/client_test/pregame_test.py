@@ -9,7 +9,7 @@ def test_create_game(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 3,
         "max_player": 4,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     assert response.status_code == 200
@@ -19,7 +19,7 @@ def test_create_game(client):
         "owner_name": "UsuarioErroneo",
         "min_player": 2,
         "max_player": 1,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     assert response.status_code == 422
@@ -32,7 +32,7 @@ def test_list_game(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 3,
         "max_player": 4,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     #Listar partidas, solo deberia aparecer PartidaEjemplo.
@@ -48,7 +48,7 @@ def test_list_game(client):
                 "players": 1,
                 "max_players": 4,
                 "min_players": 3,
-                "password": "password"
+                "password": ""
             }
         ]
     }
@@ -66,7 +66,7 @@ def test_join_game(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 3,
         "max_player": 4,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     #Unir a UsuarioUnido a la partida.
@@ -74,7 +74,7 @@ def test_join_game(client):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioUnido",
-        "password": "password"
+        "password": ""
     }
 
     expected_json = {
@@ -95,7 +95,7 @@ def test_active_players(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     #Listar jugadores activos en el juego con id 1.
@@ -124,7 +124,7 @@ def test_start_game(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     response = client.post(url, json=payload)
     #Inteto errorneo de iniciar partida.
@@ -142,7 +142,7 @@ def test_start_game(client):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload)
     #Se inicia partida correctamente.
@@ -162,7 +162,7 @@ def test_cancel_game(mock_server_db,test_db,client):
         "owner_name": "UsuarioEjemplo1",
         "min_player": 2,
         "max_player": 4,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload1)
     #Unir a UsuarioParaLlenarLobby a la partida.
@@ -170,19 +170,19 @@ def test_cancel_game(mock_server_db,test_db,client):
     payload1 = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby1",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload1)
     payload2 = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby2",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload2)
     payload3 = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby3",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload3)
 
@@ -214,7 +214,7 @@ def test_cancel_game(mock_server_db,test_db,client):
         "owner_name": "UsuarioEjemplo2",
         "min_player": 2,
         "max_player": 4,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload1)
     #Unir a UsuarioParaLlenarLobby a la partida.
@@ -222,19 +222,19 @@ def test_cancel_game(mock_server_db,test_db,client):
     payload1 = {
         "id_game": 2,
         "player_name": "UsuarioParaLlenarLobby1",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload1)
     payload2 = {
         "id_game": 2,
         "player_name": "UsuarioParaLlenarLobby2",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload2)
     payload3 = {
         "id_game": 2,
         "player_name": "UsuarioParaLlenarLobby3",
-        "password": "password"
+        "password": ""
     }
     client.post(urljoin, json=payload3)
 

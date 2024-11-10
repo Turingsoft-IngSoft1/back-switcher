@@ -10,7 +10,7 @@ def test_get_moves(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
     
@@ -19,7 +19,7 @@ def test_get_moves(client):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
     
@@ -49,7 +49,7 @@ def test_get_figures(client):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -58,7 +58,7 @@ def test_get_figures(client):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join,json=payload)
 
@@ -85,7 +85,7 @@ def test_use_moves_success(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -94,7 +94,7 @@ def test_use_moves_success(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -131,7 +131,7 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -140,7 +140,7 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -177,7 +177,7 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -186,7 +186,7 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -223,7 +223,7 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -232,7 +232,7 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -291,7 +291,7 @@ def test_use_figures_success(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -300,7 +300,7 @@ def test_use_figures_success(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -349,7 +349,7 @@ def test_use_figures_invalid_turn(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -358,7 +358,7 @@ def test_use_figures_invalid_turn(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -407,7 +407,7 @@ def test_use_figures_invalid_figure(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -416,7 +416,7 @@ def test_use_figures_invalid_figure(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -465,7 +465,7 @@ def test_use_figures_invalid_position(client,test_db,monkeypatch):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -474,7 +474,7 @@ def test_use_figures_invalid_position(client,test_db,monkeypatch):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -510,7 +510,7 @@ def test_cancel_moves(client, monkeypatch, test_db):
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
         "max_player": 2,
-        "password": "password"
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -519,7 +519,7 @@ def test_cancel_moves(client, monkeypatch, test_db):
     payload = {
         "id_game": 1,
         "player_name": "UsuarioParaLlenarLobby",
-        "password": "password"
+        "password": ""
     }
     client.post(url_join, json=payload)
 

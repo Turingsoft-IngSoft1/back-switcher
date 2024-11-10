@@ -5,7 +5,7 @@ from utils.partial_boards import BoardsManager
 from querys import create_game,create_board,get_board
 
 def test_partial_boards(test_db):
-    id=create_game("Juego",2,2,"password",test_db)
+    id=create_game("Juego",2,2,"",test_db)
     create_board(id,test_db)
     partials_boards = BoardsManager()
     partials_boards.initialize(id,test_db)
@@ -18,7 +18,7 @@ def test_update_partial_boards(test_db,monkeypatch):
         pass
     monkeypatch.setattr('models.board.shuffle', mock_shuffle)
     
-    id=create_game("Juego1",2,2,"password",test_db)
+    id=create_game("Juego1",2,2,"",test_db)
     create_board(id,test_db)
     partials_boards = BoardsManager()
     partials_boards.initialize(id,test_db)
@@ -43,7 +43,7 @@ def test_update_partial_boards(test_db,monkeypatch):
 def test_create_multiple_boards(test_db):
     partial_boards = BoardsManager()
     for i in range(50):
-        id = create_game(f"Juego{i}",2,2,"password",test_db)
+        id = create_game(f"Juego{i}",2,2,"",test_db)
         create_board(id,test_db)
         partial_boards.initialize(id,test_db)
     
@@ -52,7 +52,7 @@ def test_create_multiple_boards(test_db):
 
 def test_delete_partial_board(test_db):
     partial_boards = BoardsManager()
-    id = create_game(f"JuegoN",2,2,"password",test_db)
+    id = create_game(f"JuegoN",2,2,"",test_db)
     create_board(id,test_db)
     partial_boards.initialize(id,test_db)
     partial_boards.remove(id)

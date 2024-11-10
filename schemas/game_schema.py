@@ -10,4 +10,5 @@ class Game(BaseModel):
     players: int = Field(description="Number of players that have joined the game)")
     max_players: int = Field(description="Maximum number of players that can join the game.")
     min_players: int = Field(description="Minimum number of players that can join the game.")
-    password: str = Field(min_length=1, max_length=60, description="Password of the game.")
+    password: str = Field(min_length=0, max_length=60, description="Password of the game.")
+    private: bool = Field(description="Specifies if the game is private or not.")

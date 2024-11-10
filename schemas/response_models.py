@@ -33,14 +33,14 @@ class CreateEntry(BaseModel):
     owner_name: str = Field(min_length=1, max_length=100, description="Unique string that specifies this player.")
     min_player: int = Field(ge=2, le=4, description="Game's minimum player number.")
     max_player: int = Field(ge=2, le=4, description="Game's maximum player number.")
-    password: str = Field(min_length=8, max_length=100, description="Password for the game.")
+    password: str = Field(min_length=0, max_length=100, description="Password for the game.")
 
 
 class JoinEntry(BaseModel):
     """Json de entrada para unirse a partida"""
     id_game: int = Field(ge=1, description="Game's unique ID.")
     player_name: str = Field(min_length=1, max_length=100, description="New player's name.")
-    password: str = Field(min_length=8, max_length=100, description="Password for the game.")
+    password: str = Field(min_length=0, max_length=100, description="Password for the game.")
 
 
 class CurrentUsers(BaseModel):
