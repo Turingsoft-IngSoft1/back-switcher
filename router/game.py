@@ -1,5 +1,5 @@
 from typing import  Dict
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,WebSocket,WebSocketDisconnect
 from querys.game_queries import *
 from querys.user_queries import *
 from querys import get_board,get_revealed_figures,unplay_moves, get_blocked_figures
@@ -121,3 +121,33 @@ async def detect_figures_on_board(id_game: int, id_user: int):
     else:
         raise HTTPException(status_code=404,
                             detail=f"El juego con id_game={id_game} no existe o todavia no comenzo.")
+    
+
+@game.websocket("/chat/{id_game}/{id_user}")
+async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
+    """Canal para que el servidor envie datos de la partida."""
+    await manager.connect(ws, id_game, id_user, 'chat') #pragma: no cover
+    try:
+        while True:
+            await ws.receive_text() #pragma: no cover
+    except WebSocketDisconnect:
+        manager.disconnect(id_game, id_user, 'chat') #pragma: no cover
+
+@game.post("/chat/{id_game}/{id_user}")
+async def send_message_chat(id_game: int, id_user: int, message: str):
+    """Enviar mensaje de chat."""
+    game = get_game(id_game=id_game, db=SERVER_DB)
+    if not game:
+        raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
+
+    users = uid_by_turns(id_game, SERVER_DB)
+    if id_user not in users:
+        raise HTTPException(status_code=404, detail=f"El usuario con id_user={id_user} no existe en la partida.")
+
+    recipient_users = [user for user in users if user != id_user]
+    sender_name = get_username(id_user, SERVER_DB)
+
+    for user in recipient_users:
+        await manager.send_personal_message(f"{sender_name}: {message}", id_game, user, 'chat')
+
+    return {"message": "Message sent."}
