@@ -19,7 +19,6 @@ def test_create_game(test_db):
     except IntegrityError:
         pass
     
-
 def test_get_game(test_db):
     try:
         game_id = game_queries.create_game("Europas evija hjarta", 4, 2, "", test_db)

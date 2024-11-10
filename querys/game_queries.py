@@ -111,7 +111,6 @@ def remove_player(id_game: int, db): #Tested
     db.query(GameTable).filter(GameTable.id == id_game).update({GameTable.players: tab.players - 1})
     db.commit()
 
-
 def remove_game(id_game: int, db): 
     """Elimina de la base de datos la partida con el id correspondiente."""
     to_remove = db.query(GameTable).filter(GameTable.id == id_game).first()

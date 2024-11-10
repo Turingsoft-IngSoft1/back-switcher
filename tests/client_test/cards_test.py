@@ -1,6 +1,6 @@
 from pytest import MonkeyPatch
 import json
-from querys import uid_by_turns, get_revealed_figures, get_board
+from querys import uid_by_turns, get_revealed_figures, get_board, update_color
 
 def test_get_moves(client):
     #Crear PartidaEjemplo y UsuarioEjemplo.    
@@ -321,6 +321,72 @@ def test_use_figures_success(client,test_db,monkeypatch):
     }
     response = client.post(url, json=payload)
     assert response.status_code == 200
+
+def test_use_figures_invalid_color(client,test_db,monkeypatch):
+    
+        def mock_shuffle(x):
+            print("Funcion mockeada.")
+            x.sort()
+        monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+        def mock_sample(x, y):
+            print("Funcion mockeada.")
+            ret = []
+            for i in range(y):
+                ret.append(x[i])
+            return ret
+        monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+        def mock_get(self, game_id):
+            board = [
+            ["B", "B", "R", "Y", "G", "Y"], 
+            ["B", "B", "Y", "B", "R", "R"], 
+            ["G", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+            ]
+    
+            return board
+        monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+    
+        #Crear PartidaEjemplo y UsuarioEjemplo.
+        url_create = "http://localhost:8000/create_game"
+        payload = {
+            "game_name": "PartidaEjemplo",
+            "owner_name": "UsuarioEjemplo",
+            "min_player": 2,
+            "max_player": 2
+        }
+        client.post(url_create, json=payload)
+    
+        #Unir a jugador2 para poder iniciar partida.
+        url_join = "http://localhost:8000/join_game"
+        payload = {
+            "id_game": 1,
+            "player_name": "UsuarioParaLlenarLobby"
+        }
+        client.post(url_join, json=payload)
+    
+        #Se inicia la partida.
+        url_start = "http://localhost:8000/start_game/1"
+        client.post(url_start)
+
+        update_color(1, "B", test_db)
+
+        #Pruebas de usar figuras.
+        users = uid_by_turns(1,test_db)
+        url = "http://localhost:8000/use_figures"
+    
+        #Intentar jugar figura con color invalido.
+        payload = {
+            'id_game': 1,
+            'id_player': users[0],
+            'name': 'fige02',
+            'figure_pos': [(0, 0), (0, 1), (1,0), (1, 1)]
+        }
+        response = client.post(url, json=payload)
+        assert response.status_code == 409
 
 def test_use_figures_invalid_turn(client,test_db,monkeypatch):
 

@@ -243,4 +243,3 @@ def test_cancel_game(mock_server_db,test_db,client):
 
     response = client.post(url)
     assert response.status_code == 200
-

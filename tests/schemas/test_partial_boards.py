@@ -1,6 +1,4 @@
 from pytest import MonkeyPatch
-
-
 from utils.partial_boards import BoardsManager
 from querys import create_game,create_board,get_board
 

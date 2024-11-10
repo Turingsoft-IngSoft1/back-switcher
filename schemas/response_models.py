@@ -54,6 +54,7 @@ class InGame(BaseModel):
 
 class BoardStatus(BaseModel):
     board: list[list[str]] = Field(description="Game's actual board status.")
+    blocked_color: str
     
 class ResponseMoves(BaseModel):
     moves: list[str] = Field(description="List of move names.")
@@ -76,4 +77,5 @@ class EntryFigure(BaseModel):
 class UserData(BaseModel):
     id_user: int
     name: str
-    figures: list[str]
+    figures_available: list[str]
+    figures_blocked: list[str]

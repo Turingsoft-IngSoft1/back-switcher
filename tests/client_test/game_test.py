@@ -72,7 +72,53 @@ def test_skip_turn(client):
     response = client.post(url, json=payload)
     assert response.status_code == 200
 
-def test_get_board_status(test_db,client):
+#TODO agregar caso de test cuando este el endpoint de bloquear figuras.
+def test_get_status(test_db, client):
+    #Crear PartidaEjempo y UsuarioEjemplo. 
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2
+    }
+    client.post(url_create, json=payload)
+    
+    #Unir a UsuarioParaLlenarLobby a la partida.
+    urljoin = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby"
+    }
+    client.post(urljoin, json=payload)
+    
+    #Se inicia la partida.
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+    
+    #Obtener el status de la partida.
+    url_status = "http://localhost:8000/game_status/1"
+    response = client.get(url_status)
+    
+    assert response.status_code == 200
+    
+    response_data = response.json()
+    
+    assert isinstance(response_data, list)
+    for user in response_data:
+        assert "id_user" in user
+        assert "name" in user
+        assert "figures_available" in user
+        assert "figures_blocked" in user
+
+        if user["id_user"] == 1:
+            assert len(user["figures_available"]) == 3
+            assert len(user["figures_blocked"]) == 0
+        elif user["id_user"] == 2:
+            assert len(user["figures_available"]) == 3
+            assert len(user["figures_blocked"]) == 0
+    
+def test_get_board_status(test_db, client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
     url_create = "http://localhost:8000/create_game"
     payload = {
@@ -91,7 +137,7 @@ def test_get_board_status(test_db,client):
             ['B','B','B','Y','Y','Y'],
             ['Y','Y','Y','Y','Y','Y']]
     
-    expected_json = {"board":sucess}
+    expected_json = {"board":sucess, "blocked_color": "NOT"}
     update_board(1,sucess,test_db)
 
     url_board= "http://localhost:8000/board_status/1"
