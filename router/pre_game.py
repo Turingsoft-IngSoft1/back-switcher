@@ -33,13 +33,12 @@ def load_games(profile_id: str):
     if profile is None:
         raise HTTPException(status_code=404, detail="No se encontro un perfil valido.")
     else:
-        for id_game,id_user in profile:
-            g = get_game(id_game, SERVER_DB)
-            response = [GamesData(id_game=id_game,
-                                  game_name=g.name,
-                                  players=g.players,
-                                  id_user=id_user,
-                                  user_name=get_username(id_user,SERVER_DB))]
+        response = []
+        for id_game, id_user in profile:
+            if (g:=get_game(id_game, SERVER_DB)): 
+                response.append(GamesData(id_game=id_game,game_name=g.name,
+                                          players=g.players,id_user=id_user,
+                                          user_name=get_username(id_user, SERVER_DB)))
         return response
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
