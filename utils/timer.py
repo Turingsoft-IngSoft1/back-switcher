@@ -52,7 +52,7 @@ def remove_timer(id_game: int):
     if id_game in GAME_TIMERS:
         del GAME_TIMERS[id_game]
 
-async def timer_restart(id_game: int):
+async def restart_timer(id_game: int):
     """Salta el turno si el timer termina."""
     while id_game in GAME_TIMERS and (not KILL_APP):
         remaining_time = GAME_TIMERS[id_game].time_remaining()
