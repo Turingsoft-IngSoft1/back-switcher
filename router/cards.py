@@ -4,8 +4,7 @@ from querys.move_queries import *
 from querys.game_queries import *
 from querys.figure_queries import *
 from querys.board_queries import *
-from querys import is_user_current_turn
-from querys import figure_queries
+from querys import is_user_current_turn, get_username
 
 from schemas.response_models import *
 from schemas.move_schema import Move
@@ -33,7 +32,6 @@ async def get_moves(id_player: int, id_game: int):
     current_hand = get_hand(id_game, id_player, SERVER_DB)
 
     return ResponseMoves(moves=current_hand)
-
 
 @cards.post("/use_moves")
 async def use_moves(e: EntryMove):
@@ -97,6 +95,22 @@ async def use_figures(e: EntryFigure):
                  matrix=PARTIAL_BOARDS.get(e.id_game),
                  db=SERVER_DB)
     update_color(e.id_game, color, SERVER_DB)
+    
+    player = get_username(e.id_player, SERVER_DB)
+    
+    await manager.broadcast(f"{player} HA JUGADO UNA CARTA DE FIGURA", e.id_game, 'chat')
+    
+    color = get_color(e.id_game, SERVER_DB)
+    if color == "R":
+        color = "ROJO"
+    elif color == "G":
+        color = "VERDE"
+    elif color == "Y":
+        color = "AMARILLO"
+    elif color == "B":
+        color = "AZUL"
+
+    await manager.broadcast(f"SE HA BLOQUEADO EL COLOR {color}", e.id_game, 'chat')  
     await manager.broadcast("REFRESH_BOARD", e.id_game)
     await manager.broadcast("REFRESH_FIGURES", e.id_game)
 
@@ -155,5 +169,22 @@ async def block_figure_action(e: FigureBlock):
                  matrix=PARTIAL_BOARDS.get(e.id_game),
                  db=SERVER_DB)
     update_color(e.id_game, color, SERVER_DB)
+    
+    caller = get_username(e.id_caller, SERVER_DB)
+    target = get_username(e.id_target, SERVER_DB)
+    
+    await manager.broadcast(f"{caller} HA BLOQUEADO UNA CARTA A {target}", e.id_game, 'chat') 
+    
+    color = get_color(e.id_game, SERVER_DB)
+    if color == "R":
+        color = "ROJO"
+    elif color == "G":
+        color = "VERDE"
+    elif color == "Y":
+        color = "AMARILLO"
+    elif color == "B":
+        color = "AZUL"
+
+    await manager.broadcast(f"SE HA BLOQUEADO EL COLOR {color}", e.id_game, 'chat')    
     await manager.broadcast("REFRESH_FIGURES", e.id_game)
     return {"message": "Figura bloqueada correctamente."}

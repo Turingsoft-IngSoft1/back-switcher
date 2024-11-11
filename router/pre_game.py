@@ -116,6 +116,8 @@ async def join(e: JoinEntry, profile_id: str = ""):
                                id_game=e.id_game,
                                db=SERVER_DB)
             PROFILES.add_game(profile_id, e.id_game, id_user)
+            user = get_username(id_user, SERVER_DB)
+            await manager.broadcast(f"{user} SE HA UNIDO A LA SALA", e.id_game, 'chat')
             await manager.broadcast(f"{id_user} JOIN",e.id_game)
         else:
             raise HTTPException(status_code=403, detail="Contraseña incorrecta.")

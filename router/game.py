@@ -11,13 +11,13 @@ from utils.boardDetect import detect_figures
 from utils.profiles import PROFILES
 game = APIRouter()
 
-
 # Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
 @game.post("/leave_game")
 async def leave(e: InGame, profile_id: str = ""):
     """Abandonar Partida."""
     # En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
+    user = get_username(e.id_player, SERVER_DB)
     if is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
         remove_player(e.id_game,SERVER_DB)
         remove_user(e.id_player,SERVER_DB)
@@ -34,6 +34,11 @@ async def leave(e: InGame, profile_id: str = ""):
         remove_user(e.id_player,SERVER_DB)
         reorder_turns(e.id_game,SERVER_DB)
         await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
+    
+    if get_game_state(e.id_game,SERVER_DB) == "Playing":
+        await manager.broadcast(f"{user} HA ABANDONADO LA PARTIDA", e.id_game, 'chat')
+    elif get_game_state(e.id_game,SERVER_DB) == "Waiting":
+        await manager.broadcast(f"{user} HA ABANDONADO LA SALA", e.id_game, 'chat')
 
     #Ganar por abando.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
@@ -49,7 +54,6 @@ async def leave(e: InGame, profile_id: str = ""):
     PROFILES.remove_game(profile_id,e.id_game,e.id_player)
     
     return {"message": "Exit Successful."}
-
 
 @game.post("/skip_turn")
 async def skip(e: InGame):
