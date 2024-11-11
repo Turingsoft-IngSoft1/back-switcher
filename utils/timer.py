@@ -45,7 +45,6 @@ async def start_timer(id_game: int):
     """Función para comenzar el timer."""
     if id_game in GAME_TIMERS:
         GAME_TIMERS[id_game].start()
-        await manager.broadcast("TIMER_START", id_game)
                 
 def remove_timer(id_game: int):
     """Elimina el timer de la partida."""
