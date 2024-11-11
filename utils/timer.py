@@ -12,7 +12,7 @@ class GameTimer:
     """Clase para manejar timers."""
     def __init__(self):
         self.start_time = None
-        self.duration = 120
+        self.duration = 10
         self.is_running = False
 
     def start(self):
@@ -34,43 +34,33 @@ class GameTimer:
 game_timers: Dict[int, GameTimer] = {}
 
 def initialize_timer(id_game: int):
-    """Función para inicializar el temporizador para un juego específico."""
+    """Función para inicializar el timer."""
     if id_game not in game_timers:
         game_timers[id_game] = GameTimer()
         
-        
-def start_timer(id_game: int):
+async def start_timer(id_game: int):
+    """Función para comenzar el timer."""
     if id_game in game_timers:
         game_timers[id_game].start()
-        
-        # Inicia el loop del temporizador si no está en ejecución
-        if not getattr(game_timers[id_game], "timer_task", None):
-            game_timers[id_game].timer_task = create_task(timer_loop(id_game))
-    
-    
-
+        await manager.broadcast("TIMER_START", id_game)
     
 async def stop_timer(id_game: int):
     """Función para detener el timer."""
     if id_game in game_timers:
         game_timers[id_game].stop()
-        if getattr(game_timers[id_game], "timer_task", None):
-            task = game_timers[id_game].timer_task
-            task.cancel()  # Cancelamos la tarea
+        await manager.broadcast("TIMER_STOP", id_game)
+                
+def remove_timer(id_game: int):
+    """Elimina el timer de la partida."""
+    if id_game in game_timers:
+        del game_timers[id_game]
 
-            # Comprobar si la tarea no ha sido cancelada y esperar su finalización
-            if not task.done():
-                await task
-
-
-async def timer_loop(id_game: int):
-    """Función asincrónica para enviar el tiempo restante en un bucle."""
+async def timer_end(id_game: int):
+    """Salta el turno si el timer termina."""
     while id_game in game_timers:
         remaining_time = game_timers[id_game].time_remaining()
-        await manager.broadcast(f"{remaining_time} seconds.", id_game)
-        await sleep(120)
-        if not game_timers[id_game].is_running:
-            break
+        #await manager.broadcast(f"{remaining_time} seconds.", id_game)
+        await sleep(1)
         if remaining_time <= 0:
             actual_turn = get_game_turn(id_game, SERVER_DB)
             actual_players = get_players(id_game, SERVER_DB)
@@ -84,5 +74,7 @@ async def timer_loop(id_game: int):
             await manager.broadcast("REFRESH_BOARD", id_game)
 
             # Reinicia el temporizador y lanza un nuevo ciclo
-            await initialize_timer(id_game)
+            await stop_timer(id_game)
+            await start_timer(id_game)
+            await timer_end(id_game)
             break

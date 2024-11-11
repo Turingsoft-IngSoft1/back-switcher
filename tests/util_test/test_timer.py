@@ -14,7 +14,8 @@ async def cleanup():
 @pytest.mark.asyncio
 async def test_time_remaining_decreases():
     """Inicializa y empieza el temporizador"""
-    await initialize_timer(2)
+    initialize_timer(2)
+    start_timer(2)
     
     initial_time = game_timers[2].time_remaining()
     assert initial_time > 0
@@ -38,43 +39,44 @@ async def test_timer_reaches_zero():
     assert game_timers[3].time_remaining() == 0
     assert 3 in game_timers
     
-async def test_timer_loop_changes_turn(mocker):
-    """Test para verificar que el turno se cambia cuando el tiempo se agota."""
+@pytest.mark.asyncio
+async def test_timer_loop_changes_turn(test_db, mocker):
+    # Preparar el entorno para el juego con un ID de prueba.
+    id_game = 1
     
-    # Mockear las funciones necesarias
-    mock_get_turn = mocker.patch('querys.game_queries.get_game_turn', return_value=1)
-    mock_set_turn = mocker.patch('querys.game_queries.set_game_turn')
-    mock_get_players = mocker.patch('querys.game_queries.get_players', return_value=4)  # Supongamos que hay 4 jugadores
-    mock_get_user_from_turn = mocker.patch('querys.user_queries.get_user_from_turn', return_value=10)  # ID del usuario para el siguiente turno
-    mock_broadcast = mocker.patch('utils.ws.manager.broadcast')
-    
-    # Inicializar el temporizador para el juego 1
-    await initialize_timer(1)
+    # Crear mocks para las funciones necesarias.
+    mocker.patch("querys.game_queries.get_game_turn", side_effect=[1, 2])  # El turno inicial es 1, luego 2
+    mocker.patch("querys.game_queries.get_players", return_value=2)        # Total de jugadores es 2
+    mock_set_game_turn = mocker.patch("querys.game_queries.set_game_turn") # Mock para verificar cambio de turno
+    mocker.patch("querys.game_queries.set_game_turn")
+    mocker.patch("querys.user_queries.get_user_from_turn", return_value=1) 
+    mocker.patch("querys.move_queries.unplay_moves")
+    mocker.patch("utils.partial_boards.PARTIAL_BOARDS.remove")
+    mocker.patch("utils.partial_boards.PARTIAL_BOARDS.initialize")
 
-    # Forzar que el tiempo restante sea 0
-    game_timers[1].start_time = datetime.now(timezone.utc) - timedelta(seconds=121)  
+    # Inicializar y empezar el temporizador para el juego.
+    initialize_timer(id_game)
+    start_timer(id_game)
     
-    # Cambiar in_turn a True para simular que está en su turno
-    game_timers[1].in_turn = True
-
-    # Ejecuta el loop del temporizador
-    await timer_loop(1)
+    # Espera para permitir que `timer_loop` cambie el turno.
+    await sleep(3)
     
-    # Verifica que las funciones mockeadas fueron llamadas con los parámetros esperados
-    mock_get_turn.assert_called_once_with(1, SERVER_DB)
-    mock_set_turn.assert_called_once_with(1, 2, SERVER_DB)  # El turno cambia de 1 a 2
-    mock_get_players.assert_called_once_with(1, SERVER_DB)
-    mock_get_user_from_turn.assert_called_once_with(1, 2 % 4, SERVER_DB)  # Cambio de turno al jugador correcto
-    mock_broadcast.assert_any_call(f"TURN {10}", 1)  # Verifica que se ha enviado el mensaje de turno
-    mock_broadcast.assert_any_call("REFRESH_BOARD", 1)  # Verifica que se ha enviado la señal de refresco de tablero
-
+    # Comprobar que el turno fue actualizado correctamente.
+    mock_set_game_turn.assert_called_with(id_game, 2, test_db)
+    
+    # Asegurarse de que el temporizador esté corriendo.
+    assert game_timers[id_game].is_running
+    
+    # Detener el temporizador al final para limpiar.
+    await stop_timer(id_game)
 
 @pytest.mark.asyncio
 async def test_timer_loop(mocker):
     """Test para verificar el bucle de timer que envía actualizaciones."""
     mock_broadcast = mocker.patch.object(manager, 'broadcast')
 
-    await initialize_timer(3)
+    initialize_timer(3)
+    start_timer(3)
     await sleep(1)
     mock_broadcast.assert_called()
     assert mock_broadcast.call_count > 0

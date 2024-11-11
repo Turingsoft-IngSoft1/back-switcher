@@ -8,7 +8,7 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
-from utils.timer import game_timers, start_timer, stop_timer
+from utils.timer import remove_timer, start_timer, stop_timer, timer_end
 game = APIRouter()
 
 
@@ -49,8 +49,8 @@ async def leave(e: InGame):
         PARTIAL_BOARDS.remove(e.id_game)
         
         #timer
-        stop_timer(e.id_game)
-        del game_timers[e.id_game]
+        await stop_timer(e.id_game)
+        remove_timer(e.id_game)
 
     return {"message": "Exit Successful."}
 
@@ -73,7 +73,8 @@ async def skip(e: InGame):
     
     #timer
     await stop_timer(e.id_game)
-    start_timer(e.id_game)
+    await start_timer(e.id_game)
+    await timer_end(e.id_game)
     
     return {"Skip Successful."}
 

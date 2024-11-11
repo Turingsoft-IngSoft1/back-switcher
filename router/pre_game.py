@@ -9,7 +9,7 @@ from querys import create_board
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
-from utils.timer import initialize_timer
+from utils.timer import initialize_timer, start_timer, timer_end
 
 pre_game = APIRouter()
 
@@ -123,8 +123,12 @@ async def start(id_game: int):
         
         #timer
         initialize_timer(id_game)
+        await start_timer(id_game)
+        
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
+        
+        await timer_end(id_game)
     
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
