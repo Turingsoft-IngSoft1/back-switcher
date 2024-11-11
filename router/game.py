@@ -29,8 +29,6 @@ async def leave(e: InGame, profile_id: str = ""):
         id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
         await manager.broadcast(f"TURN {id_user}", e.id_game)
 
-        
-    
     else:
         remove_player(e.id_game,SERVER_DB)
         remove_user(e.id_player,SERVER_DB)

@@ -634,3 +634,4 @@ def test_cancel_moves(client, monkeypatch, test_db):
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_response == formatted_expected
     
+
