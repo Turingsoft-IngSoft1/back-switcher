@@ -36,11 +36,5 @@ class ConnectionManager:
         if id_game in self.active_connections and route in self.active_connections[id_game]:
             for u in self.active_connections[id_game][route]:
                 await self.active_connections[id_game][route][u].send_text(message) #pragma: no cover
-    
-    def is_currently_connected(self, id_game: int, id_user: int) -> bool:
-        if self.active_connections[id_game]['ws'][id_user]: #pragma: no cover
-            return True #pragma: no cover
-        else:
-            return False #pragma: no cover
 
 manager = ConnectionManager()
