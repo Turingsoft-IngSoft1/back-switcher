@@ -15,6 +15,8 @@ class ProfilesManager:
             self.profiles[hashed_id].append((id_game, id_user))
 
     def get_games(self, hashed_id: str) -> list[tuple[int, int]]:
+        if hashed_id == "":
+            return []
         return self.profiles.get(hashed_id, None)
 
     def remove_game(self, hashed_id: str, id_game: int, id_user: int):

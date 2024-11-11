@@ -105,7 +105,12 @@ async def join(e: JoinEntry, profile_id: str = ""):
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
     # Se deben aplicar todos los cambios a la estructura interna de la paritda.
     # TODO Testing ->
+    
     if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
+        for id_game,_ in PROFILES.get_games(profile_id):
+            if id_game == e.id_game:
+                raise HTTPException(status_code=412, detail="El jugador ya esta jugando esa partida.")
+        
         if check_length_password(e.password):
             raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
         
