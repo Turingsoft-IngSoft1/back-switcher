@@ -9,13 +9,14 @@ from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
 from utils.timer import remove_timer, start_timer, stop_timer, timer_end
+from utils.profiles import PROFILES
 game = APIRouter()
 
 
 # Chequear HTTPExceptions y Completar con el comentario (""" """) para la posterior documentacion.
 
 @game.post("/leave_game")
-async def leave(e: InGame):
+async def leave(e: InGame, profile_id: str = ""):
     """Abandonar Partida."""
     # En caso de exito debe avisarle al front el id del jugador que abandono y actualizar el estado de la partida.
     if is_user_current_turn(e.id_game, e.id_player, SERVER_DB):
@@ -52,6 +53,8 @@ async def leave(e: InGame):
         await stop_timer(e.id_game)
         remove_timer(e.id_game)
 
+    PROFILES.remove_game(profile_id,e.id_game,e.id_player)
+    
     return {"message": "Exit Successful."}
 
 

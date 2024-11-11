@@ -3,7 +3,7 @@ from typing import Dict
 from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
-from asyncio import sleep, create_task, Lock
+from asyncio import sleep
 from querys.game_queries import get_players, get_game_turn, set_game_turn
 from querys.user_queries import get_user_from_turn
 from querys.move_queries import unplay_moves
@@ -62,13 +62,24 @@ def timer_is_running(id_game: int):
         return game_timers[id_game].is_running
 
 
+import signal
+
+stop_timers = False
+
+def handle_sigint(signum, frame):
+    global stop_timers
+    stop_timers = True
+
+# Asigna la señal SIGINT al manejador
+signal.signal(signal.SIGINT, handle_sigint)
+
 async def timer_end(id_game: int):
     """Salta el turno si el timer termina."""
-    while id_game in game_timers:
+    while id_game in game_timers and not stop_timers:
         remaining_time = game_timers[id_game].time_remaining()
         await manager.broadcast(f"{remaining_time} seconds.", id_game)
         await sleep(1)
-        if not timer_is_running(id_game):
+        if not timer_is_running(id_game) or stop_timers:
             break
         if remaining_time <= 0:
             actual_turn = get_game_turn(id_game, SERVER_DB)
@@ -87,4 +98,3 @@ async def timer_end(id_game: int):
             await start_timer(id_game)
             
             break
-    await timer_end(id_game)
