@@ -74,6 +74,13 @@ class EntryFigure(BaseModel):
     name: str
     figure_pos: list[tuple[int, int]]
 
+class FigureBlock(BaseModel):
+    id_game: int
+    id_caller: int
+    id_target: int
+    figure_name: str
+    pos: list[tuple[int, int]]
+
 class UserData(BaseModel):
     id_user: int
     name: str

@@ -126,3 +126,19 @@ def block_figure(id_game: int, id_user: int, figure_name: str, db):
 def figures_in_deck(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en el mazo del jugador."""
     return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Hidden").count()
+
+def is_user_blocked(id_game: int, id_user: int, db):
+    return (db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").count() == 1)
+
+def unblock_figure(id_game: int, id_user: int, db):
+    """Desbloquea la figura bloqueada si puede hacerlo."""
+    if ((db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").count() == 1) and
+        (db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Revealed").count() == 0)):
+        
+        try:
+            f = db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").first()
+            f.status = "Revealed"
+            db.commit()
+        except SQLAlchemyError as e:
+            db.rollback()  #pragma: no cover
+            print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
