@@ -8,7 +8,7 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
-from utils.timer import remove_timer, start_timer, stop_timer, timer_end
+from utils.timer import remove_timer, start_timer, timer_restart
 from utils.profiles import PROFILES
 game = APIRouter()
 
@@ -50,7 +50,6 @@ async def leave(e: InGame, profile_id: str = ""):
         PARTIAL_BOARDS.remove(e.id_game)
         
         #timer
-        await stop_timer(e.id_game)
         remove_timer(e.id_game)
 
     PROFILES.remove_game(profile_id,e.id_game,e.id_player)
@@ -75,9 +74,8 @@ async def skip(e: InGame):
     await manager.broadcast("REFRESH_BOARD", e.id_game)
     
     #timer
-    await stop_timer(e.id_game)
     await start_timer(e.id_game)
-    await timer_end(e.id_game)
+    await timer_restart(e.id_game)
     
     return {"Skip Successful."}
 

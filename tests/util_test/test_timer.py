@@ -7,9 +7,9 @@ from datetime import datetime, timedelta, timezone
 @pytest.fixture(autouse=True)
 async def cleanup():
     """Limpia el diccionario de timers antes y después de cada prueba."""
-    game_timers.clear()  # Limpieza inicial
+    GAME_TIMERS.clear()  # Limpieza inicial
     yield
-    game_timers.clear()  # Limpieza final
+    GAME_TIMERS.clear()  # Limpieza final
 
 @pytest.mark.asyncio
 async def test_time_remaining_decreases():
@@ -17,11 +17,11 @@ async def test_time_remaining_decreases():
     initialize_timer(2)
     start_timer(2)
     
-    initial_time = game_timers[2].time_remaining()
+    initial_time = GAME_TIMERS[2].time_remaining()
     assert initial_time > 0
 
     await sleep(1)
-    new_time = game_timers[2].time_remaining()
+    new_time = GAME_TIMERS[2].time_remaining()
     
     assert new_time < initial_time
     assert new_time > 0 
@@ -31,13 +31,13 @@ async def test_timer_reaches_zero():
     """Configura el temporizador con duración corta para pruebas"""
     game_timer = GameTimer()
     game_timer.duration = 1
-    game_timers[3] = game_timer
+    GAME_TIMERS[3] = game_timer
     
-    game_timers[3].start()
+    GAME_TIMERS[3].start()
     await sleep(2) 
     
-    assert game_timers[3].time_remaining() == 0
-    assert 3 in game_timers
+    assert GAME_TIMERS[3].time_remaining() == 0
+    assert 3 in GAME_TIMERS
     
 @pytest.mark.asyncio
 async def test_timer_loop_changes_turn(test_db, mocker):
@@ -65,10 +65,9 @@ async def test_timer_loop_changes_turn(test_db, mocker):
     mock_set_game_turn.assert_called_with(id_game, 2, test_db)
     
     # Asegurarse de que el temporizador esté corriendo.
-    assert game_timers[id_game].is_running
+    assert GAME_TIMERS[id_game].is_running
     
     # Detener el temporizador al final para limpiar.
-    await stop_timer(id_game)
 
 @pytest.mark.asyncio
 async def test_timer_loop(mocker):

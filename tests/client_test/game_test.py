@@ -1,7 +1,7 @@
 import json,pytest
 from unittest.mock import patch
 from querys.board_queries import update_board
-from utils.timer import game_timers
+from utils.timer import GAME_TIMERS
 
 def test_leave(client):
     #Crear PartidaEjempo y UsuarioEjemplo. 
