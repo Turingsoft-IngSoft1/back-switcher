@@ -38,3 +38,6 @@ class ConnectionManager:
                 await self.active_connections[id_game][route][u].send_text(message) #pragma: no cover
 
 manager = ConnectionManager()
+
+def is_disconnected(id_game: int, id_user: int, m = manager.active_connections): #pragma: no cover
+    return (m.get(id_game, {}).get('ws', {}).get(id_user) is None) #pragma: no cover

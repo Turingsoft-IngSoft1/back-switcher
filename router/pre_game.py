@@ -6,7 +6,7 @@ from querys.move_queries import *
 from querys.figure_queries import *
 from schemas.response_models import *
 from querys import create_board, get_color
-from utils.ws import manager
+from utils.ws import manager, is_disconnected
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.profiles import PROFILES
@@ -35,7 +35,7 @@ def load_games(profile_id: str):
     else:
         response = []
         for id_game, id_user in profile:
-            if (g:=get_game(id_game, SERVER_DB)): 
+            if (g:=get_game(id_game, SERVER_DB)) and is_disconnected(id_game, id_user):
                 response.append(GamesData(id_game=id_game,game_name=g.name,
                                           players=g.players,id_user=id_user,
                                           user_name=get_username(id_user, SERVER_DB)))
