@@ -1,7 +1,7 @@
-import json,random
+import json
 from random import shuffle
-
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import validates
 from models.base import Base
 
 class BoardValidationError(Exception):
@@ -83,9 +83,16 @@ class BoardTable(Base):
              'G','G','G','G','G','G','G','G','G',
              'B','B','B','B','B','B','B','B','B',
              'Y','Y','Y','Y','Y','Y','Y','Y','Y']
-        random.shuffle(l)
+        shuffle(l)
         initial_board = []
         for i in range(0, len(l), 6):
             initial_board.append(l[i:i + 6])
 
         return initial_board
+
+
+    @validates('color')
+    def validate_color(self, key, value):
+        if value not in ['R','G','B','Y','NOT']:
+            raise BoardValidationError()
+        return value

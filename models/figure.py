@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, CheckConstraint
 from models.base import Base
 
 figures = tuple([f"fige{i:02d}" for i in range(1,8)]+[f"fig{i:02d}" for i in range(1,19)])
-valid_status = tuple(["Hidden","Revealed", "Discarded"])
+valid_status = tuple(["Hidden","Revealed", "Blocked", "Discarded"])
 
 class FigureTable(Base):
     """Implementacion de la tabla figures en la base de datos."""

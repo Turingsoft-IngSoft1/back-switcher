@@ -34,10 +34,14 @@ def create(e: CreateEntry):
     # En caso de exito se debe retornar {id_player,id_game}.
     # Se debe crear un game_schema.Game.
     # TODO Agregar TESTs ->
-
+    
+    if check_length_password(e.password):
+        raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
+    
     new_id_game = create_game(name=e.game_name,
                               max_players=e.max_player,
                               min_players=e.min_player,
+                              password=e.password,
                               db=SERVER_DB)
     
     new_id_user = create_user(name=e.owner_name,
@@ -62,14 +66,18 @@ async def join(e: JoinEntry):
     # Se deben aplicar todos los cambios a la estructura interna de la paritda.
     # TODO Testing ->
     if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
+        if check_length_password(e.password):
+            raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
         
-        add_player(id_game=e.id_game,
-                   db=SERVER_DB)
-        p_id = create_user(name=e.player_name,
-                           id_game=e.id_game,
-                           db=SERVER_DB)
-        await manager.broadcast(f"{p_id} JOIN",e.id_game)
-        
+        if verify_password(e.id_game, e.password, SERVER_DB):
+            add_player(id_game=e.id_game,
+                       db=SERVER_DB)
+            p_id = create_user(name=e.player_name,
+                               id_game=e.id_game,
+                               db=SERVER_DB)
+            await manager.broadcast(f"{p_id} JOIN",e.id_game)
+        else:
+            raise HTTPException(status_code=403, detail="Contraseña incorrecta.")
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 
@@ -147,5 +155,5 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user)
+        manager.disconnect(id_game, id_user)
 
