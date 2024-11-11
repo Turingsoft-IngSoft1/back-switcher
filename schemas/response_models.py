@@ -79,3 +79,17 @@ class UserData(BaseModel):
     name: str
     figures_available: list[str]
     figures_blocked: list[str]
+
+class GamesData(BaseModel):
+    id_game: int
+    game_name: str
+    players: int
+    id_user: int
+    user_name: str
+
+class ActualGameData(BaseModel):
+    actual_board: list[list[str]]
+    blocked_color: str
+    actual_turn_player: int
+    available_moves: list[str]
+    partial_moves: list[str]

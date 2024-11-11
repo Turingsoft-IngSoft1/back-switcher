@@ -117,3 +117,13 @@ def discard_move(id_game: int, id_user: int, db):
     for m in move:
         m.status = "Discarded"
     db.commit()
+
+def get_partial_moves(id_game: int, id_user: int, db):
+    """Obtiene los movimientos en estado jugado."""
+    moves = db.query(MoveTable).filter(MoveTable.id_game == id_game,
+                                       MoveTable.id_user == id_user,
+                                       MoveTable.status == "Played").all()
+    partial_moves = []
+    for move in moves:
+        partial_moves.append(move.name)
+    return partial_moves
