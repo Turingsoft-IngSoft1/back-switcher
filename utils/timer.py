@@ -21,6 +21,7 @@ class GameTimer:
         self.is_running = True
         
     def stop(self):
+        self.start_time = None
         self.is_running = False
 
     def time_remaining(self):
@@ -54,13 +55,21 @@ def remove_timer(id_game: int):
     """Elimina el timer de la partida."""
     if id_game in game_timers:
         del game_timers[id_game]
+        
+def timer_is_running(id_game: int):
+    """Verfica que el timer este corriendo."""
+    if id_game in game_timers:
+        return game_timers[id_game].is_running
+
 
 async def timer_end(id_game: int):
     """Salta el turno si el timer termina."""
     while id_game in game_timers:
         remaining_time = game_timers[id_game].time_remaining()
-        #await manager.broadcast(f"{remaining_time} seconds.", id_game)
+        await manager.broadcast(f"{remaining_time} seconds.", id_game)
         await sleep(1)
+        if not timer_is_running(id_game):
+            break
         if remaining_time <= 0:
             actual_turn = get_game_turn(id_game, SERVER_DB)
             actual_players = get_players(id_game, SERVER_DB)
@@ -76,5 +85,6 @@ async def timer_end(id_game: int):
             # Reinicia el temporizador y lanza un nuevo ciclo
             await stop_timer(id_game)
             await start_timer(id_game)
-            await timer_end(id_game)
+            
             break
+    await timer_end(id_game)
