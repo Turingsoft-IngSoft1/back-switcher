@@ -8,7 +8,7 @@ from utils.ws import manager
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
 from utils.boardDetect import detect_figures
-from utils.timer import remove_timer, start_timer, timer_restart
+from utils.timer import remove_timer, start_timer, skip_turn
 from utils.profiles import PROFILES
 game = APIRouter()
 
@@ -62,18 +62,7 @@ async def skip(e: InGame):
     """Pasar el turno."""
     
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
-    actual_turn = get_game_turn(e.id_game,SERVER_DB)
-    actual_players = get_players(e.id_game,SERVER_DB)
-    set_game_turn(e.id_game, (actual_turn + 1),SERVER_DB)
-    game_turn = (get_game_turn(e.id_game,SERVER_DB) % actual_players)
-    id_user = get_user_from_turn(e.id_game,game_turn,SERVER_DB)
-    await manager.broadcast(f"TURN {id_user}", e.id_game)
-    unplay_moves(e.id_game,SERVER_DB)
-    PARTIAL_BOARDS.remove(e.id_game)
-    PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
-    await manager.broadcast("REFRESH_BOARD", e.id_game)
-    
-    #timer
+    await skip_turn(e.id_game)
     await start_timer(e.id_game)
     
     return {"Skip Successful."}
