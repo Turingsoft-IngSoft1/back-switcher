@@ -222,13 +222,27 @@ def test_blocked_figure(test_db, monkeypatch):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
 
     newid = create_game("game1", 2, 2, test_db)
-    u1 = create_user("user1", newid, test_db)
-    u2 = create_user("user2", newid, test_db)
+    u_id = create_user("user1", newid, test_db)
+    create_user("user2", newid, test_db)
     initialize_figures(newid, 2, test_db)
-    turns = uid_by_turns(newid, test_db)
-    block_figure(newid, turns[1], 'fige02', test_db)
+    rf = get_revealed_figures(newid, test_db)[u_id]
+    block_figure(newid, u_id, rf[0], test_db)
 
-    assert  is_user_blocked(newid, turns[1], test_db)
+    assert  is_user_blocked(newid, u_id, test_db)
     
-def test_unblock_figure():
-    pass
+def test_unblock_figure(test_db, monkeypatch):
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+
+    newid = create_game("game1", 2, 2, test_db)
+    u_id = create_user("user1", newid, test_db)
+    create_user("user2", newid, test_db)
+    initialize_figures(newid, 2, test_db)
+    rf = get_revealed_figures(newid, test_db)[u_id]
+    block_figure(newid, u_id, rf[0], test_db)
+
+    use_figure(newid, u_id, rf[1], test_db)
+    use_figure(newid, u_id, rf[2], test_db)
+
+    unblock_figure(newid, u_id, test_db)
+
+    assert  not is_user_blocked(newid, u_id, test_db)
