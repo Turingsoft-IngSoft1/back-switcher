@@ -60,7 +60,16 @@ async def skip(e: InGame):
     """Pasar el turno."""
     
     # En caso de exito debe saltear el turno y actualizar la partida para los demas jugadores.
-    await skip_turn(e.id_game)
+    actual_turn = get_game_turn(e.id_game, SERVER_DB)
+    actual_players = get_players(e.id_game, SERVER_DB)
+    new_turn = (actual_turn + 1) % actual_players
+    set_game_turn(e.id_game, new_turn, SERVER_DB)
+    id_user = get_user_from_turn(e.id_game, new_turn, SERVER_DB)
+    await manager.broadcast(f"TURN {id_user}", e.id_game)
+    unplay_moves(e.id_game, SERVER_DB)
+    PARTIAL_BOARDS.remove(e.id_game)
+    PARTIAL_BOARDS.initialize(e.id_game, SERVER_DB)
+    await manager.broadcast("REFRESH_BOARD", e.id_game)
     await start_timer(e.id_game)
     
     return {"Skip Successful."}

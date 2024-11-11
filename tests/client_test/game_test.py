@@ -78,7 +78,8 @@ def test_skip_turn(client):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
     
