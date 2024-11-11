@@ -150,5 +150,5 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user)
+        manager.disconnect(id_game, id_user)
 
