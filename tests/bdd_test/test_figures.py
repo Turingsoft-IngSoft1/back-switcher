@@ -217,3 +217,18 @@ def test_figures_in_deck(monkeypatch,test_db):
     assert figures_in_deck(newid,u3,test_db) == 10
     assert figures_in_deck(newid,u4,test_db) == 9
     remove_game(newid,test_db)
+
+def test_blocked_figure(test_db, monkeypatch):
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+
+    newid = create_game("game1", 2, 2, test_db)
+    u1 = create_user("user1", newid, test_db)
+    u2 = create_user("user2", newid, test_db)
+    initialize_figures(newid, 2, test_db)
+    turns = uid_by_turns(newid, test_db)
+    block_figure(newid, turns[1], 'fige02', test_db)
+
+    assert  is_user_blocked(newid, turns[1], test_db)
+    
+def test_unblock_figure():
+    pass
