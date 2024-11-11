@@ -75,7 +75,6 @@ async def skip(e: InGame):
     
     #timer
     await start_timer(e.id_game)
-    await timer_restart(e.id_game)
     
     return {"Skip Successful."}
 

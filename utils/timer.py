@@ -20,7 +20,7 @@ class GameTimer:
     """Clase para manejar timers."""
     def __init__(self):
         self.start_time = None
-        self.duration = 10
+        self.duration = 120
 
     def start(self):
         """Iniciar timer."""
