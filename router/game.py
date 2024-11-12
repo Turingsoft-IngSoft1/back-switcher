@@ -41,7 +41,7 @@ async def leave(e: InGame, profile_id: str = ""):
     elif get_game_state(e.id_game,SERVER_DB) == "Waiting":
         await manager.broadcast(f"{user} HA ABANDONADO LA SALA", e.id_game, 'chat')
 
-    #Ganar por abando.
+    #Ganar por abandono.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished", SERVER_DB)
         winner = get_users(e.id_game,SERVER_DB)
@@ -103,7 +103,6 @@ async def get_board_status(id_game: int):
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
 
-#TODO test
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
     """Detectar figuras en el tablero."""

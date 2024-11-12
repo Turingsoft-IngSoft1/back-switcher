@@ -179,3 +179,144 @@ def test_get_board_status(test_db, client):
     url_board= "http://localhost:8000/board_status/2"
     response=client.get(url_board)
     assert response.status_code == 404
+
+def test_detect_figures_on_board(client, monkeypatch):
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    url_detect_figures = "http://localhost:8000/detect_figures_on_board/1/1"  # id_game = 1, id_user = 2
+    response = client.get(url_detect_figures)
+
+    # Verificar que la respuesta sea exitosa
+    assert response.status_code == 200
+
+    # Verificar que la respuesta contenga las figuras detectadas
+    detected_figures = response.json()
+    assert isinstance(detected_figures, dict)
+    
+    # Opcional: Validar contenido específico de la respuesta (figuras y colores)
+    for figure, colors in detected_figures.items():
+        assert isinstance(colors, dict)
+        for color, coordinates in colors.items():
+            assert isinstance(coordinates, list)
+            assert len(coordinates) > 0  # Asegúrate de que haya coordenadas en la lista
+
+def test_detect_figures_on_board_invalid_game(client, monkeypatch):
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+    
+    url_detect_figures_invalid_game = "http://localhost:8000/detect_figures_on_board/999/1"  # id_game no válido
+    response = client.get(url_detect_figures_invalid_game)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "El juego con id_game=999 no existe o todavia no comenzo."}
+
+def test_detect_figures_on_board_invalid_user(client, monkeypatch):
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+    
+    url_detect_figures_invalid_user = "http://localhost:8000/detect_figures_on_board/1/999"  # id_user no válido
+    response = client.get(url_detect_figures_invalid_user)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "El usuario con id_user=999 no existe en la partida."}
