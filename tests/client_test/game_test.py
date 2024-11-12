@@ -38,7 +38,7 @@ def test_leave(client):
     assert formatted_response == formatted_expected
     #Abandona UsuarioParaLlenarLobby
     payload = {
-        "id_player": 1,
+        "id_player": 2,
         "id_game": 1
     }
     client.post(url, json=payload)
