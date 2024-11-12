@@ -13,7 +13,7 @@ def test_initialize_moves(monkeypatch,test_db):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Caso 1: 2 jugadores
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
 
@@ -33,7 +33,7 @@ def test_initialize_moves(monkeypatch,test_db):
     remove_game(1,test_db)
 
     #Caso 2: 3 jugadores
-    newid=create_game("game1",2,3,test_db)
+    newid=create_game("game1",2,3,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     create_user("user3",newid,test_db)
@@ -54,7 +54,7 @@ def test_initialize_moves(monkeypatch,test_db):
     remove_game(1,test_db)
 
     #Caso 3: 4 jugadores
-    newid=create_game("game1",2,4,test_db)
+    newid=create_game("game1",2,4,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     create_user("user3",newid,test_db)
@@ -79,7 +79,7 @@ def test_moves_in_deck(monkeypatch,test_db):
     """Testea la cantidad de movimientos en el mazo."""
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -93,7 +93,7 @@ def test_moves_in_hand(monkeypatch,test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -110,7 +110,7 @@ def test_refill_moves(monkeypatch,test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -131,7 +131,7 @@ def test_refill_hand(monkeypatch,test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -153,7 +153,7 @@ def test_get_hand(monkeypatch,test_db):
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
     #Caso 1: Los usuarios no han descartado cartas.
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -177,7 +177,7 @@ def test_use_move(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -195,7 +195,7 @@ def test_unplay_moves(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -214,7 +214,7 @@ def test_get_played(monkeypatch, test_db):
     
     monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
     
-    newid=create_game("game1",2,2,test_db)
+    newid=create_game("game1",2,2,"",test_db)
     create_user("user1",newid,test_db)
     create_user("user2",newid,test_db)
     initialize_moves(1,2,test_db)
@@ -222,3 +222,39 @@ def test_get_played(monkeypatch, test_db):
     use_move(1,1,"mov3",test_db)
     count1 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Played').count()
     assert count1 == 2 == get_played(1,test_db)
+    
+def test_discard_move(monkeypatch, test_db):
+    """Testea que se descarten los movimientos."""
+    
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
+    newid=create_game("game1",2,2,"",test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').count()
+    assert count1 == 0 and count2 == 3
+    use_move(1,1,"mov1",test_db)
+    use_move(1,1,"mov3",test_db)
+    discard_move(1,1,test_db)
+    count1 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Discarded').count()
+    count2 = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='InHand').count()
+    assert count1 == 2 and count2 == 1
+    
+def test_get_partial_moves(monkeypatch, test_db):
+    """Testea que devuelva las cartas jugadas."""
+    
+    monkeypatch.setattr('querys.move_queries.shuffle', mock_shuffle)
+    
+    newid=create_game("game1",2,2,"",test_db)
+    create_user("user1",newid,test_db)
+    create_user("user2",newid,test_db)
+    initialize_moves(1,2,test_db)
+    use_move(1,1,"mov1",test_db)
+    use_move(1,1,"mov3",test_db)
+    moves = test_db.query(MoveTable).filter_by(id_game=1,id_user=1,status='Played').all()
+    i = 0
+    for move in moves:
+        assert move.name == get_partial_moves(1,1,test_db)[i]
+        i+=1

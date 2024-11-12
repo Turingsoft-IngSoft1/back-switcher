@@ -5,10 +5,12 @@ from querys.user_queries import *
 from querys.move_queries import *
 from querys.figure_queries import *
 from schemas.response_models import *
-from querys import create_board
-from utils.ws import manager
+from querys import create_board, get_color
+from utils.ws import manager, is_disconnected
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
+from utils.timer import initialize_timer, start_timer, restart_timer
+from utils.profiles import PROFILES
 
 pre_game = APIRouter()
 
@@ -20,6 +22,44 @@ def default():
     """Mensaje predeterminado."""
     return "El Switcher."
 
+@pre_game.get("/new_profile/")
+def new_profile():
+    profile_id: str = PROFILES.get_new_profile()
+    return profile_id
+
+@pre_game.get("/load_profile/{profile_id}", response_model=list[GamesData])
+def load_games(profile_id: str):
+    profile = PROFILES.get_games(profile_id)
+    
+    if profile is None:
+        raise HTTPException(status_code=404, detail="No se encontro un perfil valido.")
+    else:
+        response = []
+        for id_game, id_user in profile:
+            if (g:=get_game(id_game, SERVER_DB)) and is_disconnected(id_game, id_user):
+                response.append(GamesData(id_game=id_game,game_name=g.name,
+                                          players=g.players,id_user=id_user,
+                                          user_name=get_username(id_user, SERVER_DB)))
+        return response
+
+@pre_game.get("/recover_game_data/{id_game}/{id_user}", response_model=ActualGameData)
+def get_game_actual_data(id_game: int, id_user: int):
+    
+    game = get_game(id_game, SERVER_DB)
+    if game is None or game.state != "Playing":
+        raise HTTPException(status_code=404, detail="La partida especificada no existe o todavia no comenzó.")
+    
+    users = uid_by_turns(id_game, SERVER_DB)
+    current_turn = get_game_turn(id_game, SERVER_DB) % get_players(id_game, SERVER_DB)
+
+    if id_user not in users:
+        raise HTTPException(status_code=404, detail="El usuario no existe en la partida.")
+
+    return ActualGameData(actual_board=PARTIAL_BOARDS.get(id_game),
+                          blocked_color=get_color(id_game, SERVER_DB),
+                          actual_turn_player=users[current_turn],
+                          available_moves=get_hand(id_game, id_user, SERVER_DB),
+                          partial_moves=get_partial_moves(id_game, id_user, SERVER_DB))
 
 @pre_game.get("/active_players/{id_game}", response_model=CurrentUsers)
 def get_active_players(id_game: int):
@@ -28,15 +68,19 @@ def get_active_players(id_game: int):
 
 
 @pre_game.post("/create_game", response_model=ResponseCreate)
-def create(e: CreateEntry):
+def create(e: CreateEntry, profile_id: str = ""):
     """Crear el juego."""
     # En caso de exito se debe retornar {id_player,id_game}.
     # Se debe crear un game_schema.Game.
     # TODO Agregar TESTs ->
-
+    
+    if check_length_password(e.password):
+        raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
+    
     new_id_game = create_game(name=e.game_name,
                               max_players=e.max_player,
                               min_players=e.min_player,
+                              password=e.password,
                               db=SERVER_DB)
     
     new_id_user = create_user(name=e.owner_name,
@@ -49,30 +93,44 @@ def create(e: CreateEntry):
     
     create_board(id_game=new_id_game,
                  db=SERVER_DB)
+    
+    PROFILES.add_game(profile_id, new_id_game, new_id_user)
 
     return ResponseCreate(id_game=new_id_game, id_player=new_id_user)
 
 
 @pre_game.post("/join_game", response_model=ResponseJoin)
-async def join(e: JoinEntry):
+async def join(e: JoinEntry, profile_id: str = ""):
     """Unirse al juego."""
 
     # En caso de exito debe conectar al jugador con el servidor por WebSocket?.
     # Se deben aplicar todos los cambios a la estructura interna de la paritda.
     # TODO Testing ->
+    
     if get_max_players(e.id_game,SERVER_DB) > get_players(e.id_game,SERVER_DB):
+        for id_game,_ in PROFILES.get_games(profile_id):
+            if id_game == e.id_game:
+                raise HTTPException(status_code=412, detail="El jugador ya esta jugando esa partida.")
         
-        add_player(id_game=e.id_game,
-                   db=SERVER_DB)
-        p_id = create_user(name=e.player_name,
-                           id_game=e.id_game,
-                           db=SERVER_DB)
-        await manager.broadcast(f"{p_id} JOIN",e.id_game)
+        if check_length_password(e.password):
+            raise HTTPException(status_code=400, detail="La contraseña ingresada no cumple el minimo de caracteres.")
         
+        if verify_password(e.id_game, e.password, SERVER_DB):
+            add_player(id_game=e.id_game,
+                       db=SERVER_DB)
+            id_user = create_user(name=e.player_name,
+                               id_game=e.id_game,
+                               db=SERVER_DB)
+            PROFILES.add_game(profile_id, e.id_game, id_user)
+            user = get_username(id_user, SERVER_DB)
+            await manager.broadcast(f"{user} SE HA UNIDO A LA SALA", e.id_game, 'chat')
+            await manager.broadcast(f"{id_user} JOIN",e.id_game)
+        else:
+            raise HTTPException(status_code=403, detail="Contraseña incorrecta.")
     else:
         raise HTTPException(status_code=409, detail="El lobby está lleno.")
 
-    return ResponseJoin(new_player_id=p_id)
+    return ResponseJoin(new_player_id=id_user)
 
 
 @pre_game.get("/list_games", response_model=ResponseList)
@@ -95,9 +153,15 @@ async def start(id_game: int):
     # Tiene que repartir las cartas a todos los jugadores.
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
+    # Tiene que inicializar el timer.
     # Tiene que avisar a todos los clientes.
     players = get_players(id_game,SERVER_DB)
-    if players >= get_min_players(id_game,SERVER_DB):
+    game = get_game(id_game, SERVER_DB)
+    if (game is None):
+        raise HTTPException(status_code=404, detail="La partida no existe.")
+    elif game.state != 'Waiting':
+        raise HTTPException(status_code=412, detail="La partida ya comenzo.")
+    elif players >= get_min_players(id_game,SERVER_DB) and game.state == 'Waiting':
         
         set_game_state(id_game=id_game,
                        state="Playing",
@@ -109,9 +173,16 @@ async def start(id_game: int):
         
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
-        PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
+        PARTIAL_BOARDS.initialize(id_game, SERVER_DB)
+        
+        #timer
+        initialize_timer(id_game)
+        await start_timer(id_game)
+        
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
+        
+        await restart_timer(id_game)
     
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
@@ -142,5 +213,5 @@ async def websocket_endpoint(ws: WebSocket, id_game: int, id_user: int):
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(ws, id_game, id_user)
+        manager.disconnect(id_game, id_user)
 

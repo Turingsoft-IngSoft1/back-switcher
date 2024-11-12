@@ -69,6 +69,17 @@ def get_revealed_figures(id_game: int, db):
 
     return revealed_figures
 
+def get_blocked_figures(id_game: int, db):
+    """Devuelve una lista con las figuras bloqueadas de un juego."""
+    figures = db.query(FigureTable).filter_by(id_game=id_game, status="Blocked").all()
+    blocked_figures = {u: [] for u in uid_by_turns(id_game, db)}
+    for fig in figures:
+        if fig.id_user in blocked_figures:
+            blocked_figures[fig.id_user].append(fig.name)
+
+    return blocked_figures
+
+
 def refill_revealed_figures(id_game: int, id_user: int, db):
     """Revela las figuras faltantes del jugador."""
     try:
@@ -98,7 +109,36 @@ def use_figure(id_game: int, id_user: int, figure_name: str, db):
     except SQLAlchemyError as e:  #pragma: no cover
         db.rollback()  #pragma: no cover
         print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
+
+def block_figure(id_game: int, id_user: int, figure_name: str, db):
+    """Usa una figura."""
+    try:
+        figure = db.query(FigureTable).filter(FigureTable.id_game == id_game,
+                                              FigureTable.id_user == id_user,
+                                              FigureTable.name == figure_name,
+                                              FigureTable.status == "Revealed").first()
+        figure.status = "Blocked"
+        db.commit()
+    except SQLAlchemyError as e:  #pragma: no cover
+        db.rollback()  #pragma: no cover
+        print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover
         
 def figures_in_deck(id_game: int, id_user: int, db):
     """Devuelve la cantidad de figuras en el mazo del jugador."""
     return db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Hidden").count()
+
+def is_user_blocked(id_game: int, id_user: int, db):
+    return (db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").count() == 1)
+
+def unblock_figure(id_game: int, id_user: int, db):
+    """Desbloquea la figura bloqueada si puede hacerlo."""
+    if ((db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").count() == 1) and
+        (db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Revealed").count() == 0)):
+        
+        try:
+            f = db.query(FigureTable).filter_by(id_game=id_game, id_user=id_user, status="Blocked").first()
+            f.status = "Revealed"
+            db.commit()
+        except SQLAlchemyError as e:
+            db.rollback()  #pragma: no cover
+            print(f"Error de SQLAlchemy: {str(e)}")  #pragma: no cover

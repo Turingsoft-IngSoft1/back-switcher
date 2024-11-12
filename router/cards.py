@@ -4,7 +4,7 @@ from querys.move_queries import *
 from querys.game_queries import *
 from querys.figure_queries import *
 from querys.board_queries import *
-from querys import is_user_current_turn
+from querys import is_user_current_turn, get_username
 
 from schemas.response_models import *
 from schemas.move_schema import Move
@@ -33,7 +33,6 @@ async def get_moves(id_player: int, id_game: int):
 
     return ResponseMoves(moves=current_hand)
 
-
 @cards.post("/use_moves")
 async def use_moves(e: EntryMove):
     """Usar una carta de movimiento."""
@@ -56,9 +55,8 @@ async def use_moves(e: EntryMove):
 @cards.post("/get_figures/{id_game}/{id_player}")
 async def get_figures(id_player: int, id_game: int):
     """Obtener cartas de figura."""
-
     in_hand = figures_in_hand(id_game, id_player, SERVER_DB)
-    if in_hand < 3:
+    if in_hand < 3 and (not is_user_blocked(id_game, id_player, SERVER_DB)):
         refill_revealed_figures(id_game,id_player, SERVER_DB)
         await manager.broadcast("REFRESH_FIGURES",id_game)
         return {"Se entregaron las figuras correctamente."}
@@ -76,23 +74,43 @@ async def use_figures(e: EntryFigure):
     
     detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.name])
     found = False
-    #color = "NOT" // Color bloqueado
-    for _ , _ , group_detected in detected_figures:
+    color = "NOT"
+    for color_detected , _ , group_detected in detected_figures:
         if set(e.figure_pos) == set(group_detected):
             found = True
-            #color = color_detected // Color bloqueado
+            color = color_detected
             break
     
     if not found:
         raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
-    
+    elif color == get_color(e.id_game, SERVER_DB):
+        raise HTTPException(status_code=409, detail="El color de la figura está bloqueado.")
+
     if get_played(e.id_game, SERVER_DB) > 0:
         discard_move(e.id_game, e.id_player, SERVER_DB)
         
     use_figure(e.id_game, e.id_player, e.name, SERVER_DB)
+    unblock_figure(e.id_game, e.id_player, SERVER_DB)
     update_board(id_game=e.id_game,
                  matrix=PARTIAL_BOARDS.get(e.id_game),
                  db=SERVER_DB)
+    update_color(e.id_game, color, SERVER_DB)
+    
+    player = get_username(e.id_player, SERVER_DB)
+    
+    await manager.broadcast(f"{player} HA JUGADO UNA CARTA DE FIGURA", e.id_game, 'chat')
+    
+    color = get_color(e.id_game, SERVER_DB)
+    if color == "R":
+        color = "ROJO"
+    elif color == "G":
+        color = "VERDE"
+    elif color == "Y":
+        color = "AMARILLO"
+    elif color == "B":
+        color = "AZUL"
+
+    await manager.broadcast(f"SE HA BLOQUEADO EL COLOR {color}", e.id_game, 'chat')  
     await manager.broadcast("REFRESH_BOARD", e.id_game)
     await manager.broadcast("REFRESH_FIGURES", e.id_game)
 
@@ -117,3 +135,56 @@ async def cancel_moves(id_game: int):
         return {"message": "Movimientos cancelados correctamente."}
     else:
         return {"message": "No hay movimientos para cancelar."}
+
+@cards.post("/block_figure/")
+async def block_figure_action(e: FigureBlock):
+    """Bloquea una figura."""
+    if  not is_user_current_turn(e.id_game, e.id_caller, SERVER_DB):
+        raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
+    if not e.figure_name in get_revealed_figures(e.id_game, SERVER_DB)[e.id_target]:
+        raise HTTPException(status_code=404, detail="Esa figura no se encuentra en la mano de ningun usuario.")
+    
+    detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.figure_name])
+    found = False
+    color= 'NOT'
+    for color_detected , _ , group_detected in detected_figures:
+        if set(e.pos) == set(group_detected):
+            found = True
+            color = color_detected
+            break
+    
+    if not found:
+        raise HTTPException(status_code=404, detail="La figura no se encuentra en el tablero.")
+    elif color == get_color(e.id_game, SERVER_DB):
+        raise HTTPException(status_code=409, detail="El color de la figura está bloqueado.")
+    
+    if is_user_blocked(e.id_game, e.id_target, SERVER_DB):
+        raise HTTPException(status_code=409, detail="El jugador ya tiene una figura bloqueada.")
+    
+    if get_played(e.id_game, SERVER_DB) > 0:
+        discard_move(e.id_game, e.id_caller, SERVER_DB)
+
+    block_figure(e.id_game, e.id_target, e.figure_name, SERVER_DB)
+    update_board(id_game=e.id_game,
+                 matrix=PARTIAL_BOARDS.get(e.id_game),
+                 db=SERVER_DB)
+    update_color(e.id_game, color, SERVER_DB)
+    
+    caller = get_username(e.id_caller, SERVER_DB)
+    target = get_username(e.id_target, SERVER_DB)
+    
+    await manager.broadcast(f"{caller} HA BLOQUEADO UNA CARTA A {target}", e.id_game, 'chat') 
+    
+    color = get_color(e.id_game, SERVER_DB)
+    if color == "R":
+        color = "ROJO"
+    elif color == "G":
+        color = "VERDE"
+    elif color == "Y":
+        color = "AMARILLO"
+    elif color == "B":
+        color = "AZUL"
+
+    await manager.broadcast(f"SE HA BLOQUEADO EL COLOR {color}", e.id_game, 'chat')    
+    await manager.broadcast("REFRESH_FIGURES", e.id_game)
+    return {"message": "Figura bloqueada correctamente."}

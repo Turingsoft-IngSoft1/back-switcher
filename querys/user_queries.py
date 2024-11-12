@@ -30,7 +30,10 @@ def remove_user(id_user: int, db):
         db.rollback()
         print(f"Error: {e}")
     
-
+def get_username(id_user: int, db) -> str:
+    """Devuelve el nombre del usuario con el id correspondiente."""
+    user = db.query(UserTable).filter(UserTable.id == id_user).first()
+    return user.name
 
 def get_users(id_game: int, db) :
     """Lista los jugadores activos en una partida."""

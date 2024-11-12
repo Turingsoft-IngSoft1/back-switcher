@@ -1,15 +1,16 @@
 from pytest import MonkeyPatch
 import json
-from querys import uid_by_turns, get_revealed_figures, get_board
+from querys import uid_by_turns, update_color
 
 def test_get_moves(client):
-    #Crear PartidaEjemplo y UsuarioEjemplo.    
+    #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
     
@@ -17,7 +18,8 @@ def test_get_moves(client):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
     
@@ -38,15 +40,22 @@ def test_get_moves(client):
     assert response.status_code == 200
     player2_moves = response.json()
     assert len(player2_moves["moves"]) == 3  #Verifica que se reparten movimientos al jugador 2.
+    
+    #Caso de error: No existe la partida.
+    url_moves = "http://localhost:8000/get_moves/2/1"
+    response = client.post(url_moves)
+    assert response.status_code == 404
 
 def test_get_figures(client):
+    
     #Crear PartidaEjemplo y UsuarioEjemplo.
     url_create = "http://localhost:8000/create_game"
     payload = {
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -54,7 +63,8 @@ def test_get_figures(client):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join,json=payload)
 
@@ -80,7 +90,8 @@ def test_use_moves_success(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -88,7 +99,8 @@ def test_use_moves_success(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -124,7 +136,8 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -132,7 +145,8 @@ def test_use_moves_invalid_turn(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -168,7 +182,8 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -176,7 +191,8 @@ def test_use_moves_invalid_move(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -212,7 +228,8 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -220,7 +237,8 @@ def test_use_moves_invalid_position(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -278,7 +296,8 @@ def test_use_figures_success(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -286,7 +305,8 @@ def test_use_figures_success(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -307,6 +327,74 @@ def test_use_figures_success(client,test_db,monkeypatch):
     }
     response = client.post(url, json=payload)
     assert response.status_code == 200
+
+def test_use_figures_invalid_color(client,test_db,monkeypatch):
+    
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+
+    def mock_sample(x, y):
+        print("Funcion mockeada.")
+        ret = []
+        for i in range(y):
+            ret.append(x[i])
+        return ret
+    monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+        ["B", "B", "R", "Y", "G", "Y"], 
+        ["B", "B", "Y", "B", "R", "R"], 
+        ["G", "Y", "G", "G", "B", "Y"], 
+        ["Y", "B", "G", "G", "Y", "B"], 
+        ["R", "G", "B", "Y", "G", "B"], 
+        ["G", "R", "Y", "B", "G", "R"]
+    ]
+    
+        return board
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+    
+    #Crear PartidaEjemplo y UsuarioEjemplo.
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+    
+    #Unir a jugador2 para poder iniciar partida.
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+    
+    #Se inicia la partida.
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    update_color(1, "B", test_db)
+
+    #Pruebas de usar figuras.
+    users = uid_by_turns(1,test_db)
+    url = "http://localhost:8000/use_figures"
+    
+    #Intentar jugar figura con color invalido.
+    payload = {
+        'id_game': 1,
+        'id_player': users[0],
+        'name': 'fige02',
+        'figure_pos': [(0, 0), (0, 1), (1,0), (1, 1)]
+    }
+    response = client.post(url, json=payload)
+    assert response.status_code == 409
 
 def test_use_figures_invalid_turn(client,test_db,monkeypatch):
 
@@ -334,7 +422,8 @@ def test_use_figures_invalid_turn(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -342,7 +431,8 @@ def test_use_figures_invalid_turn(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -390,7 +480,8 @@ def test_use_figures_invalid_figure(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -398,7 +489,8 @@ def test_use_figures_invalid_figure(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -446,7 +538,8 @@ def test_use_figures_invalid_position(client,test_db,monkeypatch):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -454,7 +547,8 @@ def test_use_figures_invalid_position(client,test_db,monkeypatch):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -489,7 +583,8 @@ def test_cancel_moves(client, monkeypatch, test_db):
         "game_name": "PartidaEjemplo",
         "owner_name": "UsuarioEjemplo",
         "min_player": 2,
-        "max_player": 2
+        "max_player": 2,
+        "password": ""
     }
     client.post(url_create, json=payload)
 
@@ -497,7 +592,8 @@ def test_cancel_moves(client, monkeypatch, test_db):
     url_join = "http://localhost:8000/join_game"
     payload = {
         "id_game": 1,
-        "player_name": "UsuarioParaLlenarLobby"
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
     }
     client.post(url_join, json=payload)
 
@@ -543,4 +639,271 @@ def test_cancel_moves(client, monkeypatch, test_db):
     formatted_response = json.dumps(response.json(), sort_keys=True)
     formatted_expected = json.dumps(expected_json, sort_keys=True)
     assert formatted_response == formatted_expected
+
+def test_block_figure_action_success(client, test_db, monkeypatch):
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
     
+    def mock_sample(x, y):
+        print("Funcion mockeada.")
+        ret = []
+        for i in range(y):
+            ret.append(x[i])
+        return ret
+    monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    # Obtener el orden de turnos y UID de los jugadores
+    users = uid_by_turns(1, test_db)
+
+    # Ejecutar la acción para bloquear una figura
+    url_block = "http://localhost:8000/block_figure/"
+    payload = {
+        "id_game": 1,
+        "id_caller": users[0],
+        "id_target": users[1],
+        "figure_name": "fige04",
+        "pos": [(1, 2), (0, 1), (1, 1), (1, 0)]
+    }
+    response = client.post(url_block, json=payload)
+    assert response.status_code == 200
+    assert response.json()["message"] == "Figura bloqueada correctamente."
+    
+def test_block_figure_action_invalid_turn(client, test_db, monkeypatch): 
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+    
+    def mock_sample(x, y):
+        print("Funcion mockeada.")
+        ret = []
+        for i in range(y):
+            ret.append(x[i])
+        return ret
+    monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    # Obtener el orden de turnos y UID de los jugadores
+    users = uid_by_turns(1, test_db)
+    
+    # Ejecutar la acción para bloquear una figura con usuario fuera de su turno
+    url_block = "http://localhost:8000/block_figure/"
+    payload = {
+        "id_game": 1,
+        "id_caller": users[1],
+        "id_target": users[0],
+        "figure_name": "fige04",
+        "pos": [(1, 2), (0, 1), (1, 1), (1, 0)]
+    }
+    response = client.post(url_block, json=payload)
+    assert response.status_code == 412
+    assert response.json()["detail"] == "El jugador no se encuentra en su turno."
+    
+def test_block_figure_action_invalid_figure(client, test_db, monkeypatch):
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+    
+    def mock_sample(x, y):
+        print("Funcion mockeada.")
+        ret = []
+        for i in range(y):
+            ret.append(x[i])
+        return ret
+    monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    # Obtener el orden de turnos y UID de los jugadores
+    users = uid_by_turns(1, test_db)
+    
+    # Ejecutar la acción para bloquear una figura con figura invalida
+    url_block = "http://localhost:8000/block_figure/"
+    payload = {
+        "id_game": 1,
+        "id_caller": users[0],
+        "id_target": users[1],
+        "figure_name": "fig18",
+        "pos": [(1, 2), (0, 1), (1, 1), (1, 0)]
+    }
+    response = client.post(url_block, json=payload)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Esa figura no se encuentra en la mano de ningun usuario."
+    
+def test_block_figure_action_invalid_pos(client, test_db, monkeypatch):
+    def mock_shuffle(x):
+        print("Funcion mockeada.")
+        x.sort()
+    monkeypatch.setattr('querys.figure_queries.shuffle', mock_shuffle)
+    
+    def mock_sample(x, y):
+        print("Funcion mockeada.")
+        ret = []
+        for i in range(y):
+            ret.append(x[i])
+        return ret
+    monkeypatch.setattr('querys.figure_queries.sample', mock_sample)
+    
+    def mock_get(self, game_id):
+        board = [
+            ["Y", "R", "B", "Y", "G", "Y"], 
+            ["R", "R", "R", "B", "R", "R"], 
+            ["B", "Y", "G", "G", "B", "Y"], 
+            ["Y", "B", "G", "G", "Y", "B"], 
+            ["R", "G", "B", "Y", "G", "B"], 
+            ["G", "R", "Y", "B", "G", "R"]
+        ]
+        return board
+    
+    monkeypatch.setattr('utils.partial_boards.BoardsManager.get', mock_get)
+
+    # Crear partida de prueba y usuario de prueba
+    url_create = "http://localhost:8000/create_game"
+    payload = {
+        "game_name": "PartidaEjemplo",
+        "owner_name": "UsuarioEjemplo",
+        "min_player": 2,
+        "max_player": 2,
+        "password": ""
+    }
+    client.post(url_create, json=payload)
+
+    # Unir a un segundo jugador
+    url_join = "http://localhost:8000/join_game"
+    payload = {
+        "id_game": 1,
+        "player_name": "UsuarioParaLlenarLobby",
+        "password": ""
+    }
+    client.post(url_join, json=payload)
+
+    # Iniciar la partida
+    url_start = "http://localhost:8000/start_game/1"
+    client.post(url_start)
+
+    # Obtener el orden de turnos y UID de los jugadores
+    users = uid_by_turns(1, test_db)
+    
+    # Ejecutar la acción para bloquear una figura con posiciones invalidas
+    url_block = "http://localhost:8000/block_figure/"
+    payload = {
+        "id_game": 1,
+        "id_caller": users[0],
+        "id_target": users[1],
+        "figure_name": "fige04",
+        "pos": [(2, 2), (2, 3)]
+    }
+    response = client.post(url_block, json=payload)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "La figura no se encuentra en el tablero."

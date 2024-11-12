@@ -33,12 +33,14 @@ class CreateEntry(BaseModel):
     owner_name: str = Field(min_length=1, max_length=100, description="Unique string that specifies this player.")
     min_player: int = Field(ge=2, le=4, description="Game's minimum player number.")
     max_player: int = Field(ge=2, le=4, description="Game's maximum player number.")
+    password: str = Field(min_length=0, max_length=100, description="Password for the game.")
 
 
 class JoinEntry(BaseModel):
     """Json de entrada para unirse a partida"""
     id_game: int = Field(ge=1, description="Game's unique ID.")
     player_name: str = Field(min_length=1, max_length=100, description="New player's name.")
+    password: str = Field(min_length=0, max_length=100, description="Password for the game.")
 
 
 class CurrentUsers(BaseModel):
@@ -52,6 +54,7 @@ class InGame(BaseModel):
 
 class BoardStatus(BaseModel):
     board: list[list[str]] = Field(description="Game's actual board status.")
+    blocked_color: str
     
 class ResponseMoves(BaseModel):
     moves: list[str] = Field(description="List of move names.")
@@ -71,7 +74,29 @@ class EntryFigure(BaseModel):
     name: str
     figure_pos: list[tuple[int, int]]
 
+class FigureBlock(BaseModel):
+    id_game: int
+    id_caller: int
+    id_target: int
+    figure_name: str
+    pos: list[tuple[int, int]]
+
 class UserData(BaseModel):
     id_user: int
     name: str
-    figures: list[str]
+    figures_available: list[str]
+    figures_blocked: list[str]
+
+class GamesData(BaseModel):
+    id_game: int
+    game_name: str
+    players: int
+    id_user: int
+    user_name: str
+
+class ActualGameData(BaseModel):
+    actual_board: list[list[str]]
+    blocked_color: str
+    actual_turn_player: int
+    available_moves: list[str]
+    partial_moves: list[str]
