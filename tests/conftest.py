@@ -1,6 +1,7 @@
 import pytest
+from unittest.mock import AsyncMock
 from fastapi.testclient import TestClient
-from models import DBManager,BoardTable,GameTable,UserTable,MoveTable,FigureTable
+from models import DBManager
 from models.base import Base
 from utils.partial_boards import BoardsManager
 from utils.profiles import ProfilesManager
@@ -31,7 +32,21 @@ def client():
         yield t_client
 
 @pytest.fixture(autouse=True)
-def mock_server_db(mocker, test_db, partial_boards):
+def mock_asynctimer(mocker):
+    # Mockear las funciones `start_timer` y `restart_timer` para que no hagan nada
+    mocker.patch('router.pre_game.start_timer', new_callable=AsyncMock)
+    mocker.patch('router.pre_game.restart_timer', new_callable=AsyncMock)
+    mocker.patch('router.game.start_timer', new_callable=AsyncMock)
+
+@pytest.fixture(autouse=True)
+def mock_timer(mocker):
+    def my_mock(x):
+        pass
+    mocker.patch('router.pre_game.initialize_timer', my_mock)
+    mocker.patch('router.game.remove_timer', my_mock)
+
+@pytest.fixture(autouse=True)
+def mock_server_db(mocker, test_db, partial_boards, profiles_testing):
     mocker.patch("router.pre_game.SERVER_DB", test_db)
     mocker.patch("router.game.SERVER_DB", test_db)
     mocker.patch("router.cards.SERVER_DB", test_db)

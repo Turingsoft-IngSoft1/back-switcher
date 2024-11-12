@@ -9,6 +9,7 @@ from querys import create_board, get_color
 from utils.ws import manager, is_disconnected
 from utils.database import SERVER_DB
 from utils.partial_boards import PARTIAL_BOARDS
+from utils.timer import initialize_timer, start_timer, restart_timer
 from utils.profiles import PROFILES
 
 pre_game = APIRouter()
@@ -121,6 +122,8 @@ async def join(e: JoinEntry, profile_id: str = ""):
                                id_game=e.id_game,
                                db=SERVER_DB)
             PROFILES.add_game(profile_id, e.id_game, id_user)
+            user = get_username(id_user, SERVER_DB)
+            await manager.broadcast(f"{user} SE HA UNIDO A LA SALA", e.id_game, 'chat')
             await manager.broadcast(f"{id_user} JOIN",e.id_game)
         else:
             raise HTTPException(status_code=403, detail="Contraseña incorrecta.")
@@ -150,9 +153,15 @@ async def start(id_game: int):
     # Tiene que repartir las cartas a todos los jugadores.
     # Tiene que cambiar el estado a "Playing".
     # Tiene que inicializar el tablero randomizado.
+    # Tiene que inicializar el timer.
     # Tiene que avisar a todos los clientes.
     players = get_players(id_game,SERVER_DB)
-    if players >= get_min_players(id_game,SERVER_DB):
+    game = get_game(id_game, SERVER_DB)
+    if (game is None):
+        raise HTTPException(status_code=404, detail="La partida no existe.")
+    elif game.state != 'Waiting':
+        raise HTTPException(status_code=412, detail="La partida ya comenzo.")
+    elif players >= get_min_players(id_game,SERVER_DB) and game.state == 'Waiting':
         
         set_game_state(id_game=id_game,
                        state="Playing",
@@ -164,9 +173,16 @@ async def start(id_game: int):
         
         initialize_moves(id_game, players, SERVER_DB)
         initialize_figures(id_game, players, SERVER_DB)
-        PARTIAL_BOARDS.initialize(id_game,SERVER_DB)
+        PARTIAL_BOARDS.initialize(id_game, SERVER_DB)
+        
+        #timer
+        initialize_timer(id_game)
+        await start_timer(id_game)
+        
 
         await manager.broadcast(f"GAME_STARTED {first}", id_game)
+        
+        await restart_timer(id_game)
     
     else:
         raise HTTPException(status_code=409, detail="El lobby no alcanzo su capacidad minima para comenzar.")
