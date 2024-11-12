@@ -154,7 +154,12 @@ async def start(id_game: int):
     # Tiene que inicializar el timer.
     # Tiene que avisar a todos los clientes.
     players = get_players(id_game,SERVER_DB)
-    if players >= get_min_players(id_game,SERVER_DB):
+    game = get_game(id_game, SERVER_DB)
+    if (game is None):
+        raise HTTPException(status_code=404, detail="La partida no existe.")
+    elif game.state != 'Waiting':
+        raise HTTPException(status_code=412, detail="La partida ya comenzo.")
+    elif players >= get_min_players(id_game,SERVER_DB) and game.state == 'Waiting':
         
         set_game_state(id_game=id_game,
                        state="Playing",
