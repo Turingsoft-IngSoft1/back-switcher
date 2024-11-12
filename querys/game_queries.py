@@ -129,7 +129,6 @@ def verify_password(id_game: int, entered_pw: str, db):
         return entered_pw == game.password
     return checkpw(entered_pw.encode(), game.password)
 
-#TODO test ->
 def check_length_password(entered_pw: str):
     """Valida el largo de la contraseña ingresada."""
     return entered_pw != "" and len(entered_pw)<6

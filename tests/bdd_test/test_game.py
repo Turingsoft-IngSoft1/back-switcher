@@ -6,6 +6,7 @@ from sqlite3 import IntegrityError
 
 def test_create_game(test_db):
     try:
+        #Caso 1: Sin contraseña
         game_id = game_queries.create_game("Draken", 4, 2, "", test_db)
         game = test_db.query(GameTable).filter_by(id=game_id).first()
         assert game is not None
@@ -15,6 +16,17 @@ def test_create_game(test_db):
         assert game.min_players == 2
         assert game.max_players == 4
         assert game.password == ""
+        
+        #Caso 2: Con contraseña
+        game_id = game_queries.create_game("Draken", 4, 2, "Kaladin", test_db)
+        game = test_db.query(GameTable).filter_by(id=game_id).first()
+        assert game is not None
+        assert game_id == game.id
+        assert game.state == "Waiting"
+        assert game.name == "Draken"
+        assert game.min_players == 2
+        assert game.max_players == 4
+        assert game.password != ""
 
     except IntegrityError:
         pass
@@ -223,3 +235,24 @@ def test_remove_game(test_db):
         assert test_db.query(GameTable).filter_by(id=game_id).first() is None
     except IntegrityError:
         pass
+
+def test_verify_password(test_db):
+    try:
+        #Caso 1: Sin contraseña
+        game_id = game_queries.create_game("Draken", 4, 2, "", test_db)
+        
+        assert game_queries.verify_password(game_id, "", test_db) == True
+        assert game_queries.verify_password(game_id, "wrong_password", test_db) == False
+        
+        #Caso 2: Con contraseña
+        game_id = game_queries.create_game("Draken", 4, 2, "correct_password", test_db)
+
+        assert game_queries.verify_password(game_id, "correct_password", test_db) == True
+        assert game_queries.verify_password(game_id, "wrong_password", test_db) == False
+            
+    except IntegrityError:
+        pass
+    
+def test_check_length_password():
+    assert game_queries.check_length_password("Kaladin") == False
+    assert game_queries.check_length_password("Kld") == True

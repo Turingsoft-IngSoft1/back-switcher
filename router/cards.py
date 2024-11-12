@@ -128,7 +128,7 @@ async def block_figure_action(e: FigureBlock):
     if  not is_user_current_turn(e.id_game, e.id_caller, SERVER_DB):
         raise HTTPException(status_code=412, detail="El jugador no se encuentra en su turno.")
     if not e.figure_name in get_revealed_figures(e.id_game, SERVER_DB)[e.id_target]:
-        raise HTTPException(status_code=404, detail="Esa figura no se encuntra encuentra en la mano de ningun usuario.")
+        raise HTTPException(status_code=404, detail="Esa figura no se encuentra en la mano de ningun usuario.")
     
     detected_figures = detect_figures(PARTIAL_BOARDS.get(e.id_game), [e.figure_name])
     found = False
@@ -144,7 +144,7 @@ async def block_figure_action(e: FigureBlock):
     elif color == get_color(e.id_game, SERVER_DB):
         raise HTTPException(status_code=409, detail="El color de la figura está bloqueado.")
     
-    if  is_user_blocked(e.id_game, e.id_target, SERVER_DB):
+    if is_user_blocked(e.id_game, e.id_target, SERVER_DB):
         raise HTTPException(status_code=409, detail="El jugador ya tiene una figura bloqueada.")
     
     if get_played(e.id_game, SERVER_DB) > 0:

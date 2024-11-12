@@ -35,7 +35,7 @@ async def leave(e: InGame, profile_id: str = ""):
         reorder_turns(e.id_game,SERVER_DB)
         await manager.broadcast(f"{e.id_player} LEAVE", e.id_game)
 
-    #Ganar por abando.
+    #Ganar por abandono.
     if get_players(e.id_game,SERVER_DB) == 1 and get_game_state(e.id_game,SERVER_DB) == "Playing":
         set_game_state(e.id_game, "Finished", SERVER_DB)
         winner = get_users(e.id_game,SERVER_DB)
@@ -94,7 +94,6 @@ async def get_board_status(id_game: int):
     else:
         raise HTTPException(status_code=404, detail=f"El juego con id_game={id_game} no existe.")
 
-#TODO test
 @game.get("/detect_figures_on_board/{id_game}/{id_user}")
 async def detect_figures_on_board(id_game: int, id_user: int):
     if (g := get_game(id_game=id_game, db=SERVER_DB)) is not None and (g.state == "Playing"):
